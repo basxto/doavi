@@ -27,7 +27,7 @@ void load_map(const unsigned int background[]) {
 	unsigned char tiles[4];
 	for(y = 0; y < HIGHT; ++y){
 		for(x = 0; x < WIDTH; ++x){
-			tile = background[(y * WIDTH) + x] - 1;
+			tile = background[(y * WIDTH) + x] - 2;
 			sprite_x = tile % (SPRITEWIDTH/2);
 			sprite_y = tile / (SPRITEWIDTH/2);
 			index = (sprite_y * 2 * SPRITEWIDTH) + (sprite_x * 2);

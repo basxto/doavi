@@ -1,22 +1,27 @@
-CC=lcc
-emulator=retroarch -L /usr/lib/libretro/gambatte_libretro.so
-pngconvert=./dev/pngconverter.sh
-tmxconvert=./dev/tmx2c.py
+OBJ=./obj
+DEV=./dev
+BIN=$(DEV)/gbdk-n/bin
 
-build: pix/overworld_gb_data.c pix/demo_tmap.c main.gb
+CC=$(BIN)/gbdk-n-compile.sh
+LK=$(BIN)/gbdk-n-link.sh
+MKROM=$(BIN)/gbdk-n-make-rom.sh
+EMU=retroarch -L /usr/lib/libretro/gambatte_libretro.so
+pngconvert=$(DEV)/pngconverter.sh
+tmxconvert=$(DEV)/tmx2c.py
 
-#-Wl-m map output generated as outfile.map
-#-Wl-j NoICE Debug output as outfile.cdb
-# -Wl-yp0x143=0x80 gameboy mode
-main.gb: main.o
-	$(CC) -Wl-m -Wl-j -o $@ $^
+build: gbdk-n pix/overworld_gb_data.c pix/demo_tmap.c main.gb
+
+%.gb: %.ihx
+	$(MKROM) $^ $@
 
 run: main.gb
-	$(emulator) ./main.gb
+	$(EMU) ./main.gb
 
-#-Wa-l create list output outfile.lst
-%.o: %.c
-	$(CC) -Wa-l -c -o $@ $^
+%.ihx: %.rel
+	$(LK) -o $@ $^
+
+%.rel: %.c
+	$(CC) -o $@ $^
 
 %_data.c: %.png
 	$(pngconvert) $^
@@ -27,8 +32,11 @@ run: main.gb
 %_tmap.c: %.tmx
 	$(tmxconvert) $^
 
+gbdk-n:
+	$(MAKE) -C $(DEV)/gbdk-n
+
 clean:
-	rm *.gb *.o *.map *.lst *.sym pix/*_map.c pix/*_data.c pix/*_tmap.c
+	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx pix/*_map.c pix/*_data.c pix/*_tmap.c
 
 test: build run
 

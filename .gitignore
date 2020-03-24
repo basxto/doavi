@@ -3,6 +3,11 @@
 *.map
 *.o
 *.sym
+*.asm
+*.lk
+*.noi
+*.rel
+*.ihx
 *_data.c
 *_map.c
 *_tmap.c

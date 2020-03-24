@@ -1,6 +1,6 @@
 CC=lcc
 emulator=retroarch -L /usr/lib/libretro/gambatte_libretro.so
-pngconvert=./dev/GameBoyPngConverter/linux-x64/GameBoyPngConverter
+pngconvert=./dev/pngconverter.sh
 tmxconvert=./dev/tmx2c.py
 
 build: pix/overworld_gb_data.c pix/demo_tmap.c main.gb

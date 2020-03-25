@@ -22,6 +22,7 @@
 #define SHEET_START (97)
 
 UINT8 used_sprites;
+UINT8 counter;
 
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
 	UINT8 y;
@@ -97,12 +98,21 @@ UWORD bkgPalette[][] = {{
 	TRANSPARENT, (RGB(28, 16, 0)), (RGB(21, 3, 1)), (RGB(0, 0, 0))
 }};
 
+void timer_isr(){
+	if(counter == 0){
+		tick_music();
+	}
+	counter++;
+	counter %= 4;
+}
+
 void main() {
 	NR52_REG = 0x80; // enable sound
 	NR50_REG = 0x77; // full volume
 	NR51_REG = 0xFF; // all channels
 	SPRITES_8x8;
 	used_sprites = 0;
+	counter = 0;
 
 	cgb_compatibility();
 	set_bkg_palette(0, 5, bkgPalette[0]);
@@ -122,8 +132,12 @@ void main() {
 	DISPLAY_ON;
 
 	init_music();
-	while(1){
-		tick_music();
-		delay(210);
-	}
+	// configure interrupt
+	TIMA_REG = TMA_REG = 0x1A;
+	TAC_REG = 0x4 | 0x0;//4096 Hz
+	// enable timer interrupt
+	disable_interrupts();
+	add_TIM(timer_isr);
+	enable_interrupts();
+	set_interrupts(TIM_IFLAG);
 }

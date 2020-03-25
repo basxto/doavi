@@ -10,13 +10,18 @@ pngconvert=$(DEV)/pngconverter.sh
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
 
-build: gbdk-n pix/overworld_gb_data.c pix/angry_toast_gb_data.c pix/win_gb_data.c pix/demo_tmap.c main.gb
+ROM=doavi.gb
 
-%.gb: %.ihx
+build: gbdk-n pix/overworld_gb_data.c pix/angry_toast_gb_data.c pix/win_gb_data.c pix/demo_tmap.c $(ROM)
+
+$(ROM): main.ihx
 	$(MKROM) $^ $@
 
-run: main.gb
-	$(EMU) ./main.gb
+run: $(ROM)
+	$(EMU) $^
+
+main.ihx: main.rel hud.rel
+	$(LK) -o $@ $^
 
 %.ihx: %.rel
 	$(LK) -o $@ $^
@@ -45,13 +50,13 @@ gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
-	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx pix/overworld_gb.png
+	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx *.lk *.noi *.asm pix/*_gb.png
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|tmap\)\.c' -delete
 
 test: build run
 
 base64:
-	base64 main.gb | xclip -selection clipboard
+	base64 $(ROM) | xclip -selection clipboard
 
 wordcount:
 	wc -m main.c

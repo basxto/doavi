@@ -10,7 +10,7 @@ pngconvert=$(DEV)/pngconverter.sh
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
 
-build: gbdk-n pix/overworld_gb_data.c pix/demo_tmap.c main.gb
+build: gbdk-n pix/overworld_gb_data.c pix/angry_toast_gb_data.c pix/win_gb_data.c pix/demo_tmap.c main.gb
 
 %.gb: %.ihx
 	$(MKROM) $^ $@
@@ -34,6 +34,10 @@ run: main.gb
 	$(tmxconvert) $^
 
 pix/overworld_gb.png: pix/overworld_gbc.png
+	$(loadgpl) $^ pix/overworld_gb.gpl $@
+	convert $@ $@
+
+%_gb.png: %_gbc.png
 	$(loadgpl) $^ pix/gb.gpl $@
 	convert $@ $@
 

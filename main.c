@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "hud.h"
+#include "music.h"
 
 #include "pix/overworld_gb_data.c"
 #include "pix/overworld_gb_map.c"
@@ -119,4 +120,10 @@ void main() {
 	SHOW_WIN;
 	SHOW_SPRITES;
 	DISPLAY_ON;
+
+	init_music();
+	while(1){
+		tick_music();
+		delay(210);
+	}
 }

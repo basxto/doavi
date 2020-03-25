@@ -20,7 +20,7 @@ $(ROM): main.ihx
 run: $(ROM)
 	$(EMU) $^
 
-main.ihx: main.rel hud.rel
+main.ihx: main.rel hud.rel music.rel
 	$(LK) -o $@ $^
 
 %.ihx: %.rel

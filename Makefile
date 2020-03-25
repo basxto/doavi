@@ -4,7 +4,7 @@ BIN=$(DEV)/gbdk-n/bin
 
 CC=$(BIN)/gbdk-n-compile.sh
 LK=$(BIN)/gbdk-n-link.sh
-MKROM=$(BIN)/gbdk-n-make-rom.sh
+MKROM=makebin -Z -yc
 EMU=retroarch -L /usr/lib/libretro/gambatte_libretro.so
 pngconvert=$(DEV)/pngconverter.sh
 tmxconvert=$(DEV)/tmx2c.py

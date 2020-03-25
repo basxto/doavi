@@ -13,7 +13,7 @@
 #define WIDTH (10)
 // tile (8x8) width of our sprite
 #define SPRITEWIDTH (34)
-#define TRANSPARENT (RGB(31, 0, 31))
+#define TRANSPARENT (RGB(12, 25, 0))
 
 unsigned int used_sprites;
 
@@ -80,15 +80,15 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 
 // right to left
 UWORD bkgPalette[][] = {{
-	(RGB(18, 7, 0)), TRANSPARENT, (RGB(3, 14, 0)), (RGB(0, 0, 0))
+	TRANSPARENT, (RGB(25, 25, 12)), (RGB(12, 25, 0)), (RGB(3, 14, 0))
 },{
-	(RGB(28, 16, 0)), TRANSPARENT, (RGB(21, 3, 1)), (RGB(0, 0, 0))
+	TRANSPARENT, (RGB(18, 7, 0)), (RGB(3, 14, 0)), (RGB(0, 0, 0))
 },{
-	(RGB(18, 18, 18)), TRANSPARENT, (RGB(10, 10, 10)), (RGB(0, 0, 0))
+	TRANSPARENT, (RGB(18, 7, 0)), (RGB(28, 16, 0)), (RGB(0, 0, 0))
 },{
-	(RGB(25, 25, 12)), (RGB(12, 25, 0)), TRANSPARENT, (RGB(3, 14, 0))
+	TRANSPARENT, (RGB(18, 18, 18)), (RGB(10, 10, 10)), (RGB(0, 0, 0))
 },{
-	(RGB(28, 16, 0)), (RGB(18, 7, 0)), TRANSPARENT, (RGB(0, 0, 0))
+	TRANSPARENT, (RGB(28, 16, 0)), (RGB(21, 3, 1)), (RGB(0, 0, 0))
 }};
 
 void main() {

@@ -11,6 +11,8 @@
 #include "pix/overworld_gb_map.c"
 #include "pix/overworld_anim_gb_data.c"
 #include "pix/overworld_anim_gb_map.c"
+#include "pix/characters_data.c"
+#include "pix/characters_map.c"
 #include "pix/win_gb_data.c"
 #include "pix/demo_tmap.c"
 
@@ -26,10 +28,39 @@
 #define SHEET_WIDTH (17)
 #define ANIM_START (233)
 #define ANIM_WIDTH (4)
+#define CHARACTERS_START (267)
 
 UINT8 used_sprites;
 UINT8 counter;
 UINT8 anim_counter;
+
+typedef struct {
+	UINT8 x;//position
+	UINT8 y;
+	UINT8 direction;
+	UINT8 palette;
+	UINT8 sprite;//sprite character section
+	// maybe completely remove this and do this in animation tick
+	UINT8 sprite_index;
+} Character;
+
+Character player;
+
+// character spritesheet must be 4 16x16 blocks wide ... always
+void render_character(const Character* chrctr){
+	set_sprite_tile(chrctr->sprite_index, CHARACTERS_START + characters_map[chrctr->sprite*4*4]);
+	move_sprite(chrctr->sprite_index, 8 + (chrctr->x)*16, 16 + (chrctr->y)*16);
+	set_sprite_prop(chrctr->sprite_index, chrctr->palette);
+	set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[chrctr->sprite*4*4+1]);
+	move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16);
+	set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
+	set_sprite_tile(chrctr->sprite_index + 2, CHARACTERS_START + characters_map[chrctr->sprite*4*4 + 8]);
+	move_sprite(chrctr->sprite_index + 2, 8 + (chrctr->x)*16, 16 + (chrctr->y)*16 +8);
+	set_sprite_prop(chrctr->sprite_index + 2, chrctr->palette);
+	set_sprite_tile(chrctr->sprite_index + 3, CHARACTERS_START + characters_map[chrctr->sprite*4*4+1 + 8]);
+	move_sprite(chrctr->sprite_index + 3, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16 +8);
+	set_sprite_prop(chrctr->sprite_index + 3, chrctr->palette);
+}
 
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
 	UINT8 y;
@@ -157,6 +188,13 @@ void main() {
 	BGP_REG = 0xE1;//11100001
 	OBP0_REG = 0xE1;
 
+	player.x = 2;
+	player.y = 3;
+	player.sprite = 1;
+	player.direction = 0;
+	player.palette = 4;
+	player.sprite_index = 35;
+
 	cgb_compatibility();
 	set_bkg_palette(0, 5, bkgPalette[0]);
 	set_sprite_palette(0, 5, bkgPalette[0]);
@@ -165,7 +203,10 @@ void main() {
 	set_bkg_data(SHEET_START,136,overworld_gb_data);
 	set_sprite_data(SHEET_START,136,overworld_gb_data);
 	set_win_data(WIN_START,96,win_gb_data);
+	set_sprite_data(CHARACTERS_START, 29, characters_data);
 	load_map(demo_tmap_background, demo_tmap_sprites);
+
+	render_character(&player);
 	init_hud();
 	draw_hud(2, 42);
 	
@@ -173,6 +214,10 @@ void main() {
 	SHOW_WIN;
 	SHOW_SPRITES;
 	DISPLAY_ON;
+	//reset();
+
+	//render_character(&player);
+	//set_sprite_tile(2, SHEET_START + overworld_gb_map[20]);
 
 	init_music();
 	// configure interrupt

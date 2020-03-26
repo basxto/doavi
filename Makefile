@@ -18,10 +18,19 @@ build: gbdk-n pix/overworld_gb_data.c pix/overworld_anim_gb_data.c pix/character
 $(ROM): main.ihx
 	$(MKROM) $^ $@
 
+music.gb: mainmusic.ihx
+	$(MKROM) $^ $@
+
 run: $(ROM)
 	$(EMU) $^
 
+playmusic: music.gb
+	$(EMU) $^
+
 main.ihx: main.rel hud.rel music.rel
+	$(LK) -o $@ $^
+
+mainmusic.ihx: mainmusic.rel music.rel
 	$(LK) -o $@ $^
 
 pix/characters.png: pix/angry_toast_gb.png pix/muffin_gb.png

@@ -7,12 +7,13 @@ LK=$(BIN)/gbdk-n-link.sh
 MKROM=makebin -Z -yc
 EMU=retroarch -L /usr/lib/libretro/gambatte_libretro.so
 pngconvert=$(DEV)/pngconverter.sh
+#pngconvert=$(DEV)/cfile_builder.sh
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
 
 ROM=doavi.gb
 
-build: gbdk-n pix/overworld_gb_data.c pix/angry_toast_gb_data.c pix/win_gb_data.c pix/demo_tmap.c $(ROM)
+build: gbdk-n pix/overworld_gb_data.c pix/overworld_anim_gb_data.c pix/angry_toast_gb_data.c pix/win_gb_data.c pix/demo_tmap.c $(ROM)
 
 $(ROM): main.ihx
 	$(MKROM) $^ $@
@@ -38,9 +39,10 @@ main.ihx: main.rel hud.rel music.rel
 %_tmap.c: %.tmx
 	$(tmxconvert) $^
 
-pix/overworld_gb.png: pix/overworld_gbc.png
+pix/overworld%gb.png: pix/overworld%gbc.png
 	$(loadgpl) $^ pix/overworld_gb.gpl $@
 	convert $@ $@
+
 
 %_gb.png: %_gbc.png
 	$(loadgpl) $^ pix/gb.gpl $@

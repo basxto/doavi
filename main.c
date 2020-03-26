@@ -9,6 +9,8 @@
 
 #include "pix/overworld_gb_data.c"
 #include "pix/overworld_gb_map.c"
+#include "pix/overworld_anim_gb_data.c"
+#include "pix/overworld_anim_gb_map.c"
 #include "pix/win_gb_data.c"
 #include "pix/demo_tmap.c"
 
@@ -20,9 +22,14 @@
 #define TRANSPARENT (RGB(12, 25, 0))
 
 #define SHEET_START (97)
+// width in 16x16 blocks
+#define SHEET_WIDTH (17)
+#define ANIM_START (233)
+#define ANIM_WIDTH (4)
 
 UINT8 used_sprites;
 UINT8 counter;
+UINT8 anim_counter;
 
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
 	UINT8 y;
@@ -98,21 +105,55 @@ UWORD bkgPalette[][] = {{
 	TRANSPARENT, (RGB(28, 16, 0)), (RGB(21, 3, 1)), (RGB(0, 0, 0))
 }};
 
+// index of tile in spritesheet; index of tile in animation sheet
+// 16x16 block indices
+void replace_tile(const UINT8 index, const UINT8 indexa){
+	UINT16 base = (index/SHEET_WIDTH) * 4 * SHEET_WIDTH + (index%SHEET_WIDTH) * 2;
+	//UINT8 base = (index%SHEET_WIDTH) * 2;
+	UINT16 basea = (indexa/ANIM_WIDTH) * 4 * ANIM_WIDTH + (indexa%ANIM_WIDTH) * 2;
+
+	set_bkg_data(SHEET_START + overworld_gb_map[base],1,&overworld_anim_gb_data[overworld_anim_gb_map[basea]*16]);
+	set_bkg_data(SHEET_START + overworld_gb_map[base + 1],1,&overworld_anim_gb_data[overworld_anim_gb_map[basea+1]*16]);
+	base += SHEET_WIDTH*2;
+	basea += ANIM_WIDTH*2;
+	set_bkg_data(SHEET_START + overworld_gb_map[base],1,&overworld_anim_gb_data[overworld_anim_gb_map[basea]*16]);
+	set_bkg_data(SHEET_START + overworld_gb_map[base + 1],1,&overworld_anim_gb_data[overworld_anim_gb_map[basea+1]*16]);
+}
+
+void tick_animate(){
+	//ANIM_START
+	replace_tile(1, anim_counter);
+ 
+	replace_tile(2, anim_counter+ANIM_WIDTH);
+	replace_tile(SHEET_WIDTH*4, anim_counter+2*ANIM_WIDTH);
+
+	++anim_counter;
+	anim_counter %= 4;
+}
+
 void timer_isr(){
-	if(counter == 0){
+	if(counter%4 == 0){
 		tick_music();
 	}
+	if(counter == 0){
+		tick_animate();
+	}
 	counter++;
-	counter %= 4;
+	counter %= 8;
 }
 
 void main() {
+	HIDE_BKG;
+	HIDE_WIN;
+	HIDE_SPRITES;
+	DISPLAY_OFF;
 	NR52_REG = 0x80; // enable sound
 	NR50_REG = 0x77; // full volume
 	NR51_REG = 0xFF; // all channels
 	SPRITES_8x8;
 	used_sprites = 0;
 	counter = 0;
+	anim_counter = 0;
 
 	cgb_compatibility();
 	set_bkg_palette(0, 5, bkgPalette[0]);

@@ -13,7 +13,7 @@ tmxconvert=$(DEV)/tmx2c.py
 
 ROM=doavi.gb
 
-build: gbdk-n pix/overworld_gb_data.c pix/overworld_anim_gb_data.c pix/angry_toast_gb_data.c pix/win_gb_data.c pix/demo_tmap.c $(ROM)
+build: gbdk-n pix/overworld_gb_data.c pix/overworld_anim_gb_data.c pix/characters_data.c pix/win_gb_data.c pix/demo_tmap.c $(ROM)
 
 $(ROM): main.ihx
 	$(MKROM) $^ $@
@@ -23,6 +23,9 @@ run: $(ROM)
 
 main.ihx: main.rel hud.rel music.rel
 	$(LK) -o $@ $^
+
+pix/characters.png: pix/angry_toast_gb.png pix/muffin_gb.png
+	montage $^ -tile 1x -geometry +0+0 $@
 
 %.ihx: %.rel
 	$(LK) -o $@ $^

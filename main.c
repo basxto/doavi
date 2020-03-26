@@ -154,6 +154,9 @@ void main() {
 	counter = 0;
 	anim_counter = 0;
 
+	BGP_REG = 0xE1;//11100001
+	OBP0_REG = 0xE1;
+
 	cgb_compatibility();
 	set_bkg_palette(0, 5, bkgPalette[0]);
 	set_sprite_palette(0, 5, bkgPalette[0]);

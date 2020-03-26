@@ -146,7 +146,6 @@ void main() {
 	HIDE_BKG;
 	HIDE_WIN;
 	HIDE_SPRITES;
-	DISPLAY_OFF;
 	NR52_REG = 0x80; // enable sound
 	NR50_REG = 0x77; // full volume
 	NR51_REG = 0xFF; // all channels

@@ -40,4 +40,7 @@ const UINT16 notes[][12] = {{0x002C, 0x009C, 0x0106, 0x016A, 0x01C9, 0x0222,
 // 0x10 & note_b to notes[1][note_b]
 #define note2int(x) (notes[((x) >> 4) & 0x0F][(x)&0x0F])
 
+#define note2int_hi(x) (((notes[((x) >> 4) & 0x0F][(x)&0x0F] >> 8) & 0x00FF))
+#define note2int_lo(x) ((notes[((x) >> 4) & 0x0F][(x)&0x0F] & 0x00FF))
+
 #endif

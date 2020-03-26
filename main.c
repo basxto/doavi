@@ -132,14 +132,14 @@ void tick_animate(){
 }
 
 void timer_isr(){
-	if(counter%4 == 0){
+	if(counter%5 == 0){
 		tick_music();
 	}
-	if(counter == 0){
+	if(counter%8 == 0){
 		tick_animate();
 	}
 	counter++;
-	counter %= 8;
+	counter %= 20;
 }
 
 void main() {

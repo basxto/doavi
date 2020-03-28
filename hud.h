@@ -7,6 +7,8 @@
 
 void init_hud();
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) ;
+// maximum length is 2 since maximum UINT8 is FF
+void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 // maximum length is 3 since maximum UINT8 is 255
 void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper);

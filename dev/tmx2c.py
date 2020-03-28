@@ -37,7 +37,7 @@ for l in layers:
             if v == '1':
                 hexnum |= 1 << counter
             counter += 1
-            if counter == 7:
+            if counter == 8:
                 file.write(hex(hexnum))
                 hexnum = 0
                 counter = 0

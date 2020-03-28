@@ -45,6 +45,25 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
     set_win_tiles(x, y, length, 1, buffer);
 }
 
+const char hex_char[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+// maximum length is 2 since maximum UINT8 is FF
+void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
+    char buffer[] = "00";
+    if (length == 0) {
+        return;
+    }
+    if (length > 2) { // >3
+        length = 2;
+    }
+    buffer[1] = hex_char[num % 16];
+    num /= 16;
+    buffer[0] = hex_char[num % 16];
+    num /= 16;
+    write_line(x, y, length, buffer + (2 - length));
+}
+
+
 // maximum length is 3 since maximum UINT8 is 255
 void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     char buffer[] = "000";

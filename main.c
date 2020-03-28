@@ -16,6 +16,9 @@
 #include "pix/win_gbc_data.c"
 #include "pix/demo_tmap.c"
 
+#include "pix/overworld_gbc_pal.c"
+#define bkgPalette overworld_gbc_pal
+
 // all maps are 10 tiles (16x16) wide and 9 tiles high
 #define HIGHT (8)
 #define WIDTH (10)
@@ -55,6 +58,15 @@ void render_character(const Character* chrctr){
 	set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[base+2]);
 	move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16);
 	set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
+}
+
+void move_character(Character* chrctr, const INT8 x, const INT8 y, const unsigned int collision[]){
+	UINT8 index = (chrctr->y+y)*WIDTH + (chrctr->x+x);
+	if((collision[index/8] & (1<<(index%8))) == 0){
+		chrctr->x += x;
+		chrctr->y += y;
+		render_character(chrctr);
+	}
 }
 
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
@@ -109,19 +121,6 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 	}
 }
 
-// right to left
-UWORD bkgPalette[][] = {{
-	TRANSPARENT, (RGB(25, 25, 12)), (RGB(12, 25, 0)), (RGB(3, 14, 0))
-},{
-	TRANSPARENT, (RGB(18, 7, 0)), (RGB(3, 14, 0)), (RGB(0, 0, 0))
-},{
-	TRANSPARENT, (RGB(18, 7, 0)), (RGB(28, 16, 0)), (RGB(0, 0, 0))
-},{
-	TRANSPARENT, (RGB(18, 18, 18)), (RGB(10, 10, 10)), (RGB(0, 0, 0))
-},{
-	TRANSPARENT, (RGB(28, 16, 0)), (RGB(21, 3, 1)), (RGB(0, 0, 0))
-}};
-
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
 void replace_tile(const UINT8 index, const UINT8 indexa){
@@ -168,6 +167,8 @@ void main() {
 	BGP_REG = 0xE1;//11100001
 	OBP0_REG = 0xE1;
 
+	init_hud();
+
 	player.x = 2;
 	player.y = 3;
 	player.sprite = 1;
@@ -176,6 +177,8 @@ void main() {
 	player.sprite_index = 38;
 
 	render_character(&player);
+	move_character(&player, 1, 0, demo_tmap_collision);
+	move_character(&player, 1, 0, demo_tmap_collision);
 
 	cgb_compatibility();
 	set_bkg_palette(0, 5, bkgPalette[0]);
@@ -189,8 +192,10 @@ void main() {
 	set_sprite_data(CHARACTERS_START, 29, characters_data);
 	load_map(demo_tmap_background, demo_tmap_sprites);
 
-	init_hud();
+	//init_hud();
 	draw_hud(2, 42);
+
+	//render_character(&player);
 	
 	SHOW_BKG;
 	SHOW_WIN;
@@ -198,7 +203,6 @@ void main() {
 	DISPLAY_ON;
 	//reset();
 
-	//render_character(&player);
 	//set_sprite_tile(2, SHEET_START + overworld_gbc_map[20]);
 
 	init_music();

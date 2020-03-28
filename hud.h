@@ -6,7 +6,7 @@
 #define WIN_START (0)
 
 void init_hud();
-void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) ;
+void write_line(UINT8 x, UINT8 y, UINT8 length, char *str);
 // maximum length is 2 since maximum UINT8 is FF
 void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 // maximum length is 3 since maximum UINT8 is 255

@@ -53,15 +53,9 @@ const Pattern_frame pattern[][pattern_size] = {
         {0xFF           , 0xDF, 0xFF            , 0xFF, 0xC5}
     }};
 
+const Song_frame song[] = {{0, 0, 0}, {1, 1, 1}};
 
-const Song_frame song[] = {
-    {0, 0, 0},
-    {1, 1, 1}};
-
-
-void init_music() {
-    music_counter = 0;
-}
+void init_music() { music_counter = 0; }
 
 void tick_music() {
     UINT8 pttrn_frame = music_counter % pattern_size;
@@ -70,13 +64,13 @@ void tick_music() {
 
 #ifdef PULSE
     // instrument
-    switch((pat->pulse_vi & 0x0F)){
+    switch ((pat->pulse_vi & 0x0F)) {
     case 7:
-        NR21_REG = 0x50; // 50% duty
+        NR21_REG = 0x50;                          // 50% duty
         NR22_REG = 0x02 | (pat->pulse_vi & 0xF0); // volume envelope
         break;
     case 6:
-        NR21_REG = 0x90; // 75% duty
+        NR21_REG = 0x90;                          // 75% duty
         NR22_REG = 0x07 | (pat->pulse_vi & 0xF0); // volume envelope
         break;
     }
@@ -92,16 +86,16 @@ void tick_music() {
     pat = &(pattern[pttrn][pttrn_frame]);
 
     if ((pat->wave_vi & 0x0F) == 2) {
-        NR30_REG = 0x0; // off
-        NR30_REG = 0x80;// on
-        NR32_REG = 0x20;// max volume
-        NR31_REG = 0xE0;// sound length
+        NR30_REG = 0x0;  // off
+        NR30_REG = 0x80; // on
+        NR32_REG = 0x20; // max volume
+        NR31_REG = 0xE0; // sound length
     } else {
         NR30_REG = 0x0; // off
     }
 
-    if(pat->wave_note != 0xFF){
-        NR34_REG = 0xC0 | note2int_hi(pat->wave_note);// msb 
+    if (pat->wave_note != 0xFF) {
+        NR34_REG = 0xC0 | note2int_hi(pat->wave_note); // msb
         NR33_REG = note2int_lo(pat->wave_note);
     }
 #endif
@@ -137,5 +131,5 @@ void tick_music() {
 #endif
 
     music_counter++;
-    music_counter%=(pattern_size * song_size);
+    music_counter %= (pattern_size * song_size);
 }

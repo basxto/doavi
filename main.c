@@ -48,18 +48,13 @@ Character player;
 
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const Character* chrctr){
-	set_sprite_tile(chrctr->sprite_index, CHARACTERS_START + characters_map[chrctr->sprite*4*4]);
+	UINT8 base = chrctr->sprite*4*4 + chrctr->direction*4;
+	set_sprite_tile(chrctr->sprite_index, CHARACTERS_START + characters_map[base]);
 	move_sprite(chrctr->sprite_index, 8 + (chrctr->x)*16, 16 + (chrctr->y)*16);
 	set_sprite_prop(chrctr->sprite_index, chrctr->palette);
-	set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[chrctr->sprite*4*4+2]);
+	set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[base+2]);
 	move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16);
 	set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
-	set_sprite_tile(chrctr->sprite_index + 2, CHARACTERS_START + characters_map[chrctr->sprite*4*4+1]);
-	move_sprite(chrctr->sprite_index + 2, 8 + (chrctr->x)*16, 16 + (chrctr->y)*16 +8);
-	set_sprite_prop(chrctr->sprite_index + 2, chrctr->palette);
-	set_sprite_tile(chrctr->sprite_index + 3, CHARACTERS_START + characters_map[chrctr->sprite*4*4+3]);
-	move_sprite(chrctr->sprite_index + 3, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16 +8);
-	set_sprite_prop(chrctr->sprite_index + 3, chrctr->palette);
 }
 
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
@@ -108,13 +103,7 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 				set_sprite_tile(used_sprites+1, SHEET_START + overworld_gbc_map[index + 2]);
 				move_sprite(used_sprites+1, 8 + x*16 + 8, 16 + y*16);
 				set_sprite_prop(used_sprites+1, palette);
-				set_sprite_tile(used_sprites+2, SHEET_START + overworld_gbc_map[index + 1]);
-				move_sprite(used_sprites+2, 8 + x*16, 16 + y*16 + 8);
-				set_sprite_prop(used_sprites+2, palette);
-				set_sprite_tile(used_sprites+3, SHEET_START + overworld_gbc_map[index + 3]);
-				move_sprite(used_sprites+3, 8 + x*16 + 8, 16 + y*16 + 8);
-				set_sprite_prop(used_sprites+3, palette);
-				used_sprites+=4;
+				used_sprites+=2;
 			}
 		}
 	}
@@ -171,7 +160,7 @@ void main() {
 	NR52_REG = 0x80; // enable sound
 	NR50_REG = 0x77; // full volume
 	NR51_REG = 0xFF; // all channels
-	SPRITES_8x8;
+	SPRITES_8x16;
 	used_sprites = 0;
 	counter = 0;
 	anim_counter = 0;
@@ -182,13 +171,16 @@ void main() {
 	player.x = 2;
 	player.y = 3;
 	player.sprite = 1;
-	player.direction = 0;
+	player.direction = 1;
 	player.palette = 4;
-	player.sprite_index = 35;
+	player.sprite_index = 38;
+
+	render_character(&player);
 
 	cgb_compatibility();
 	set_bkg_palette(0, 5, bkgPalette[0]);
 	set_sprite_palette(0, 5, bkgPalette[0]);
+	
 
 	//load tileset
 	set_bkg_data(SHEET_START,136,overworld_gbc_data);
@@ -197,7 +189,6 @@ void main() {
 	set_sprite_data(CHARACTERS_START, 29, characters_data);
 	load_map(demo_tmap_background, demo_tmap_sprites);
 
-	render_character(&player);
 	init_hud();
 	draw_hud(2, 42);
 	

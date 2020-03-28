@@ -1,5 +1,9 @@
 #include "hud.h"
 
+
+#define buffer_length (16)
+UINT8 buffer[buffer_length];
+
 void init_hud(){
 	unsigned char tiles[1];
 	UINT8 x;
@@ -22,11 +26,8 @@ void init_hud(){
 
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
     UINT8 i;
-	UINT8 buffer[16];
-    for (i = 0; i != 16; i++) {
-        buffer[i] = WIN_START + ' ';
-    }
     for (i = 0; i != length; i++) {
+        buffer[i] = WIN_START + ' ';
         // strings end with a nullbyte
         if (str[i] == '\0') {
             break;
@@ -42,6 +43,9 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
             buffer[i] = WIN_START + ' ';
         }
     }
+    for (; i != buffer_length ; i++) {
+        buffer[i] = WIN_START + ' ';
+    }
     set_win_tiles(x, y, length, 1, buffer);
 }
 
@@ -49,37 +53,37 @@ const char hex_char[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 
 
 // maximum length is 2 since maximum UINT8 is FF
 void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
-    char buffer[] = "00";
+    buffer[buffer_length-2] = buffer[buffer_length-1] = '0';
     if (length == 0) {
         return;
     }
     if (length > 2) { // >3
         length = 2;
     }
-    buffer[1] = hex_char[num % 16];
+    buffer[buffer_length-1] = hex_char[num % 16];
     num /= 16;
-    buffer[0] = hex_char[num % 16];
+    buffer[buffer_length-2] = hex_char[num % 16];
     num /= 16;
-    write_line(x, y, length, buffer + (2 - length));
+    write_line(x, y, length, buffer + (buffer_length - length));
 }
 
 
 // maximum length is 3 since maximum UINT8 is 255
 void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
-    char buffer[] = "000";
+    buffer[buffer_length-3] = buffer[buffer_length-2] = buffer[buffer_length-1] = '0';
     if (length == 0) {
         return;
     }
     if (length & (~3)) { // >3
         length = 3;
     }
-    buffer[2] = '0' + (num % 10);
+    buffer[buffer_length-1] = '0' + (num % 10);
     num /= 10;
-    buffer[1] = '0' + (num % 10);
+    buffer[buffer_length-2] = '0' + (num % 10);
     num /= 10;
-    buffer[0] = '0' + (num % 10);
+    buffer[buffer_length-3] = '0' + (num % 10);
     num /= 10;
-    write_line(x, y, length, buffer + (3 - length));
+    write_line(x, y, length, buffer + (buffer_length - length));
 }
 
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper){

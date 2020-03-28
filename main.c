@@ -123,22 +123,20 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
-void replace_tile(const UINT8 index, const UINT8 indexa){
-	UINT16 base = index * 4;
-	UINT16 basea = indexa * 4;
+/* void replace_tile(const UINT8 index, const UINT8 indexa){
+	set_bkg_data(SHEET_START + overworld_gbc_map[index * 4],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[indexa * 4]*16]);
+} */
 
-	set_bkg_data(SHEET_START + overworld_gbc_map[base],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[basea]*16]);
-}
+#define replace_tile(index, indexa) (set_bkg_data(SHEET_START + overworld_gbc_map[(index) * 4],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[(indexa) * 4]*16]))
 
-void tick_animate(){
+inline void tick_animate(){
 	//ANIM_START
 	replace_tile(1, anim_counter);
  
 	replace_tile(2, anim_counter+ANIM_WIDTH);
 	replace_tile(SHEET_WIDTH*4, anim_counter+2*ANIM_WIDTH);
 
-	++anim_counter;
-	anim_counter %= ANIM_WIDTH;
+	anim_counter = (anim_counter + 1) % ANIM_WIDTH;
 }
 
 void timer_isr(){

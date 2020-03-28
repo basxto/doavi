@@ -33,7 +33,13 @@ mainmusic.ihx: mainmusic.rel music.rel
 	$(LK) -o $@ $^
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
-	$(pngconvert) $^ -o $@
+	$(pngconvert) --width 2 --height 2 $^ -o $@
+
+pix/win_gbc_data.c: pix/win_gbc.png
+	$(pngconvert) $^
+
+%_anim_gbc_data.c: %_anim_gbc.png
+	$(pngconvert) --width 2 --height 2 -u yes $^
 
 %.ihx: %.rel
 	$(LK) -o $@ $^
@@ -42,13 +48,13 @@ pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
 	$(CC) -o $@ $^
 
 %_data.c: %.png
-	$(pngconvert) $^
+	$(pngconvert) --width 2 --height 2 $^
 
 %_map.c: %.png
-	$(pngconvert) $^
+	$(pngconvert) --width 2 --height 2 $^
 
 %_pal.c: %.png
-	$(pngconvert) $^
+	$(pngconvert) --width 2 --height 2 $^
 
 %_tmap.c: %.tmx
 	$(tmxconvert) $^

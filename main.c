@@ -51,13 +51,13 @@ void render_character(const Character* chrctr){
 	set_sprite_tile(chrctr->sprite_index, CHARACTERS_START + characters_map[chrctr->sprite*4*4]);
 	move_sprite(chrctr->sprite_index, 8 + (chrctr->x)*16, 16 + (chrctr->y)*16);
 	set_sprite_prop(chrctr->sprite_index, chrctr->palette);
-	set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[chrctr->sprite*4*4+1]);
+	set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[chrctr->sprite*4*4+2]);
 	move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16);
 	set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
-	set_sprite_tile(chrctr->sprite_index + 2, CHARACTERS_START + characters_map[chrctr->sprite*4*4 + 8]);
+	set_sprite_tile(chrctr->sprite_index + 2, CHARACTERS_START + characters_map[chrctr->sprite*4*4+1]);
 	move_sprite(chrctr->sprite_index + 2, 8 + (chrctr->x)*16, 16 + (chrctr->y)*16 +8);
 	set_sprite_prop(chrctr->sprite_index + 2, chrctr->palette);
-	set_sprite_tile(chrctr->sprite_index + 3, CHARACTERS_START + characters_map[chrctr->sprite*4*4+1 + 8]);
+	set_sprite_tile(chrctr->sprite_index + 3, CHARACTERS_START + characters_map[chrctr->sprite*4*4+3]);
 	move_sprite(chrctr->sprite_index + 3, 8 + (chrctr->x)*16 +8, 16 + (chrctr->y)*16 +8);
 	set_sprite_prop(chrctr->sprite_index + 3, chrctr->palette);
 }
@@ -70,8 +70,7 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 	// tmx
 	UINT16 tile;
 	// loaded spritesheet
-	UINT8 sprite_y;
-	UINT8 sprite_x;
+	UINT8 palette;
 	unsigned char tiles[4];
 
 	// reset all sprites used_sprites
@@ -82,41 +81,39 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 		for(x = 0; x < WIDTH; ++x){
 			// load background
 			tile = background[(y * WIDTH) + x] - 2;
-			sprite_x = tile % (SPRITEWIDTH/2);
-			sprite_y = tile / (SPRITEWIDTH/2);
-			index = (sprite_y * 2 * SPRITEWIDTH) + (sprite_x * 2);
+			palette = tile / (SPRITEWIDTH/2);
+			index = tile * 4;
 			// set color (GBC only)
 			VBK_REG=1;
 			// each row has own palette
-			tiles[0] = tiles[1] = tiles[2] = tiles[3] = sprite_y;
+			tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
 			set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
 			VBK_REG=0;
 			// set tiles
 			tiles[0] = SHEET_START + overworld_gbc_map[index];
-			tiles[1] = SHEET_START + overworld_gbc_map[index + 1];
-			tiles[2] = SHEET_START + overworld_gbc_map[index + SPRITEWIDTH];
-			tiles[3] = SHEET_START + overworld_gbc_map[index + 1 + SPRITEWIDTH];
+			tiles[1] = SHEET_START + overworld_gbc_map[index + 2];
+			tiles[2] = SHEET_START + overworld_gbc_map[index + 1];
+			tiles[3] = SHEET_START + overworld_gbc_map[index + 3];
 			set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
 
 			// load sprites
 			tile = sprites[(y * WIDTH) + x];
 			if(tile != 0){
 				tile-=2;
-				sprite_x = tile % (SPRITEWIDTH/2);
-				sprite_y = tile / (SPRITEWIDTH/2);
-				index = (sprite_y * 2 * SPRITEWIDTH) + (sprite_x * 2);
+				palette = tile / (SPRITEWIDTH/2);
+				index = tile * 4;
 				set_sprite_tile(used_sprites, SHEET_START + overworld_gbc_map[index]);
 				move_sprite(used_sprites, 8 + x*16, 16 + y*16);
-				set_sprite_prop(used_sprites, sprite_y);
-				set_sprite_tile(used_sprites+1, SHEET_START + overworld_gbc_map[index + 1]);
+				set_sprite_prop(used_sprites, palette);
+				set_sprite_tile(used_sprites+1, SHEET_START + overworld_gbc_map[index + 2]);
 				move_sprite(used_sprites+1, 8 + x*16 + 8, 16 + y*16);
-				set_sprite_prop(used_sprites+1, sprite_y);
-				set_sprite_tile(used_sprites+2, SHEET_START + overworld_gbc_map[index + SPRITEWIDTH]);
+				set_sprite_prop(used_sprites+1, palette);
+				set_sprite_tile(used_sprites+2, SHEET_START + overworld_gbc_map[index + 1]);
 				move_sprite(used_sprites+2, 8 + x*16, 16 + y*16 + 8);
-				set_sprite_prop(used_sprites+2, sprite_y);
-				set_sprite_tile(used_sprites+3, SHEET_START + overworld_gbc_map[index + 1 + SPRITEWIDTH]);
+				set_sprite_prop(used_sprites+2, palette);
+				set_sprite_tile(used_sprites+3, SHEET_START + overworld_gbc_map[index + 3]);
 				move_sprite(used_sprites+3, 8 + x*16 + 8, 16 + y*16 + 8);
-				set_sprite_prop(used_sprites+3, sprite_y);
+				set_sprite_prop(used_sprites+3, palette);
 				used_sprites+=4;
 			}
 		}
@@ -139,16 +136,10 @@ UWORD bkgPalette[][] = {{
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
 void replace_tile(const UINT8 index, const UINT8 indexa){
-	UINT16 base = (index/SHEET_WIDTH) * 4 * SHEET_WIDTH + (index%SHEET_WIDTH) * 2;
-	//UINT8 base = (index%SHEET_WIDTH) * 2;
-	UINT16 basea = (indexa/ANIM_WIDTH) * 4 * ANIM_WIDTH + (indexa%ANIM_WIDTH) * 2;
+	UINT16 base = index * 4;
+	UINT16 basea = indexa * 4;
 
-	set_bkg_data(SHEET_START + overworld_gbc_map[base],1,&overworld_anim_gbc_data[overworld_anim_gbc_map[basea]*16]);
-	set_bkg_data(SHEET_START + overworld_gbc_map[base + 1],1,&overworld_anim_gbc_data[overworld_anim_gbc_map[basea+1]*16]);
-	base += SHEET_WIDTH*2;
-	basea += ANIM_WIDTH*2;
-	set_bkg_data(SHEET_START + overworld_gbc_map[base],1,&overworld_anim_gbc_data[overworld_anim_gbc_map[basea]*16]);
-	set_bkg_data(SHEET_START + overworld_gbc_map[base + 1],1,&overworld_anim_gbc_data[overworld_anim_gbc_map[basea+1]*16]);
+	set_bkg_data(SHEET_START + overworld_gbc_map[base],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[basea]*16]);
 }
 
 void tick_animate(){
@@ -159,7 +150,7 @@ void tick_animate(){
 	replace_tile(SHEET_WIDTH*4, anim_counter+2*ANIM_WIDTH);
 
 	++anim_counter;
-	anim_counter %= 4;
+	anim_counter %= ANIM_WIDTH;
 }
 
 void timer_isr(){

@@ -6,14 +6,13 @@ CC=$(BIN)/gbdk-n-compile.sh
 LK=$(BIN)/gbdk-n-link.sh
 MKROM=makebin -Z -yc
 EMU=retroarch -L /usr/lib/libretro/gambatte_libretro.so
-pngconvert=$(DEV)/pngconverter.sh
-#pngconvert=$(DEV)/cfile_builder.sh
+pngconvert=$(DEV)/png2gb/png2gb.py
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
 
 ROM=doavi.gb
 
-build: gbdk-n pix/overworld_gb_data.c pix/overworld_anim_gb_data.c pix/characters_data.c pix/win_gb_data.c pix/demo_tmap.c $(ROM)
+build: gbdk-n pix/overworld_gbc_data.c pix/overworld_anim_gbc_data.c pix/characters_data.c pix/win_gbc_data.c pix/demo_tmap.c $(ROM)
 
 $(ROM): main.ihx
 	$(MKROM) $^ $@
@@ -33,8 +32,8 @@ main.ihx: main.rel hud.rel music.rel
 mainmusic.ihx: mainmusic.rel music.rel
 	$(LK) -o $@ $^
 
-pix/characters.png: pix/angry_toast_gb.png pix/muffin_gb.png
-	montage $^ -tile 1x -geometry +0+0 $@
+pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
+	$(pngconvert) $^ -o $@
 
 %.ihx: %.rel
 	$(LK) -o $@ $^
@@ -48,6 +47,9 @@ pix/characters.png: pix/angry_toast_gb.png pix/muffin_gb.png
 %_map.c: %.png
 	$(pngconvert) $^
 
+%_pal.c: %.png
+	$(pngconvert) $^
+
 %_tmap.c: %.tmx
 	$(tmxconvert) $^
 
@@ -58,14 +60,14 @@ pix/overworld%gb.png: pix/overworld%gbc.png
 
 %_gb.png: %_gbc.png
 	$(loadgpl) $^ pix/gb.gpl $@
-	convert $@ $@
+	#convert $@ $@
 
 gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
 	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx *.lk *.noi *.asm pix/*_gb.png
-	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|tmap\)\.c' -delete
+	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 
 test: build run
 

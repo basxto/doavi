@@ -76,5 +76,23 @@ test: build run
 base64:
 	base64 $(ROM) | xclip -selection clipboard
 
+gbonline:  $(ROM) $(DEV)/GameBoy-Online/
+	$(DEV)/patch-gbonline.sh $< $(DEV)/GameBoy-Online/
+
+$(DEV)/GameBoy-Online/index.html: gbonline
+	cp $(DEV)/GameBoy-Online/index.xhtml $@
+	sed '/<?xml version="1.0" encoding="UTF-8"?>/d' -i $@
+	sed 's|<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">|<html lang="en">|g' -i $@
+	sed 's/<style/<meta charset="UTF-8">&/g' -i $@
+	sed 's|\(<input .*\)/>|\1>|g' -i $@
+	sed 's|\(<\([[:alpha:]]*\) .*\)/>|\1></\2>|g' -i $@
+	sed 's|<style type="text/css">@import url(&quot;\(css/GameBoy.css\)&quot;);</style>|<link rel="stylesheet" type="text/css" href="\1">|g' -i $@
+
+# itch.io release
+# https://itch.io/docs/creators/html5
+%.zip: $(DEV)/GameBoy-Online/index.html
+	cd $(DEV)/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
+	mv $(DEV)/GameBoy-Online/$@ .
+
 wordcount:
 	wc -m main.c

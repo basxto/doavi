@@ -120,6 +120,36 @@ void move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
 }
 
+void interact(){
+    UINT8 x = player.x;
+    UINT8 y = player.y;
+    UINT8 tile;
+    switch(player.direction){
+    case 0:
+        y++;
+        break;
+    case 1:
+        y--;
+        break;
+    case 2:
+        x--;
+        break;
+    case 3:
+        x++;
+        break;
+    }
+    //is sign
+    tile = current_level->background[(y * WIDTH) + x];
+    write_num(8, 1, 3, tile);
+    if(tile == 52){
+        dialog(12, "hello World!", 4, "Sign");
+        draw_hud(2, 42);
+    }
+    if(tile == 71){//easter egg
+        reset();
+    }
+}
+
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
     UINT8 y;
     UINT8 x;
@@ -235,8 +265,8 @@ void main() {
     move_character(&player, 1, 0, current_level->collision);
 
     cgb_compatibility();
-    set_bkg_palette(0, 5, bkgPalette[0]);
-    set_sprite_palette(0, 5, bkgPalette[0]);
+    set_bkg_palette(0, 6, bkgPalette[0]);
+    set_sprite_palette(0, 6, bkgPalette[0]);
 
     // load tileset
     set_bkg_data(SHEET_START, 136, overworld_gbc_data);
@@ -289,6 +319,10 @@ void main() {
         case J_DOWN: // If joypad() is equal to DOWN
             player.direction = 0;
             move_character(&player, 0, 1, current_level->collision);
+            delay(100);
+            break;
+        case J_A: // If joypad() is equal to DOWN
+            interact();
             delay(100);
             break;
         default:

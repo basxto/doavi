@@ -110,3 +110,69 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     write_num(4, 1, 3, toiletpaper);
     move_win(7, 16 * 8);
 }
+
+void dialog(UINT8 length, char *str, UINT8 namelength, char* name){
+    unsigned char tiles[1];
+    UINT8 x;
+    UINT8 y;
+    UINT8 accept = 0;
+
+    //set brown
+    VBK_REG = 1;
+    tiles[0] = 2;
+    for (x = 0; x < 20; ++x) {
+        for (y = 0; y < 4; ++y) {
+            set_win_tiles(x, y, 1, 1, tiles);
+        }
+    }
+    tiles[0] = 5;
+    for (x = 0; x < namelength; ++x) {
+        set_win_tiles(1 + x, 0, 1, 1, tiles);
+    }
+    VBK_REG = 0;
+
+    //top line
+    tiles[0] = WIN_START + 2;
+    for (x = 1; x < 20-1; ++x) {
+        set_win_tiles(x, 0, 1, 1, tiles);
+    }
+
+    // line left and right
+    tiles[0] = WIN_START + 4;
+    for (y = 1; y < 4; ++y) {
+        set_win_tiles(0, y, 1, 1, tiles);
+        tiles[0]++;
+        set_win_tiles(20-1, y, 1, 1, tiles);
+        tiles[0]--;
+    }
+
+    //clear rest
+    tiles[0] = WIN_START + ' ';
+    for (x = 1; x < 20-1; ++x) {
+        for (y = 1; y < 4; ++y) {
+            set_win_tiles(x, y, 1, 1, tiles);
+        }
+    }
+
+    tiles[0] = WIN_START;
+    set_win_tiles(0, 0, 1, 1, tiles);
+    tiles[0] = WIN_START + 3;
+    set_win_tiles(20-1, 0, 1, 1, tiles);
+    tiles[0] = WIN_START + 1;
+    set_win_tiles(1+namelength, 0, 1, 1, tiles);
+
+    write_line(1, 0, namelength, name);
+    write_line(2, 1, length, str);
+    move_win(7, 14 * 8);
+    delay(100);
+    while (accept==0) {
+        switch (joypad()) {
+        case J_A:
+            accept = 1;
+            break;
+        default:
+            break;
+        }
+    }
+    init_hud();
+}

@@ -27,12 +27,12 @@
 #define SPRITEWIDTH (34)
 #define TRANSPARENT (RGB(12, 25, 0))
 
-#define SHEET_START (97)
+#define SHEET_START (98)
 // width in 16x16 blocks
 #define SHEET_WIDTH (17)
-#define ANIM_START (233)
+#define ANIM_START (234)
 #define ANIM_WIDTH (4)
-#define CHARACTERS_START (267)
+#define CHARACTERS_START (268)
 
 #include "level.c"
 
@@ -226,7 +226,7 @@ void main() {
     player.x = 2;
     player.y = 3;
     player.sprite = 1;
-    player.direction = 1;
+    player.direction = 0;
     player.palette = 4;
     player.sprite_index = 38;
 
@@ -272,18 +272,22 @@ void main() {
 
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
+            player.direction = 3;
             move_character(&player, 1, 0, current_level->collision);
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
+            player.direction = 2;
             move_character(&player, -1, 0, current_level->collision);
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
+            player.direction = 1;
             move_character(&player, 0, -1, current_level->collision);
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
+            player.direction = 0;
             move_character(&player, 0, 1, current_level->collision);
             delay(100);
             break;

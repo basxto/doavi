@@ -11,7 +11,7 @@ tmxconvert=$(DEV)/tmx2c.py
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_gbc overworld_anim_gbc characters win_gbc))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_gbc overworld_anim_gbc characters win_gbc characters))
 
 ROM=doavi.gb
 
@@ -42,7 +42,7 @@ main.rel: main.c $(PIX) level.c
 	$(CC) -o $@ $^
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ -o $@
+	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
 	$(pngconvert) $^

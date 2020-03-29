@@ -1,0 +1,12 @@
+{
+    "patterns": [
+        {
+            "regexp": "lvl_(\\d+)_(\\d+)\\.tmx",
+            "multiplierX": 160,
+            "multiplierY": 128,
+            "offsetX": -160,
+            "offsetY": -128
+        }
+    ],
+    "type": "world"
+}

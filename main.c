@@ -11,7 +11,6 @@
 
 #include "pix/characters_data.c"
 #include "pix/characters_map.c"
-#include "level/lvl1_tmap.c"
 #include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_gbc_data.c"
@@ -35,9 +34,16 @@
 #define ANIM_WIDTH (4)
 #define CHARACTERS_START (267)
 
+#include "level.c"
+
+
 UINT8 used_sprites;
 UINT8 counter;
 UINT8 anim_counter;
+
+UINT8 level_x;
+UINT8 level_y;
+Level *current_level;
 
 typedef struct {
     UINT8 x; // position
@@ -67,7 +73,7 @@ void render_character(const Character *chrctr) {
 }
 
 void move_character(Character *chrctr, const INT8 x, const INT8 y,
-                    const unsigned int collision[]) {
+                    const unsigned int *collision) {
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
         chrctr->x += x;
@@ -162,6 +168,9 @@ void timer_isr() {
 }
 
 void main() {
+    level_x = 0;
+    level_y = 1;
+    current_level = &level[level_x][level_y];
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
@@ -184,8 +193,8 @@ void main() {
     player.sprite_index = 38;
 
     render_character(&player);
-    move_character(&player, 1, 0, lvl1_tmap_collision);
-    move_character(&player, 1, 0, lvl1_tmap_collision);
+    move_character(&player, 1, 0, current_level->collision);
+    move_character(&player, 1, 0, current_level->collision);
 
     cgb_compatibility();
     set_bkg_palette(0, 5, bkgPalette[0]);
@@ -196,7 +205,7 @@ void main() {
     set_sprite_data(SHEET_START, 136, overworld_gbc_data);
     set_win_data(WIN_START, 96, win_gbc_data);
     set_sprite_data(CHARACTERS_START, 29, characters_data);
-    load_map(lvl1_tmap_background, lvl1_tmap_sprites);
+    load_map(current_level->background, current_level->sprites);
 
     // init_hud();
     draw_hud(2, 42);

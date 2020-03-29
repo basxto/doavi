@@ -1,6 +1,9 @@
 #include "music.h"
 #include "sound.h"
 
+// see https://github.com/bwhitman/pushpin/blob/master/src/gbsound.txt
+// see https://gbdev.gg8.se/wiki/articles/Gameboy_sound_hardware
+
 // enable/disable channels
 #define WAVE
 #define PULSE
@@ -29,31 +32,58 @@ typedef struct {
     UINT8 noise_pattern;
 } Song_frame;
 
-#define pattern_size (7)
-#define song_size (2)
+#define pattern_size (8)
+#define song_size (8)
 
-// roughly based on Vegan On A Desert Island!? by CosmicGem
+// Remix of The Journey Begins
+// https://opengameart.org/content/the-journey-begins
+// by Igor Gundarev released under cc0
 const Pattern_frame pattern[][pattern_size] = {
-    {//5snare 4bass 3hihat
-        {0x20 | note_d  , 0xD6, 0x20 | note_f   , 0xF2, 0xC4},
-        {0x20 | note_fis, 0xD6, 0x00            , 0x02, 0xFF},
-        {0x20 | note_a  , 0xD6, 0x20 | note_fis , 0xF2, 0xC3},
-        {0xFF           , 0x06, 0x00            , 0x02, 0xFF},
-        {0x20 | note_d  , 0xD7, 0x10 | note_fis , 0xF2, 0xC5},
-        {0xFF           , 0xDF, 0xFF            , 0xFF, 0xFF},
-        {0xFF           , 0xDF, 0xFF            , 0xFF, 0xC5}
+    //  |-------PULSE---------| |--------WAVE---------| |NOISE|
+    //  |------NOTE-----| |VI-| |------NOTE-----| |VI-| |-----|
+    {
+        {0x10 | note_cis, 0x88, 0x20 | note_cis , 0xF2, 0xC5},
+        {0xFF           , 0x8F, 0x00            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_gis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0x00            , 0xFF, 0xC3},
+        {0xFF           , 0x8F, 0x30 | note_cis , 0xF2, 0xF5},
+        {0xFF           , 0x8F, 0xFF            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_gis , 0xF2, 0xC5},
+        {0xFF           , 0x8F, 0xFF            , 0xFF, 0xC3}
     },
     {
-        {0x20 | note_fis, 0xD6, 0x20 | note_f   , 0xF2, 0xFF},
-        {0x20 | note_a  , 0xD6, 0x00            , 0x02, 0xFF},
-        {0xFF           , 0x06, 0x20 | note_fis , 0xF2, 0xC3},
-        {0x20 | note_a  , 0xD6, 0x00            , 0x02, 0xFF},
-        {0x20 | note_d  , 0xD6, 0x20 | note_a   , 0xF2, 0xC5},
-        {0x20 | note_d  , 0xD7, 0x20 | note_f   , 0xF2, 0xFF},
-        {0xFF           , 0xDF, 0xFF            , 0xFF, 0xC5}
-    }};
+        {0x00 | note_gis, 0x88, 0x10 | note_gis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0x00            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_dis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0x00            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_gis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0xFF            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_dis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0xFF            , 0xFF, 0xFF}
+    },
+    {
+        {0x00 | note_ais, 0x88, 0x10 | note_ais , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0x00            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_gis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0x00            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x30 | note_cis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0xFF            , 0xFF, 0xFF},
+        {0xFF           , 0x8F, 0x20 | note_gis , 0xF2, 0xFF},
+        {0xFF           , 0x8F, 0xFF            , 0xFF, 0xFF}
+    }
+};
 
-const Song_frame song[] = {{0, 0, 0}, {1, 1, 1}};
+const Song_frame song[] = {
+//   P  W  N
+    {0, 0, 0},
+    {0, 0, 0},
+    {1, 1, 0},
+    {1, 1, 0},
+    {2, 0, 0},
+    {2, 0, 0},
+    {2, 2, 0},
+    {2, 2, 0}
+};
 
 void init_music() { music_counter = 0; }
 
@@ -61,10 +91,17 @@ void tick_music() {
     UINT8 pttrn_frame = music_counter % pattern_size;
     UINT8 pttrn = song[music_counter / pattern_size].pulse_pattern;
     const Pattern_frame *pat = &(pattern[pttrn][pttrn_frame]);
+    UINT8 tl;// trigger and length enable
 
 #ifdef PULSE
+    tl = 0xC0;
     // instrument
     switch ((pat->pulse_vi & 0x0F)) {
+    case 8:
+        NR21_REG = 0x90;                          // 50% duty
+        NR22_REG = 0x00 | (pat->pulse_vi & 0xF0); // volume envelope
+        tl = 0x80;
+        break;
     case 7:
         NR21_REG = 0x50;                          // 50% duty
         NR22_REG = 0x02 | (pat->pulse_vi & 0xF0); // volume envelope
@@ -76,12 +113,13 @@ void tick_music() {
     }
 
     if (pat->pulse_note != 0xFF) {
-        NR24_REG = 0xC0 | note2int_hi(pat->pulse_note); // msb
+        NR24_REG = tl | note2int_hi(pat->pulse_note); // msb
         NR23_REG = note2int_lo(pat->pulse_note);
     }
 #endif
 
 #ifdef WAVE
+    tl = 0xC0;
     pttrn = song[music_counter / pattern_size].wave_pattern;
     pat = &(pattern[pttrn][pttrn_frame]);
 
@@ -89,13 +127,13 @@ void tick_music() {
         NR30_REG = 0x0;  // off
         NR30_REG = 0x80; // on
         NR32_REG = 0x20; // max volume
-        NR31_REG = 0xE0; // sound length
+        NR31_REG = 0xF0; // sound length
     } else {
         NR30_REG = 0x0; // off
     }
 
     if (pat->wave_note != 0xFF) {
-        NR34_REG = 0xC0 | note2int_hi(pat->wave_note); // msb
+        NR34_REG = tl | note2int_hi(pat->wave_note); // msb
         NR33_REG = note2int_lo(pat->wave_note);
     }
 #endif

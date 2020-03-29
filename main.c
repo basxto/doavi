@@ -11,7 +11,7 @@
 
 #include "pix/characters_data.c"
 #include "pix/characters_map.c"
-#include "pix/demo_tmap.c"
+#include "level/lvl1_tmap.c"
 #include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_gbc_data.c"
@@ -184,8 +184,8 @@ void main() {
     player.sprite_index = 38;
 
     render_character(&player);
-    move_character(&player, 1, 0, demo_tmap_collision);
-    move_character(&player, 1, 0, demo_tmap_collision);
+    move_character(&player, 1, 0, lvl1_tmap_collision);
+    move_character(&player, 1, 0, lvl1_tmap_collision);
 
     cgb_compatibility();
     set_bkg_palette(0, 5, bkgPalette[0]);
@@ -196,7 +196,7 @@ void main() {
     set_sprite_data(SHEET_START, 136, overworld_gbc_data);
     set_win_data(WIN_START, 96, win_gbc_data);
     set_sprite_data(CHARACTERS_START, 29, characters_data);
-    load_map(demo_tmap_background, demo_tmap_sprites);
+    load_map(lvl1_tmap_background, lvl1_tmap_sprites);
 
     // init_hud();
     draw_hud(2, 42);

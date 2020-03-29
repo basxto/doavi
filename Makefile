@@ -11,7 +11,7 @@ tmxconvert=$(DEV)/tmx2c.py
 
 ROM=doavi.gb
 
-build: gbdk-n pix/overworld_gbc_data.c pix/overworld_anim_gbc_data.c pix/characters_data.c pix/win_gbc_data.c pix/demo_tmap.c $(ROM)
+build: gbdk-n pix/overworld_gbc_data.c pix/overworld_anim_gbc_data.c pix/characters_data.c pix/win_gbc_data.c level/lvl1_tmap.c $(ROM)
 
 $(ROM): main.ihx
 	$(MKROM) $^ $@

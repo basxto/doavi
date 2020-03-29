@@ -1,0 +1,3 @@
+rule_gras.tmx
+rule_flowerfix.tmx
+rule_collision.tmx

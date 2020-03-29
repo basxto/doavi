@@ -82,23 +82,35 @@ void move_character(Character *chrctr, const INT8 x, const INT8 y,
                     const unsigned int *collision) {
     if(chrctr->x == 0 && x < 0){
         level_x--;
+        chrctr->x += WIDTH +x;
+        wait_vbl_done();
+        render_character(chrctr);
         change_level();
-        chrctr->x += WIDTH;
+        return;
     }
-    if(chrctr->x >= WIDTH-1 && x > 0){
+    if(chrctr->x == WIDTH-1 && x > 0){
         level_x++;
+        chrctr->x += -WIDTH +x;
+        wait_vbl_done();
+        render_character(chrctr);
         change_level();
-        chrctr->x -= WIDTH;
+        return;
     }
     if(chrctr->y == 0 && y < 0){
         level_y--;
+        chrctr->y += HEIGHT +y;
+        wait_vbl_done();
+        render_character(chrctr);
         change_level();
-        chrctr->y += HEIGHT;
+        return;
     }
-    if(chrctr->y >= HEIGHT-1 && y > 0){
+    if(chrctr->y == HEIGHT-1 && y > 0){
         level_y++;
+        chrctr->y += -HEIGHT +y;
+        wait_vbl_done();
+        render_character(chrctr);
         change_level();
-        chrctr->y -= HEIGHT;
+        return;
     }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
@@ -245,7 +257,7 @@ void main() {
     // reset();
 
     // set_sprite_tile(2, SHEET_START + overworld_gbc_map[20]);
-
+/*
     // configure interrupt
     TIMA_REG = TMA_REG = 0x1A;
     TAC_REG = 0x4 | 0x0; // 4096 Hz
@@ -254,7 +266,7 @@ void main() {
     add_TIM(timer_isr);
     enable_interrupts();
     set_interrupts(TIM_IFLAG);
-
+*/
     while (1) {
 
         switch (joypad()) {

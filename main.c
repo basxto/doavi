@@ -257,7 +257,7 @@ void main() {
     // reset();
 
     // set_sprite_tile(2, SHEET_START + overworld_gbc_map[20]);
-/*
+
     // configure interrupt
     TIMA_REG = TMA_REG = 0x1A;
     TAC_REG = 0x4 | 0x0; // 4096 Hz
@@ -265,8 +265,9 @@ void main() {
     disable_interrupts();
     add_TIM(timer_isr);
     enable_interrupts();
-    set_interrupts(TIM_IFLAG);
-*/
+    //gbdk needs VBL iflag
+    set_interrupts(VBL_IFLAG | TIM_IFLAG);
+
     while (1) {
 
         switch (joypad()) {

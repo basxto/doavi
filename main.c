@@ -5,7 +5,9 @@
 #include <stdio.h>
 
 #include "hud.h"
-#include "music.h"
+
+#include "dev/gbdk-music/music.h"
+#include "dev/gbdk-music/music/the_journey_begins.c"
 
 #include "pix/characters_data.c"
 #include "pix/characters_map.c"
@@ -151,9 +153,7 @@ inline void tick_animate() {
 }
 
 void timer_isr() {
-    if (counter % 5 == 0) {
-        tick_music();
-    }
+    tick_music();
     if (counter % 8 == 0) {
         tick_animate();
     }
@@ -165,9 +165,6 @@ void main() {
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
-    NR52_REG = 0x80; // enable sound
-    NR50_REG = 0x77; // full volume
-    NR51_REG = 0xFF; // all channels
     SPRITES_8x16;
     used_sprites = 0;
     counter = 0;
@@ -177,6 +174,7 @@ void main() {
     OBP0_REG = 0xE1;
 
     init_hud();
+    init_music(&the_journey_begins);
 
     player.x = 2;
     player.y = 3;
@@ -213,7 +211,6 @@ void main() {
 
     // set_sprite_tile(2, SHEET_START + overworld_gbc_map[20]);
 
-    init_music();
     // configure interrupt
     TIMA_REG = TMA_REG = 0x1A;
     TAC_REG = 0x4 | 0x0; // 4096 Hz

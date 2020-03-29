@@ -1,11 +1,10 @@
-OBJ=./obj
-DEV=./dev
+DEV?=./dev
 BIN=$(DEV)/gbdk-n/bin
 
 CC=$(BIN)/gbdk-n-compile.sh
-LK=$(BIN)/gbdk-n-link.sh
-MKROM=makebin -Z -yc
-EMU=retroarch -L /usr/lib/libretro/gambatte_libretro.so
+LK?=$(BIN)/gbdk-n-link.sh
+MKROM?=makebin -Z -yc
+EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
 pngconvert=$(DEV)/png2gb/png2gb.py
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
@@ -17,19 +16,16 @@ build: gbdk-n pix/overworld_gbc_data.c pix/overworld_anim_gbc_data.c pix/charact
 $(ROM): main.ihx
 	$(MKROM) $^ $@
 
-music.gb: mainmusic.ihx
-	$(MKROM) $^ $@
-
 run: $(ROM)
 	$(EMU) $^
 
-playmusic: music.gb
-	$(EMU) $^
+playmusic:
+	$(MAKE) -C $(DEV)/gbdk-music playmusic DEV="../" EMU="$(EMU)"
 
-main.ihx: main.rel hud.rel music.rel
-	$(LK) -o $@ $^
+$(DEV)/gbdk-music/music.rel:
+	$(MAKE) -C $(DEV)/gbdk-music music.rel DEV="../" EMU="$(EMU)"
 
-mainmusic.ihx: mainmusic.rel music.rel
+main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel
 	$(LK) -o $@ $^
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
@@ -63,7 +59,6 @@ pix/overworld%gb.png: pix/overworld%gbc.png
 	$(loadgpl) $^ pix/overworld_gb.gpl $@
 	convert $@ $@
 
-
 %_gb.png: %_gbc.png
 	$(loadgpl) $^ pix/gb.gpl $@
 	#convert $@ $@
@@ -74,6 +69,7 @@ gbdk-n:
 clean:
 	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx *.lk *.noi *.asm pix/*_gb.png
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
+	$(MAKE) -C $(DEV)/gbdk-music clean
 
 test: build run
 

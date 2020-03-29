@@ -36,7 +36,6 @@ main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel
 	$(LK) -o $@ $^
 
 main.rel: main.c $(PIX) level.c
-	echo $(PIX)
 	$(CC) -o $@ $<
 
 %.rel: %.c

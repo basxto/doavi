@@ -21,7 +21,7 @@
 #define bkgPalette overworld_gbc_pal
 
 // all maps are 10 tiles (16x16) wide and 9 tiles high
-#define HIGHT (8)
+#define HEIGHT (8)
 #define WIDTH (10)
 // tile (8x8) width of our sprite
 #define SPRITEWIDTH (34)
@@ -36,6 +36,7 @@
 
 #include "level.c"
 
+void load_map(const unsigned int background[], const unsigned int sprites[]);
 
 UINT8 used_sprites;
 UINT8 counter;
@@ -57,6 +58,11 @@ typedef struct {
 
 Character player;
 
+void change_level(){
+    current_level = &level[level_y][level_x];
+    load_map(current_level->background, current_level->sprites);
+}
+
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const Character *chrctr) {
     UINT8 base = chrctr->sprite * 4 * 4 + chrctr->direction * 4;
@@ -74,6 +80,26 @@ void render_character(const Character *chrctr) {
 
 void move_character(Character *chrctr, const INT8 x, const INT8 y,
                     const unsigned int *collision) {
+    if(chrctr->x == 0 && x < 0){
+        level_x--;
+        change_level();
+        chrctr->x += WIDTH;
+    }
+    if(chrctr->x >= WIDTH-1 && x > 0){
+        level_x++;
+        change_level();
+        chrctr->x -= WIDTH;
+    }
+    if(chrctr->y == 0 && y < 0){
+        level_y--;
+        change_level();
+        chrctr->y += HEIGHT;
+    }
+    if(chrctr->y >= HEIGHT-1 && y > 0){
+        level_y++;
+        change_level();
+        chrctr->y -= HEIGHT;
+    }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
         chrctr->x += x;
@@ -97,7 +123,7 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
     for (i = 0; i < used_sprites; ++i)
         move_sprite(used_sprites, 0, 0);
 
-    for (y = 0; y < HIGHT; ++y) {
+    for (y = 0; y < HEIGHT; ++y) {
         for (x = 0; x < WIDTH; ++x) {
             // load background
             tile = background[(y * WIDTH) + x] - 2;
@@ -168,9 +194,9 @@ void timer_isr() {
 }
 
 void main() {
-    level_x = 0;
-    level_y = 1;
-    current_level = &level[level_x][level_y];
+    level_x = 1;
+    level_y = 0;
+    current_level = &level[level_y][level_x];
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
@@ -228,4 +254,28 @@ void main() {
     add_TIM(timer_isr);
     enable_interrupts();
     set_interrupts(TIM_IFLAG);
+
+    while (1) {
+
+        switch (joypad()) {
+        case J_RIGHT: // If joypad() is equal to RIGHT
+            move_character(&player, 1, 0, current_level->collision);
+            delay(100);
+            break;
+        case J_LEFT: // If joypad() is equal to LEFT
+            move_character(&player, -1, 0, current_level->collision);
+            delay(100);
+            break;
+        case J_UP: // If joypad() is equal to UP
+            move_character(&player, 0, -1, current_level->collision);
+            delay(100);
+            break;
+        case J_DOWN: // If joypad() is equal to DOWN
+            move_character(&player, 0, 1, current_level->collision);
+            delay(100);
+            break;
+        default:
+            break;
+        }
+    }
 }

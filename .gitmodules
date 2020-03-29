@@ -1,0 +1,12 @@
+[submodule "dev/gbdk-n"]
+	path = dev/gbdk-n
+	url = https://github.com/andreasjhkarlsson/gbdk-n
+[submodule "dev/gbdk-music"]
+	path = dev/gbdk-music
+	url = https://github.com/basxto/gbdk-music
+[submodule "dev/png2gb"]
+	path = dev/png2gb
+	url = https://github.com/basxto/png2gb
+[submodule "dev/loadgpl"]
+	path = dev/loadgpl
+	url = https://github.com/basxto/loadgpl

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.2" tiledversion="1.3.3" orientation="orthogonal" renderorder="right-down" width="10" height="9" tilewidth="16" tileheight="16" infinite="1" nextlayerid="19" nextobjectid="1">
  <tileset firstgid="1" source="overworld_gb.tsx"/>
- <tileset firstgid="86" source="collision.tsx"/>
- <layer id="1" name="input_background" width="10" height="9">
+ <tileset firstgid="33" source="collision.tsx"/>
+ <layer id="1" name="input_background" width="10" height="9" visible="0">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
 1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -24,7 +24,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="2" name="output1_background" width="10" height="9">
+ <layer id="2" name="output1_background" width="10" height="9" visible="0">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
 1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -266,10 +266,10 @@
 </chunk>
   </data>
  </layer>
- <layer id="6" name="input_background" width="10" height="9" visible="0">
+ <layer id="6" name="input_background" width="10" height="9">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
-31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -288,10 +288,10 @@
 </chunk>
   </data>
  </layer>
- <layer id="10" name="output4_background" width="10" height="9" visible="0">
+ <layer id="10" name="output4_background" width="10" height="9">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
-31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -310,10 +310,10 @@
 </chunk>
   </data>
  </layer>
- <layer id="7" name="input_background" width="10" height="9" visible="0">
+ <layer id="7" name="input_background" width="10" height="9">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
-30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -332,10 +332,10 @@
 </chunk>
   </data>
  </layer>
- <layer id="11" name="output5_background" width="10" height="9" visible="0">
+ <layer id="11" name="output5_background" width="10" height="9">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
-30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -354,10 +354,10 @@
 </chunk>
   </data>
  </layer>
- <layer id="18" name="output12_background" width="10" height="9" visible="0">
+ <layer id="18" name="output12_background" width="10" height="9">
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
-30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

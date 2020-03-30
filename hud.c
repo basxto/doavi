@@ -4,9 +4,6 @@
 #define buffer_length (16)
 UINT8 buffer[buffer_length];
 
-#define PORTRAIT_LENGTH (16)
-#define PORTRAIT_START (300)
-
 void init_hud() {
     unsigned char tiles[1];
     UINT8 x;

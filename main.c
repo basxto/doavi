@@ -13,26 +13,25 @@
 #include "pix/characters_map.c"
 #include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_anim_gbc_map.c"
-#include "pix/overworld_gbc_data.c"
-#include "pix/overworld_gbc_map.c"
+#include "pix/overworld_a_gbc_data.c"
+#include "pix/overworld_a_gbc_map.c"
 #include "pix/win_gbc_data.c"
 
-#include "pix/overworld_gbc_pal.c"
-#define bkgPalette overworld_gbc_pal
+#include "pix/overworld_a_gbc_pal.c"
+#define bkgPalette overworld_a_gbc_pal
 
 // all maps are 10 tiles (16x16) wide and 9 tiles high
 #define HEIGHT (8)
 #define WIDTH (10)
 // tile (8x8) width of our sprite
-#define SPRITEWIDTH (34)
+#define SPRITEWIDTH (16)
 #define TRANSPARENT (RGB(12, 25, 0))
 
-#define SHEET_START (98)
+#define CHARACTERS_START (0)
+#define SHEET_START (128)
 // width in 16x16 blocks
-#define SHEET_WIDTH (17)
-#define ANIM_START (234)
+#define SHEET_WIDTH (8)
 #define ANIM_WIDTH (4)
-#define CHARACTERS_START (268)
 
 #include "level.c"
 
@@ -78,45 +77,48 @@ void render_character(const Character *chrctr) {
     set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
 }
 
-void move_character(Character *chrctr, const INT8 x, const INT8 y,
+UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
                     const unsigned int *collision) {
     if(chrctr->x == 0 && x < 0){
         level_x--;
         chrctr->x += WIDTH +x;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(&player);
         change_level();
-        return;
+        return 0;
     }
     if(chrctr->x == WIDTH-1 && x > 0){
         level_x++;
         chrctr->x += -WIDTH +x;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(&player);
         change_level();
-        return;
+        return 0;
     }
     if(chrctr->y == 0 && y < 0){
         level_y--;
         chrctr->y += HEIGHT +y;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(&player);
         change_level();
-        return;
+        return 0;
     }
     if(chrctr->y == HEIGHT-1 && y > 0){
         level_y++;
         chrctr->y += -HEIGHT +y;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(&player);
         change_level();
-        return;
+        return 0;
     }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
         chrctr->x += x;
         chrctr->y += y;
-        render_character(chrctr);
+        render_character(&player);
+        return 0;
+    }else{
+        return 1;
     }
 }
 
@@ -141,7 +143,7 @@ void interact(){
     //is sign
     tile = current_level->background[(y * WIDTH) + x];
     write_num(8, 1, 3, tile);
-    if(tile == 52){
+    if(tile == 18){
         if(level_x == 0 && level_y == 0){
             dialog(10, "What's up?", 4, "Sign", 1);
         }else{
@@ -149,11 +151,11 @@ void interact(){
         }
         draw_hud(2, 42);
     }
-    if(tile == 65){
+    if(tile == 26){
         dialog(16, "Somebody died here...", 5, "Grave", 2);
         draw_hud(2, 42);
     }
-    if(tile == 70){
+    if(tile == 30){
         dialog(16, "Burn everything!", 5, "Flame", 3);
         draw_hud(2, 42);
     }
@@ -181,19 +183,23 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
         for (x = 0; x < WIDTH; ++x) {
             // load background
             tile = background[(y * WIDTH) + x] - 2;
-            palette = tile / (SPRITEWIDTH / 2);
             index = tile * 4;
             // set color (GBC only)
             VBK_REG = 1;
             // each row has own palette
+            palette = tile / (SPRITEWIDTH / 2);
+            if(palette == 3 && (tile % (SPRITEWIDTH / 2)) >= 4){
+                // last row has two palletes
+                palette=4;
+            }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
             set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
             VBK_REG = 0;
             // set tiles
-            tiles[0] = SHEET_START + overworld_gbc_map[index];
-            tiles[1] = SHEET_START + overworld_gbc_map[index + 2];
-            tiles[2] = SHEET_START + overworld_gbc_map[index + 1];
-            tiles[3] = SHEET_START + overworld_gbc_map[index + 3];
+            tiles[0] = SHEET_START + overworld_a_gbc_map[index];
+            tiles[1] = SHEET_START + overworld_a_gbc_map[index + 2];
+            tiles[2] = SHEET_START + overworld_a_gbc_map[index + 1];
+            tiles[3] = SHEET_START + overworld_a_gbc_map[index + 3];
             set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
 
             // load sprites
@@ -203,11 +209,11 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
                 palette = tile / (SPRITEWIDTH / 2);
                 index = tile * 4;
                 set_sprite_tile(used_sprites,
-                                SHEET_START + overworld_gbc_map[index]);
+                                SHEET_START + overworld_a_gbc_map[index]);
                 move_sprite(used_sprites, 8 + x * 16, 16 + y * 16);
                 set_sprite_prop(used_sprites, palette);
                 set_sprite_tile(used_sprites + 1,
-                                SHEET_START + overworld_gbc_map[index + 2]);
+                                SHEET_START + overworld_a_gbc_map[index + 2]);
                 move_sprite(used_sprites + 1, 8 + x * 16 + 8, 16 + y * 16);
                 set_sprite_prop(used_sprites + 1, palette);
                 used_sprites += 2;
@@ -219,21 +225,20 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
 /* void replace_tile(const UINT8 index, const UINT8 indexa){
-        set_bkg_data(SHEET_START + overworld_gbc_map[index *
+        set_bkg_data(SHEET_START + overworld_a_gbc_map[index *
 4],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[indexa * 4]*16]);
 } */
 
 #define replace_tile(index, indexa)                                            \
     (set_bkg_data(                                                             \
-        SHEET_START + overworld_gbc_map[(index)*4], 4,                         \
+        SHEET_START + overworld_a_gbc_map[(index)*4], 4,                         \
         &overworld_anim_gbc_data[overworld_anim_gbc_map[(indexa)*4] * 16]))
 
 inline void tick_animate() {
-    // ANIM_START
     replace_tile(1, anim_counter);
 
     replace_tile(2, anim_counter + ANIM_WIDTH);
-    replace_tile(SHEET_WIDTH * 4, anim_counter + 2 * ANIM_WIDTH);
+    replace_tile(SHEET_WIDTH * 3 + 4, anim_counter + 2 * ANIM_WIDTH);
 
     anim_counter = (anim_counter + 1) % ANIM_WIDTH;
 }
@@ -273,18 +278,15 @@ void main() {
     player.sprite_index = 38;
 
     render_character(&player);
-    move_character(&player, 1, 0, current_level->collision);
-    move_character(&player, 1, 0, current_level->collision);
 
     cgb_compatibility();
     set_bkg_palette(0, 6, bkgPalette[0]);
     set_sprite_palette(0, 6, bkgPalette[0]);
 
-    // load tileset
-    set_bkg_data(SHEET_START, sizeof(overworld_gbc_data)/16, overworld_gbc_data);
-    //set_sprite_data(SHEET_START, sizeof(overworld_gbc_data), overworld_gbc_data);
+    // load tilesets
     set_win_data(WIN_START, sizeof(win_gbc_data)/16, win_gbc_data);
     set_sprite_data(CHARACTERS_START, sizeof(characters_data)/16, characters_data);
+    set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data)/16, overworld_a_gbc_data);
     load_map(current_level->background, current_level->sprites);
 
     // init_hud();
@@ -298,7 +300,7 @@ void main() {
     DISPLAY_ON;
     // reset();
 
-    // set_sprite_tile(2, SHEET_START + overworld_gbc_map[20]);
+    // set_sprite_tile(2, SHEET_START + overworld_a_gbc_map[20]);
 
     // configure interrupt
     TIMA_REG = TMA_REG = 0x1A;
@@ -315,22 +317,26 @@ void main() {
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
             player.direction = 3;
-            move_character(&player, 1, 0, current_level->collision);
+            if(move_character(&player, 1, 0, current_level->collision) == 1)
+                render_character(&player);
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
             player.direction = 2;
-            move_character(&player, -1, 0, current_level->collision);
+            if(move_character(&player, -1, 0, current_level->collision) == 1)
+                render_character(&player);
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
             player.direction = 1;
-            move_character(&player, 0, -1, current_level->collision);
+            if(move_character(&player, 0, -1, current_level->collision) == 1)
+                render_character(&player);
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
             player.direction = 0;
-            move_character(&player, 0, 1, current_level->collision);
+            if(move_character(&player, 0, 1, current_level->collision) == 1)
+                render_character(&player);
             delay(100);
             break;
         case J_A: // If joypad() is equal to DOWN

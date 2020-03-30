@@ -4,6 +4,8 @@
 
 #include <gb/gb.h>
 #define WIN_START (0)
+#define PORTRAIT_START (96)
+#define PORTRAIT_LENGTH (16)
 
 void init_hud();
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str);

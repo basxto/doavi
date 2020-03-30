@@ -118,6 +118,9 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     UINT8 y;
     UINT8 accept = 0;
 
+    if(length > 14)
+        length = 14;
+
     //set brown
     VBK_REG = 1;
     tiles[0] = 2;

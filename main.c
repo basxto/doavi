@@ -23,6 +23,8 @@
 #include "pix/overworld_b_gbc_pal.c"
 #define bkgPalette overworld_b_gbc_pal
 
+#include "strings.c"
+
 // all maps are 10 tiles (16x16) wide and 9 tiles high
 #define HEIGHT (8)
 #define WIDTH (10)
@@ -145,22 +147,29 @@ void interact(){
         break;
     }
     //is sign
+/*     const unsigned char text_sign[] = "Sign";
+const unsigned char text_flame[] = "Flame";
+const unsigned char text_grave[] = "Grave";
+const unsigned char text_whatsup[] = "What's up?";
+const unsigned char text_hellowor[] = "Hello World!";
+const unsigned char text_somebody[] = "Somebody died here...";
+const unsigned char text_burnever[] = "Burn everything!"; */
     tile = current_level->background[(y * WIDTH) + x];
     write_num(8, 1, 3, tile);
     if(tile == 18){
         if(level_x == 0 && level_y == 0){
-            dialog(10, "What's up?", 4, "Sign", 1);
+            dialog(sizeof(text_whatsup)-1, text_whatsup, sizeof(text_sign)-1, text_sign, 1);
         }else{
-            dialog(12, "Hello World!", 4, "Sign", 1);
+            dialog(sizeof(text_hellowor)-1, text_hellowor, sizeof(text_sign)-1, text_sign, 1);
         }
         draw_hud(2, 42);
     }
     if(tile == 26){
-        dialog(16, "Somebody died here...", 5, "Grave", 2);
+        dialog(sizeof(text_somebody)-1, text_somebody, sizeof(text_grave)-1, text_grave, 2);
         draw_hud(2, 42);
     }
     if(tile == 30){
-        dialog(16, "Burn everything!", 5, "Flame", 3);
+        dialog(sizeof(text_burnever)-1, text_burnever, sizeof(text_flame)-1, text_flame, 3);
         draw_hud(2, 42);
     }
     if(tile == 71){//easter egg

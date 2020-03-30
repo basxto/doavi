@@ -3,7 +3,7 @@ BIN=$(DEV)/gbdk-n/bin
 
 CC=$(BIN)/gbdk-n-compile.sh
 LK?=$(BIN)/gbdk-n-link.sh
-MKROM?=makebin -Z -yc
+MKROM?=makebin -Z -yc -yn "DessertOnAVegI" -ya 1 -yt 8
 EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
 pngconvert=$(DEV)/png2gb/png2gb.py
 loadgpl=$(DEV)/loadgpl/loadgpl.py
@@ -35,7 +35,7 @@ main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel
 %.ihx: %.rel
 	$(LK) -o $@ $^
 
-main.rel: main.c $(PIX) level.c
+main.rel: main.c $(PIX) level.c strings.c
 	$(CC) -o $@ $<
 
 hud.rel: hud.c pix/dialog_photos_data.c
@@ -71,6 +71,9 @@ pix/win_gbc_data.c: pix/win_gbc.png
 level.c: $(LEVEL)
 	$(DEV)/worldmap.sh
 
+strings.c: strings.txt
+	$(DEV)/txt2c.sh $^ $@
+
 pix/overworld%gb.png: pix/overworld%gbc.png
 	$(loadgpl) $^ pix/overworld_gb.gpl $@
 	convert $@ $@
@@ -83,7 +86,7 @@ gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
-	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx *.lk *.noi *.asm pix/*_gb.png level.c
+	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx *.lk *.noi *.asm pix/*_gb.png level.c strings.c
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
 

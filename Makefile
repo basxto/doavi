@@ -11,7 +11,7 @@ tmxconvert=$(DEV)/tmx2c.py
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_anim_gbc characters win_gbc characters))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc overworld_anim_gbc characters win_gbc characters))
 
 ROM=doavi.gb
 

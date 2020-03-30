@@ -15,10 +15,13 @@
 #include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_a_gbc_data.c"
 #include "pix/overworld_a_gbc_map.c"
+#include "pix/overworld_b_gbc_data.c"
+#include "pix/overworld_b_gbc_map.c"
 #include "pix/win_gbc_data.c"
 
 #include "pix/overworld_a_gbc_pal.c"
-#define bkgPalette overworld_a_gbc_pal
+#include "pix/overworld_b_gbc_pal.c"
+#define bkgPalette overworld_b_gbc_pal
 
 // all maps are 10 tiles (16x16) wide and 9 tiles high
 #define HEIGHT (8)
@@ -44,6 +47,7 @@ UINT8 anim_counter;
 UINT8 level_x;
 UINT8 level_y;
 Level *current_level;
+const unsigned char *current_map;
 
 typedef struct {
     UINT8 x; // position
@@ -175,6 +179,22 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
     UINT8 palette;
     unsigned char tiles[4];
 
+    DISPLAY_OFF;
+    // load spritesheet
+    if(level_y > 1){
+        current_map = overworld_b_gbc_map;
+        set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data)/16, overworld_b_gbc_data);
+        set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
+        set_sprite_palette(0, 6, overworld_b_gbc_pal[0]);
+        BGP_REG = 0xE4;//11100100
+    }else{
+        current_map = overworld_a_gbc_map;
+        set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data)/16, overworld_a_gbc_data);
+        set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
+        set_sprite_palette(0, 6, overworld_a_gbc_pal[0]);
+        BGP_REG = 0xE1;
+    }
+
     // reset all sprites used_sprites
     for (i = 0; i < used_sprites; ++i)
         move_sprite(used_sprites, 0, 0);
@@ -188,7 +208,7 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
             VBK_REG = 1;
             // each row has own palette
             palette = tile / (SPRITEWIDTH / 2);
-            if(palette == 3 && (tile % (SPRITEWIDTH / 2)) >= 4){
+            if(current_map == overworld_a_gbc_map && palette == 3 && (tile % (SPRITEWIDTH / 2)) >= 4){
                 // last row has two palletes
                 palette=4;
             }
@@ -196,10 +216,10 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
             set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
             VBK_REG = 0;
             // set tiles
-            tiles[0] = SHEET_START + overworld_a_gbc_map[index];
-            tiles[1] = SHEET_START + overworld_a_gbc_map[index + 2];
-            tiles[2] = SHEET_START + overworld_a_gbc_map[index + 1];
-            tiles[3] = SHEET_START + overworld_a_gbc_map[index + 3];
+            tiles[0] = SHEET_START + current_map[index];
+            tiles[1] = SHEET_START + current_map[index + 2];
+            tiles[2] = SHEET_START + current_map[index + 1];
+            tiles[3] = SHEET_START + current_map[index + 3];
             set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
 
             // load sprites
@@ -209,36 +229,42 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
                 palette = tile / (SPRITEWIDTH / 2);
                 index = tile * 4;
                 set_sprite_tile(used_sprites,
-                                SHEET_START + overworld_a_gbc_map[index]);
+                                SHEET_START + current_map[index]);
                 move_sprite(used_sprites, 8 + x * 16, 16 + y * 16);
                 set_sprite_prop(used_sprites, palette);
                 set_sprite_tile(used_sprites + 1,
-                                SHEET_START + overworld_a_gbc_map[index + 2]);
+                                SHEET_START + current_map[index + 2]);
                 move_sprite(used_sprites + 1, 8 + x * 16 + 8, 16 + y * 16);
                 set_sprite_prop(used_sprites + 1, palette);
                 used_sprites += 2;
             }
         }
     }
+    DISPLAY_ON;
 }
 
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
 /* void replace_tile(const UINT8 index, const UINT8 indexa){
-        set_bkg_data(SHEET_START + overworld_a_gbc_map[index *
+        set_bkg_data(SHEET_START + current_map[index *
 4],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[indexa * 4]*16]);
 } */
 
-#define replace_tile(index, indexa)                                            \
+#define replace_tile(index, indexa, counter)                                            \
     (set_bkg_data(                                                             \
-        SHEET_START + overworld_a_gbc_map[(index)*4], 4,                         \
-        &overworld_anim_gbc_data[overworld_anim_gbc_map[(indexa)*4] * 16]))
+        SHEET_START + current_map[(index)*4], 4,                         \
+        &overworld_anim_gbc_data[overworld_anim_gbc_map[((indexa) * ANIM_WIDTH + (counter))*4] * 16]))
 
 inline void tick_animate() {
-    replace_tile(1, anim_counter);
-
-    replace_tile(2, anim_counter + ANIM_WIDTH);
-    replace_tile(SHEET_WIDTH * 3 + 4, anim_counter + 2 * ANIM_WIDTH);
+    if(current_map == overworld_a_gbc_map){
+        replace_tile(1, 0, anim_counter);
+        replace_tile(2, 1, anim_counter);
+        replace_tile(SHEET_WIDTH * 3 + 4, 2, anim_counter);
+    }
+    if(current_map == overworld_b_gbc_map){
+        replace_tile(SHEET_WIDTH * 3 + 7, 3, anim_counter);
+        replace_tile(SHEET_WIDTH * 3 + 3, 4, anim_counter);
+    }
 
     anim_counter = (anim_counter + 1) % ANIM_WIDTH;
 }
@@ -286,7 +312,6 @@ void main() {
     // load tilesets
     set_win_data(WIN_START, sizeof(win_gbc_data)/16, win_gbc_data);
     set_sprite_data(CHARACTERS_START, sizeof(characters_data)/16, characters_data);
-    set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data)/16, overworld_a_gbc_data);
     load_map(current_level->background, current_level->sprites);
 
     // init_hud();
@@ -300,7 +325,7 @@ void main() {
     DISPLAY_ON;
     // reset();
 
-    // set_sprite_tile(2, SHEET_START + overworld_a_gbc_map[20]);
+    // set_sprite_tile(2, SHEET_START + current_map[20]);
 
     // configure interrupt
     TIMA_REG = TMA_REG = 0x1A;

@@ -1,7 +1,7 @@
 #include "hud.h"
 #include "pix/dialog_photos_data.c"
 
-#define buffer_length (18)
+#define buffer_length (16)
 UINT8 buffer[buffer_length];
 
 #define PORTRAIT_LENGTH (16)
@@ -135,9 +135,45 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     }
     VBK_REG = 0;
 
+    tiles[0] = 2;
+    // set portrait
+    if(portrait == 0){
+        for (x = 0; x < PORTRAIT_LENGTH; ++x) {
+            set_win_data(PORTRAIT_START + x, 1, ' ');
+        }
+    }else{
+        set_win_data(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data + ((portrait-1)*16*PORTRAIT_LENGTH));
+        if(portrait == 2){
+            tiles[0] = 3;
+        }
+        if(portrait == 3){
+            tiles[0] = 4;
+        }
+    }
+
+    // set portrait color
+    VBK_REG = 1;
+    for (x = 0; x < 4; ++x) {
+        for (y = 0; y < 4; ++y) {
+            set_win_tiles(20-4+x, y, 1, 1, tiles);
+        }
+    }
+    VBK_REG = 0;
+
+    // draw portrait
+    //#define PORTRAIT_LENGTH (16)
+    //#define PORTRAIT_START (300)
+    tiles[0] = PORTRAIT_START;
+    for (x = 0; x < 4; ++x) {
+        for (y = 0; y < 4; ++y) {
+            set_win_tiles(20-4+x, y, 1, 1, tiles);
+            tiles[0]++;
+        }
+    }
+
     //top line
     tiles[0] = WIN_START + 2;
-    for (x = 1; x < 20-1; ++x) {
+    for (x = 1; x < 20-1-4; ++x) {
         set_win_tiles(x, 0, 1, 1, tiles);
     }
 
@@ -146,13 +182,13 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     for (y = 1; y < 4; ++y) {
         set_win_tiles(0, y, 1, 1, tiles);
         tiles[0]++;
-        set_win_tiles(20-1, y, 1, 1, tiles);
+        set_win_tiles(20-1-4, y, 1, 1, tiles);
         tiles[0]--;
     }
 
     //clear rest
     tiles[0] = WIN_START + ' ';
-    for (x = 1; x < 20-1; ++x) {
+    for (x = 1; x < 20-1-4; ++x) {
         for (y = 1; y < 4; ++y) {
             set_win_tiles(x, y, 1, 1, tiles);
         }
@@ -161,7 +197,7 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     tiles[0] = WIN_START;
     set_win_tiles(0, 0, 1, 1, tiles);
     tiles[0] = WIN_START + 3;
-    set_win_tiles(20-1, 0, 1, 1, tiles);
+    set_win_tiles(20-1-4, 0, 1, 1, tiles);
     tiles[0] = WIN_START + 1;
     set_win_tiles(1+namelength, 0, 1, 1, tiles);
 

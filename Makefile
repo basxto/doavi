@@ -44,6 +44,9 @@ hud.rel: hud.c pix/dialog_photos_data.c
 %.rel: %.c
 	$(CC) -o $@ $^
 
+pix/dialog_photos_data.c: pix/dialog_photos.png
+	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@
+
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 

@@ -150,7 +150,7 @@ void interact(){
         draw_hud(2, 42);
     }
     if(tile == 65){
-        dialog(18, "Somebody died here...", 5, "Grave", 2);
+        dialog(16, "Somebody died here...", 5, "Grave", 2);
         draw_hud(2, 42);
     }
     if(tile == 70){

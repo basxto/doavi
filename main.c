@@ -10,14 +10,16 @@
 #include "dev/gbdk-music/music/the_journey_begins.c"
 
 #include "pix/characters_data.c"
-#include "pix/characters_map.c"
 #include "pix/overworld_anim_gbc_data.c"
-#include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_a_gbc_data.c"
-#include "pix/overworld_a_gbc_map.c"
 #include "pix/overworld_b_gbc_data.c"
-#include "pix/overworld_b_gbc_map.c"
 #include "pix/win_gbc_data.c"
+
+
+#include "pix/characters_map.c"
+#include "pix/overworld_anim_gbc_map.c"
+#include "pix/overworld_a_gbc_map.c"
+#include "pix/overworld_b_gbc_map.c"
 
 #include "pix/overworld_a_gbc_pal.c"
 #include "pix/overworld_b_gbc_pal.c"
@@ -49,9 +51,6 @@ UINT8 anim_counter;
 Level *current_level;
 const unsigned char *current_map;
 
-UINT8 lives = 5;
-UINT8 tpaper = 1;
-
 
 typedef struct {
     UINT8 x; // position
@@ -67,6 +66,10 @@ typedef struct {
     char magic;
     UINT8 level_x;
     UINT8 level_y;
+    UINT8 lives;
+    UINT8 tpaper;
+    // each bit for one
+    UINT8 collectable;
     Character player;
 } Savegame;
 //Savegame noram;
@@ -137,53 +140,20 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
 }
 
-void interact(){
-    UINT8 x = sg->player.x;
-    UINT8 y = sg->player.y;
-    UINT8 tile;
-    switch(sg->player.direction){
-    case 0:
-        y++;
-        break;
-    case 1:
-        y--;
-        break;
-    case 2:
-        x--;
-        break;
-    case 3:
-        x++;
-        break;
-    }
-    tile = current_level->background[(y * WIDTH) + x];
-    write_num(8, 1, 3, tile);
-    if(tile == 18){
-        if(sg->level_x == 0 && sg->level_y == 0){
-            dialog(sizeof(text_whatsup)-1, text_whatsup, sizeof(text_sign)-1, text_sign, 1);
-        }else{
-            dialog(sizeof(text_hellowor)-1, text_hellowor, sizeof(text_sign)-1, text_sign, 1);
-        }
-        draw_hud(lives, tpaper);
-    }
-    if(tile == 26){
-        dialog(sizeof(text_somebody)-1, text_somebody, sizeof(text_grave)-1, text_grave, 2);
-        draw_hud(lives, tpaper);
-    }
-    if(tile == 30){
-        dialog(sizeof(text_burnever)-1, text_burnever, sizeof(text_flame)-1, text_flame, 3);
-        draw_hud(lives, tpaper);
-        reset();
-    }
-    if(tile == 32){
-        tpaper++;
-        draw_hud(lives, tpaper);
-    }
+void incject_map(UINT8 x, UINT8 y, UINT16 index){
+    unsigned char tiles[4];
+    index *= 4;
+    tiles[0] = SHEET_START + current_map[index];
+    tiles[1] = SHEET_START + current_map[index + 2];
+    tiles[2] = SHEET_START + current_map[index + 1];
+    tiles[3] = SHEET_START + current_map[index + 3];
+    set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
 }
 
 void load_map(const unsigned int background[], const unsigned int sprites[]) {
     UINT8 y;
     UINT8 x;
-    int index;
+    UINT16 index;
     UINT8 i;
     // tmx
     UINT16 tile;
@@ -252,7 +222,59 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
             }
         }
     }
+
+    // map scripting
+    if(!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1){
+        incject_map(7, 3, 29);
+    }
     DISPLAY_ON;
+}
+
+void interact(){
+    UINT8 x = sg->player.x;
+    UINT8 y = sg->player.y;
+    UINT8 tile;
+    switch(sg->player.direction){
+    case 0:
+        y++;
+        break;
+    case 1:
+        y--;
+        break;
+    case 2:
+        x--;
+        break;
+    case 3:
+        x++;
+        break;
+    }
+    tile = current_level->background[(y * WIDTH) + x];
+    write_num(8, 1, 3, tile);
+    if(tile == 18){
+        if(sg->level_x == 0 && sg->level_y == 0){
+            dialog(sizeof(text_whatsup)-1, text_whatsup, sizeof(text_sign)-1, text_sign, 1);
+        }else{
+            dialog(sizeof(text_hellowor)-1, text_hellowor, sizeof(text_sign)-1, text_sign, 1);
+        }
+        draw_hud(sg->lives, sg->tpaper);
+    }
+    if(tile == 26){
+        dialog(sizeof(text_somebody)-1, text_somebody, sizeof(text_grave)-1, text_grave, 2);
+        draw_hud(sg->lives, sg->tpaper);
+    }
+    if(tile == 30){
+        dialog(sizeof(text_burnever)-1, text_burnever, sizeof(text_flame)-1, text_flame, 3);
+        draw_hud(sg->lives, sg->tpaper);
+        reset();
+    }
+    if(tile == 32){
+        if(!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1){
+            incject_map(7, 3, 30);
+            sg->collectable |= 0x1;
+            sg->tpaper++;
+            draw_hud(sg->lives, sg->tpaper);
+        }
+    }
 }
 
 // index of tile in spritesheet; index of tile in animation sheet
@@ -305,12 +327,18 @@ void main() {
         sg->player.palette = 4;
         sg->player.sprite_index = 38;
 
+        sg->lives = 5;
+        sg->tpaper = 0;
+
+        sg->collectable = 0;
+
         sg->magic = 'V';
     }
     current_level = &level[sg->level_y][sg->level_x];
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
+    DISPLAY_OFF;
     SPRITES_8x16;
     used_sprites = 0;
     counter = 0;
@@ -334,7 +362,7 @@ void main() {
     load_map(current_level->background, current_level->sprites);
 
     // init_hud();
-    draw_hud(lives, tpaper);
+    draw_hud(sg->lives, sg->tpaper);
 
     // render_character(&(sg->player));
 

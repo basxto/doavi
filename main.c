@@ -46,10 +46,12 @@ UINT8 used_sprites;
 UINT8 counter;
 UINT8 anim_counter;
 
-UINT8 level_x;
-UINT8 level_y;
 Level *current_level;
 const unsigned char *current_map;
+
+UINT8 lives = 5;
+UINT8 tpaper = 1;
+
 
 typedef struct {
     UINT8 x; // position
@@ -61,10 +63,17 @@ typedef struct {
     UINT8 sprite_index;
 } Character;
 
-Character player;
+typedef struct {
+    char magic;
+    UINT8 level_x;
+    UINT8 level_y;
+    Character player;
+} Savegame;
+//Savegame noram;
+Savegame *sg;
 
 void change_level(){
-    current_level = &level[level_y][level_x];
+    current_level = &level[sg->level_y][sg->level_x];
     load_map(current_level->background, current_level->sprites);
 }
 
@@ -86,34 +95,34 @@ void render_character(const Character *chrctr) {
 UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
                     const unsigned int *collision) {
     if(chrctr->x == 0 && x < 0){
-        level_x--;
+        sg->level_x--;
         chrctr->x += WIDTH +x;
         wait_vbl_done();
-        render_character(&player);
+        render_character(&(sg->player));
         change_level();
         return 0;
     }
     if(chrctr->x == WIDTH-1 && x > 0){
-        level_x++;
+        sg->level_x++;
         chrctr->x += -WIDTH +x;
         wait_vbl_done();
-        render_character(&player);
+        render_character(&(sg->player));
         change_level();
         return 0;
     }
     if(chrctr->y == 0 && y < 0){
-        level_y--;
+        sg->level_y--;
         chrctr->y += HEIGHT +y;
         wait_vbl_done();
-        render_character(&player);
+        render_character(&(sg->player));
         change_level();
         return 0;
     }
     if(chrctr->y == HEIGHT-1 && y > 0){
-        level_y++;
+        sg->level_y++;
         chrctr->y += -HEIGHT +y;
         wait_vbl_done();
-        render_character(&player);
+        render_character(&(sg->player));
         change_level();
         return 0;
     }
@@ -121,7 +130,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
         chrctr->x += x;
         chrctr->y += y;
-        render_character(&player);
+        render_character(&(sg->player));
         return 0;
     }else{
         return 1;
@@ -129,10 +138,10 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
 }
 
 void interact(){
-    UINT8 x = player.x;
-    UINT8 y = player.y;
+    UINT8 x = sg->player.x;
+    UINT8 y = sg->player.y;
     UINT8 tile;
-    switch(player.direction){
+    switch(sg->player.direction){
     case 0:
         y++;
         break;
@@ -146,34 +155,28 @@ void interact(){
         x++;
         break;
     }
-    //is sign
-/*     const unsigned char text_sign[] = "Sign";
-const unsigned char text_flame[] = "Flame";
-const unsigned char text_grave[] = "Grave";
-const unsigned char text_whatsup[] = "What's up?";
-const unsigned char text_hellowor[] = "Hello World!";
-const unsigned char text_somebody[] = "Somebody died here...";
-const unsigned char text_burnever[] = "Burn everything!"; */
     tile = current_level->background[(y * WIDTH) + x];
     write_num(8, 1, 3, tile);
     if(tile == 18){
-        if(level_x == 0 && level_y == 0){
+        if(sg->level_x == 0 && sg->level_y == 0){
             dialog(sizeof(text_whatsup)-1, text_whatsup, sizeof(text_sign)-1, text_sign, 1);
         }else{
             dialog(sizeof(text_hellowor)-1, text_hellowor, sizeof(text_sign)-1, text_sign, 1);
         }
-        draw_hud(2, 42);
+        draw_hud(lives, tpaper);
     }
     if(tile == 26){
         dialog(sizeof(text_somebody)-1, text_somebody, sizeof(text_grave)-1, text_grave, 2);
-        draw_hud(2, 42);
+        draw_hud(lives, tpaper);
     }
     if(tile == 30){
         dialog(sizeof(text_burnever)-1, text_burnever, sizeof(text_flame)-1, text_flame, 3);
-        draw_hud(2, 42);
-    }
-    if(tile == 71){//easter egg
+        draw_hud(lives, tpaper);
         reset();
+    }
+    if(tile == 32){
+        tpaper++;
+        draw_hud(lives, tpaper);
     }
 }
 
@@ -190,7 +193,7 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 
     DISPLAY_OFF;
     // load spritesheet
-    if(level_y > 1){
+    if(sg->level_y > 1){
         current_map = overworld_b_gbc_map;
         set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data)/16, overworld_b_gbc_data);
         set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
@@ -288,9 +291,23 @@ void timer_isr() {
 }
 
 void main() {
-    level_x = 1;
-    level_y = 0;
-    current_level = &level[level_y][level_x];
+    sg = (Savegame *)0xa000;
+    // load savegame
+    ENABLE_RAM_MBC1;
+    if(sg->magic != 'V'){
+        sg->level_x = 1;
+        sg->level_y = 0;
+
+        sg->player.x = 2;
+        sg->player.y = 3;
+        sg->player.sprite = 1;
+        sg->player.direction = 0;
+        sg->player.palette = 4;
+        sg->player.sprite_index = 38;
+
+        sg->magic = 'V';
+    }
+    current_level = &level[sg->level_y][sg->level_x];
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
@@ -305,14 +322,7 @@ void main() {
     init_hud();
     init_music(&the_journey_begins);
 
-    player.x = 2;
-    player.y = 3;
-    player.sprite = 1;
-    player.direction = 0;
-    player.palette = 4;
-    player.sprite_index = 38;
-
-    render_character(&player);
+    render_character(&(sg->player));
 
     cgb_compatibility();
     set_bkg_palette(0, 6, bkgPalette[0]);
@@ -324,9 +334,9 @@ void main() {
     load_map(current_level->background, current_level->sprites);
 
     // init_hud();
-    draw_hud(2, 42);
+    draw_hud(lives, tpaper);
 
-    // render_character(&player);
+    // render_character(&(sg->player));
 
     SHOW_BKG;
     SHOW_WIN;
@@ -350,27 +360,27 @@ void main() {
 
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
-            player.direction = 3;
-            if(move_character(&player, 1, 0, current_level->collision) == 1)
-                render_character(&player);
+            sg->player.direction = 3;
+            if(move_character(&(sg->player), 1, 0, current_level->collision) == 1)
+                render_character(&(sg->player));
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
-            player.direction = 2;
-            if(move_character(&player, -1, 0, current_level->collision) == 1)
-                render_character(&player);
+            sg->player.direction = 2;
+            if(move_character(&(sg->player), -1, 0, current_level->collision) == 1)
+                render_character(&(sg->player));
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
-            player.direction = 1;
-            if(move_character(&player, 0, -1, current_level->collision) == 1)
-                render_character(&player);
+            sg->player.direction = 1;
+            if(move_character(&(sg->player), 0, -1, current_level->collision) == 1)
+                render_character(&(sg->player));
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
-            player.direction = 0;
-            if(move_character(&player, 0, 1, current_level->collision) == 1)
-                render_character(&player);
+            sg->player.direction = 0;
+            if(move_character(&(sg->player), 0, 1, current_level->collision) == 1)
+                render_character(&(sg->player));
             delay(100);
             break;
         case J_A: // If joypad() is equal to DOWN

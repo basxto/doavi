@@ -142,7 +142,19 @@ void interact(){
     tile = current_level->background[(y * WIDTH) + x];
     write_num(8, 1, 3, tile);
     if(tile == 52){
-        dialog(12, "hello World!", 4, "Sign");
+        if(level_x == 0 && level_y == 0){
+            dialog(10, "What's up?", 4, "Sign", 1);
+        }else{
+            dialog(12, "Hello World!", 4, "Sign", 1);
+        }
+        draw_hud(2, 42);
+    }
+    if(tile == 65){
+        dialog(18, "Somebody died here...", 5, "Grave", 2);
+        draw_hud(2, 42);
+    }
+    if(tile == 70){
+        dialog(16, "Burn everything!", 5, "Flame", 3);
         draw_hud(2, 42);
     }
     if(tile == 71){//easter egg

@@ -38,6 +38,9 @@ main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel
 main.rel: main.c $(PIX) level.c
 	$(CC) -o $@ $<
 
+hud.rel: hud.c pix/dialog_photos_data.c
+	$(CC) -o $@ $<
+
 %.rel: %.c
 	$(CC) -o $@ $^
 

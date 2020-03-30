@@ -13,6 +13,6 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper);
 
-void dialog(UINT8 length, char *str, UINT8 namelength, char* name);
+void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrait);
 
 #endif

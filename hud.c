@@ -1,7 +1,11 @@
 #include "hud.h"
+#include "pix/dialog_photos_data.c"
 
-#define buffer_length (16)
+#define buffer_length (18)
 UINT8 buffer[buffer_length];
+
+#define PORTRAIT_LENGTH (16)
+#define PORTRAIT_START (300)
 
 void init_hud() {
     unsigned char tiles[1];
@@ -111,7 +115,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     move_win(7, 16 * 8);
 }
 
-void dialog(UINT8 length, char *str, UINT8 namelength, char* name){
+void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrait){
     unsigned char tiles[1];
     UINT8 x;
     UINT8 y;
@@ -162,7 +166,7 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name){
     set_win_tiles(1+namelength, 0, 1, 1, tiles);
 
     write_line(1, 0, namelength, name);
-    write_line(2, 1, length, str);
+    write_line(1, 1, length, str);
     move_win(7, 14 * 8);
     delay(100);
     while (accept==0) {

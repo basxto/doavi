@@ -10,15 +10,14 @@
 #include "dev/gbdk-music/music/the_journey_begins.c"
 
 #include "pix/characters_data.c"
-#include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_a_gbc_data.c"
+#include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_b_gbc_data.c"
 #include "pix/win_gbc_data.c"
 
-
 #include "pix/characters_map.c"
-#include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_a_gbc_map.c"
+#include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_b_gbc_map.c"
 
 #include "pix/overworld_a_gbc_pal.c"
@@ -51,7 +50,6 @@ UINT8 anim_counter;
 Level *current_level;
 const unsigned char *current_map;
 
-
 typedef struct {
     UINT8 x; // position
     UINT8 y;
@@ -72,10 +70,10 @@ typedef struct {
     UINT8 collectable;
     Character player;
 } Savegame;
-//Savegame noram;
+// Savegame noram;
 Savegame *sg;
 
-void change_level(){
+void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
     load_map(current_level->background, current_level->sprites);
 }
@@ -96,34 +94,34 @@ void render_character(const Character *chrctr) {
 }
 
 UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
-                    const unsigned int *collision) {
-    if(chrctr->x == 0 && x < 0){
+                     const unsigned int *collision) {
+    if (chrctr->x == 0 && x < 0) {
         sg->level_x--;
-        chrctr->x += WIDTH +x;
+        chrctr->x += WIDTH + x;
         wait_vbl_done();
         render_character(&(sg->player));
         change_level();
         return 0;
     }
-    if(chrctr->x == WIDTH-1 && x > 0){
+    if (chrctr->x == WIDTH - 1 && x > 0) {
         sg->level_x++;
-        chrctr->x += -WIDTH +x;
+        chrctr->x += -WIDTH + x;
         wait_vbl_done();
         render_character(&(sg->player));
         change_level();
         return 0;
     }
-    if(chrctr->y == 0 && y < 0){
+    if (chrctr->y == 0 && y < 0) {
         sg->level_y--;
-        chrctr->y += HEIGHT +y;
+        chrctr->y += HEIGHT + y;
         wait_vbl_done();
         render_character(&(sg->player));
         change_level();
         return 0;
     }
-    if(chrctr->y == HEIGHT-1 && y > 0){
+    if (chrctr->y == HEIGHT - 1 && y > 0) {
         sg->level_y++;
-        chrctr->y += -HEIGHT +y;
+        chrctr->y += -HEIGHT + y;
         wait_vbl_done();
         render_character(&(sg->player));
         change_level();
@@ -135,12 +133,12 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         chrctr->y += y;
         render_character(&(sg->player));
         return 0;
-    }else{
+    } else {
         return 1;
     }
 }
 
-void incject_map(UINT8 x, UINT8 y, UINT16 index){
+void incject_map(UINT8 x, UINT8 y, UINT16 index) {
     unsigned char tiles[4];
     index *= 4;
     tiles[0] = SHEET_START + current_map[index];
@@ -163,15 +161,17 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
 
     DISPLAY_OFF;
     // load spritesheet
-    if(sg->level_y > 1){
+    if (sg->level_y > 1) {
         current_map = overworld_b_gbc_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data)/16, overworld_b_gbc_data);
+        set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data) / 16,
+                     overworld_b_gbc_data);
         set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         set_sprite_palette(0, 6, overworld_b_gbc_pal[0]);
-        BGP_REG = 0xE4;//11100100
-    }else{
+        BGP_REG = 0xE4; // 11100100
+    } else {
         current_map = overworld_a_gbc_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data)/16, overworld_a_gbc_data);
+        set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data) / 16,
+                     overworld_a_gbc_data);
         set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
         set_sprite_palette(0, 6, overworld_a_gbc_pal[0]);
         BGP_REG = 0xE1;
@@ -190,9 +190,10 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
             VBK_REG = 1;
             // each row has own palette
             palette = tile / (SPRITEWIDTH / 2);
-            if(current_map == overworld_a_gbc_map && palette == 3 && (tile % (SPRITEWIDTH / 2)) >= 4){
+            if (current_map == overworld_a_gbc_map && palette == 3 &&
+                (tile % (SPRITEWIDTH / 2)) >= 4) {
                 // last row has two palletes
-                palette=4;
+                palette = 4;
             }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
             set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
@@ -210,8 +211,7 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
                 tile -= 2;
                 palette = tile / (SPRITEWIDTH / 2);
                 index = tile * 4;
-                set_sprite_tile(used_sprites,
-                                SHEET_START + current_map[index]);
+                set_sprite_tile(used_sprites, SHEET_START + current_map[index]);
                 move_sprite(used_sprites, 8 + x * 16, 16 + y * 16);
                 set_sprite_prop(used_sprites, palette);
                 set_sprite_tile(used_sprites + 1,
@@ -224,17 +224,17 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
     }
 
     // map scripting
-    if(!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1){
+    if (!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1) {
         incject_map(7, 3, 29);
     }
     DISPLAY_ON;
 }
 
-void interact(){
+void interact() {
     UINT8 x = sg->player.x;
     UINT8 y = sg->player.y;
     UINT8 tile;
-    switch(sg->player.direction){
+    switch (sg->player.direction) {
     case 0:
         y++;
         break;
@@ -250,25 +250,29 @@ void interact(){
     }
     tile = current_level->background[(y * WIDTH) + x];
     write_num(8, 1, 3, tile);
-    if(tile == 18){
-        if(sg->level_x == 0 && sg->level_y == 0){
-            dialog(sizeof(text_whatsup)-1, text_whatsup, sizeof(text_sign)-1, text_sign, 1);
-        }else{
-            dialog(sizeof(text_hellowor)-1, text_hellowor, sizeof(text_sign)-1, text_sign, 1);
+    if (tile == 18) {
+        if (sg->level_x == 0 && sg->level_y == 0) {
+            dialog(sizeof(text_whatsup) - 1, text_whatsup,
+                   sizeof(text_sign) - 1, text_sign, 1);
+        } else {
+            dialog(sizeof(text_hellowor) - 1, text_hellowor,
+                   sizeof(text_sign) - 1, text_sign, 1);
         }
         draw_hud(sg->lives, sg->tpaper);
     }
-    if(tile == 26){
-        dialog(sizeof(text_somebody)-1, text_somebody, sizeof(text_grave)-1, text_grave, 2);
+    if (tile == 26) {
+        dialog(sizeof(text_somebody) - 1, text_somebody, sizeof(text_grave) - 1,
+               text_grave, 2);
         draw_hud(sg->lives, sg->tpaper);
     }
-    if(tile == 30){
-        dialog(sizeof(text_burnever)-1, text_burnever, sizeof(text_flame)-1, text_flame, 3);
+    if (tile == 30) {
+        dialog(sizeof(text_burnever) - 1, text_burnever, sizeof(text_flame) - 1,
+               text_flame, 3);
         draw_hud(sg->lives, sg->tpaper);
         reset();
     }
-    if(tile == 32){
-        if(!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1){
+    if (tile == 32) {
+        if (!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1) {
             incject_map(7, 3, 30);
             sg->collectable |= 0x1;
             sg->tpaper++;
@@ -279,25 +283,38 @@ void interact(){
 
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
-/* void replace_tile(const UINT8 index, const UINT8 indexa){
-        set_bkg_data(SHEET_START + current_map[index *
-4],4,&overworld_anim_gbc_data[overworld_anim_gbc_map[indexa * 4]*16]);
-} */
-
-#define replace_tile(index, indexa, counter)                                            \
+#define replace_tile(index, indexa, counter)                                   \
     (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4], 4,                         \
-        &overworld_anim_gbc_data[overworld_anim_gbc_map[((indexa) * ANIM_WIDTH + (counter))*4] * 16]))
+        SHEET_START + current_map[(index)*4], 4,                               \
+        &overworld_anim_gbc_data                                               \
+            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4] *   \
+             16]))
+
+// for compressed tiles
+#define replace_subtile(index, indexa, counter, offset)                        \
+    (set_bkg_data(                                                             \
+        SHEET_START + current_map[(index)*4 + offset], 1,                      \
+        &overworld_anim_gbc_data                                               \
+            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4 +    \
+                                    offset] *                                  \
+             16]))
 
 inline void tick_animate() {
-    if(current_map == overworld_a_gbc_map){
+    if (current_map == overworld_a_gbc_map) {
         replace_tile(1, 0, anim_counter);
         replace_tile(2, 1, anim_counter);
         replace_tile(SHEET_WIDTH * 3 + 4, 2, anim_counter);
     }
-    if(current_map == overworld_b_gbc_map){
+    if (current_map == overworld_b_gbc_map) {
         replace_tile(SHEET_WIDTH * 3 + 7, 3, anim_counter);
         replace_tile(SHEET_WIDTH * 3 + 3, 4, anim_counter);
+        // shore waves
+        replace_subtile(SHEET_WIDTH * 3 + 4, 5, anim_counter, 0);
+        replace_subtile(SHEET_WIDTH * 3 + 4, 5, anim_counter, 2);
+        replace_subtile(SHEET_WIDTH * 3 + 5, 6, anim_counter, 0);
+        replace_subtile(SHEET_WIDTH * 3 + 5, 6, anim_counter, 1);
+        replace_subtile(SHEET_WIDTH * 3 + 6, 7, anim_counter, 2);
+        replace_subtile(SHEET_WIDTH * 3 + 6, 7, anim_counter, 3);
     }
 
     anim_counter = (anim_counter + 1) % ANIM_WIDTH;
@@ -316,7 +333,7 @@ void main() {
     sg = (Savegame *)0xa000;
     // load savegame
     ENABLE_RAM_MBC1;
-    if(sg->magic != 'V'){
+    if (sg->magic != 'V') {
         sg->level_x = 1;
         sg->level_y = 0;
 
@@ -357,8 +374,9 @@ void main() {
     set_sprite_palette(0, 6, bkgPalette[0]);
 
     // load tilesets
-    set_win_data(WIN_START, sizeof(win_gbc_data)/16, win_gbc_data);
-    set_sprite_data(CHARACTERS_START, sizeof(characters_data)/16, characters_data);
+    set_win_data(WIN_START, sizeof(win_gbc_data) / 16, win_gbc_data);
+    set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
+                    characters_data);
     load_map(current_level->background, current_level->sprites);
 
     // init_hud();
@@ -381,7 +399,7 @@ void main() {
     disable_interrupts();
     add_TIM(timer_isr);
     enable_interrupts();
-    //gbdk needs VBL iflag
+    // gbdk needs VBL iflag
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
 
     while (1) {
@@ -389,25 +407,29 @@ void main() {
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
             sg->player.direction = 3;
-            if(move_character(&(sg->player), 1, 0, current_level->collision) == 1)
+            if (move_character(&(sg->player), 1, 0, current_level->collision) ==
+                1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
             sg->player.direction = 2;
-            if(move_character(&(sg->player), -1, 0, current_level->collision) == 1)
+            if (move_character(&(sg->player), -1, 0,
+                               current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
             sg->player.direction = 1;
-            if(move_character(&(sg->player), 0, -1, current_level->collision) == 1)
+            if (move_character(&(sg->player), 0, -1,
+                               current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
             sg->player.direction = 0;
-            if(move_character(&(sg->player), 0, 1, current_level->collision) == 1)
+            if (move_character(&(sg->player), 0, 1, current_level->collision) ==
+                1)
                 render_character(&(sg->player));
             delay(100);
             break;

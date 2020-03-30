@@ -19,7 +19,7 @@ void init_hud() {
         }
     }
     VBK_REG = 0;
-    tiles[0] = WIN_START + 24;
+    tiles[0] = WIN_START + (' '-8);
     for (x = 0; x < 20; ++x) {
         for (y = 0; y < 4; ++y) {
             set_win_tiles(x, y, 1, 1, tiles);
@@ -139,7 +139,7 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     // set portrait
     if(portrait == 0){
         for (x = 0; x < PORTRAIT_LENGTH; ++x) {
-            set_win_data(PORTRAIT_START + x, 1, ' ');
+            set_win_data(PORTRAIT_START + x, 1, WIN_START + ' ');
         }
     }else{
         set_win_data(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data + ((portrait-1)*16*PORTRAIT_LENGTH));

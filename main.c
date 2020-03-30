@@ -281,10 +281,10 @@ void main() {
     set_sprite_palette(0, 6, bkgPalette[0]);
 
     // load tileset
-    set_bkg_data(SHEET_START, 136, overworld_gbc_data);
-    set_sprite_data(SHEET_START, 136, overworld_gbc_data);
-    set_win_data(WIN_START, 96, win_gbc_data);
-    set_sprite_data(CHARACTERS_START, 29, characters_data);
+    set_bkg_data(SHEET_START, sizeof(overworld_gbc_data)/16, overworld_gbc_data);
+    //set_sprite_data(SHEET_START, sizeof(overworld_gbc_data), overworld_gbc_data);
+    set_win_data(WIN_START, sizeof(win_gbc_data)/16, win_gbc_data);
+    set_sprite_data(CHARACTERS_START, sizeof(characters_data)/16, characters_data);
     load_map(current_level->background, current_level->sprites);
 
     // init_hud();

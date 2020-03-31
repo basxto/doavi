@@ -25,9 +25,9 @@ for y in `seq 0 ${max_y}`; do
     for x in `seq 0 ${max_x}`; do
         file=lvl_${x}_${y}_tmap
         if [ -f "${file}.c" ]; then
-            echo -e "\t\t{${file}_background, ${file}_sprites, ${file}_collision}," >> ../level.c
+            echo -e "\t\t{${file}_background, ${file}_collision}," >> ../level.c
         else
-            echo -e "\t\t{0, 0, 0}," >> ../level.c
+            echo -e "\t\t{0, 0}," >> ../level.c
         fi
     done
     echo -e "\t}," >> ../level.c

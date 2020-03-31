@@ -41,7 +41,7 @@
 
 #include "level.c"
 
-void load_map(const unsigned int background[], const unsigned int sprites[]);
+void load_map(const UINT8 background[]);
 
 UINT8 used_sprites;
 UINT8 counter;
@@ -75,7 +75,7 @@ Savegame *sg;
 
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
-    load_map(current_level->background, current_level->sprites);
+    load_map(current_level->background);
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always
@@ -94,7 +94,7 @@ void render_character(const Character *chrctr) {
 }
 
 UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
-                     const unsigned int *collision) {
+                     const UINT8 *collision) {
     if (chrctr->x == 0 && x < 0) {
         sg->level_x--;
         chrctr->x += WIDTH + x;
@@ -148,7 +148,7 @@ void incject_map(UINT8 x, UINT8 y, UINT16 index) {
     set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
 }
 
-void load_map(const unsigned int background[], const unsigned int sprites[]) {
+void load_map(const UINT8 background[]) {
     UINT8 y;
     UINT8 x;
     UINT16 index;
@@ -204,22 +204,6 @@ void load_map(const unsigned int background[], const unsigned int sprites[]) {
             tiles[2] = SHEET_START + current_map[index + 1];
             tiles[3] = SHEET_START + current_map[index + 3];
             set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
-
-            // load sprites
-            tile = sprites[(y * WIDTH) + x];
-            if (tile != 0) {
-                tile -= 2;
-                palette = tile / (SPRITEWIDTH / 2);
-                index = tile * 4;
-                set_sprite_tile(used_sprites, SHEET_START + current_map[index]);
-                move_sprite(used_sprites, 8 + x * 16, 16 + y * 16);
-                set_sprite_prop(used_sprites, palette);
-                set_sprite_tile(used_sprites + 1,
-                                SHEET_START + current_map[index + 2]);
-                move_sprite(used_sprites + 1, 8 + x * 16 + 8, 16 + y * 16);
-                set_sprite_prop(used_sprites + 1, palette);
-                used_sprites += 2;
-            }
         }
     }
 
@@ -377,7 +361,7 @@ void main() {
     set_win_data(WIN_START, sizeof(win_gbc_data) / 16, win_gbc_data);
     set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
                     characters_data);
-    load_map(current_level->background, current_level->sprites);
+    load_map(current_level->background);
 
     // init_hud();
     draw_hud(sg->lives, sg->tpaper);

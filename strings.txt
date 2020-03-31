@@ -1,0 +1,12 @@
+# title
+Dessert on a Vegan Island
+by basxto
+# entities
+Sign
+Flame
+Grave
+# dialog
+What's up?
+Hello World!
+Somebody died here...
+Burn everything!

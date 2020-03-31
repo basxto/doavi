@@ -13,3 +13,4 @@
 *_pal.c
 *_tmap.c
 level.c
+strings.c

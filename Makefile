@@ -46,10 +46,10 @@ hud.rel: hud.c pix/dialog_photos_data.c
 	$(CC) -o $@ $^
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
-	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@
+	$(pngconvert) --width 4 --height 4 -u yes --datarom "0x7FFF-0x2480" $^ -o $@
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
-	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
+	$(pngconvert) --width 2 --height 2 -u yes --datarom "0x7FFF-0x1C80" $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
 	$(pngconvert) --datarom "0x7FFF-0x1880" $^
@@ -81,7 +81,7 @@ level.c: $(LEVEL)
 	$(DEV)/worldmap.sh
 
 strings.c: strings.txt
-	$(DEV)/txt2c.sh $^ $@
+	$(DEV)/txt2c.sh $^ $@ 0x5000
 
 pix/overworld%gb.png: pix/overworld%gbc.png
 	$(loadgpl) $^ pix/overworld_gb.gpl $@
@@ -128,10 +128,10 @@ wordcount:
 
 ### tests for building banks
 pix/overworld_a_test_gbc_data.c: pix/overworld_a_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x800" --palrom "0x7FFF-0x1740" --maprom "0x5FFF-0x1180" -o pix/overworld_a_test_gbc
+	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x800" --palrom "0x7FFF-0x1040" --maprom "0x5FFF-0x1180" -o pix/overworld_a_test_gbc
 
 pix/overworld_b_test_gbc_data.c: pix/overworld_b_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x1000" --palrom "0x7FFF-0x1780" --maprom "0x5FFF-0x1280" -o pix/overworld_b_test_gbc
+	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x1000" --palrom "0x7FFF-0x1080" --maprom "0x5FFF-0x1280" -o pix/overworld_b_test_gbc
 
 banking.gb: banking.ihx
 	$(MKROM) $< $@

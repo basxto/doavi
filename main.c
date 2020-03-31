@@ -252,21 +252,21 @@ void interact() {
     write_num(8, 1, 3, tile);
     if (tile == 18) {
         if (sg->level_x == 0 && sg->level_y == 0) {
-            dialog(sizeof(text_whatsup) - 1, text_whatsup,
-                   sizeof(text_sign) - 1, text_sign, 1);
+            dialog(strlen(text_whatsup), text_whatsup, strlen(text_sign),
+                   text_sign, 1);
         } else {
-            dialog(sizeof(text_hellowor) - 1, text_hellowor,
-                   sizeof(text_sign) - 1, text_sign, 1);
+            dialog(strlen(text_hellowor), text_hellowor, strlen(text_sign),
+                   text_sign, 1);
         }
         draw_hud(sg->lives, sg->tpaper);
     }
     if (tile == 26) {
-        dialog(sizeof(text_somebody) - 1, text_somebody, sizeof(text_grave) - 1,
+        dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
                text_grave, 2);
         draw_hud(sg->lives, sg->tpaper);
     }
     if (tile == 30) {
-        dialog(sizeof(text_burnever) - 1, text_burnever, sizeof(text_flame) - 1,
+        dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
                text_flame, 3);
         draw_hud(sg->lives, sg->tpaper);
         reset();
@@ -401,6 +401,7 @@ void main() {
     enable_interrupts();
     // gbdk needs VBL iflag
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
+    UINT8 rom = 1;
 
     while (1) {
 
@@ -437,6 +438,11 @@ void main() {
             interact();
             delay(100);
             break;
+        // for bank testing
+        case J_SELECT:
+            rom = 1 + (rom%2);
+            SWITCH_ROM_MBC1(rom);
+            delay(200);
         default:
             break;
         }

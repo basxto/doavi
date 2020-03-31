@@ -6,7 +6,7 @@
 * 0: (96 tiles)
 * 96: portrait placeholder (16 tiles)
 * 112: *free* (16 tiles)
-* 128: [overworld_a_gbc.png](pix/overworld_a_gbc.png) (128 tiles)
+* 128: [overworld_a_gbc.png](pix/overworld_a_gbc.png) (128 tiles;0x800 bytes in memory)
 
 ### Sprites:
 * 0: [angry_toast_gbc.png](pix/angry_toast_gbc.png) (32 tiles)

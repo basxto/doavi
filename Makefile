@@ -52,7 +52,15 @@ pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
-	$(pngconvert) $^
+	$(pngconvert) --datarom "0x7FFF-0x1880" $^
+
+# define position in rom
+# datrom and palrom have fixed max size
+pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png
+	$(pngconvert) --width 2 --height 2 --datarom "0x7FFF-0x1000" --palrom "0x7FFF-0x1080" --maprom "0x7FFF-0x1280" $^
+
+pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
+	$(pngconvert) --width 2 --height 2 --datarom "0x7FFF-0x800" --palrom "0x7FFF-0x1040" --maprom "0x7FFF-0x1180" $^
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
@@ -87,7 +95,8 @@ gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
-	rm -f *.gb *.o *.map *.lst *.sym *.rel *.ihx *.lk *.noi *.asm pix/*_gb.png level.c strings.c
+	rm -f pix/*_gb.png level.c strings.c
+	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
 
@@ -116,3 +125,25 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 
 wordcount:
 	wc -m main.c
+
+### tests for building banks
+pix/overworld_a_test_gbc_data.c: pix/overworld_a_gbc.png
+	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x800" --palrom "0x7FFF-0x1740" --maprom "0x5FFF-0x1180" -o pix/overworld_a_test_gbc
+
+pix/overworld_b_test_gbc_data.c: pix/overworld_b_gbc.png
+	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x1000" --palrom "0x7FFF-0x1780" --maprom "0x5FFF-0x1280" -o pix/overworld_b_test_gbc
+
+banking.gb: banking.ihx
+	$(MKROM) $< $@
+
+banking.bank: banking.gb
+	dd skip=`printf "%d" 0x3FFF` count=`printf "%d" 0x4000` if=$^ of=$@ bs=1
+
+banking.ihx: nomain.rel pix/overworld_a_test_gbc_data.rel pix/overworld_b_test_gbc_data.rel
+	$(LK) -o $@ $^
+
+bigrom.gb: $(ROM) banking.bank
+	cat $^ > $@
+
+runbigrom: bigrom.gb
+	$(EMU) $^

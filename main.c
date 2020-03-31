@@ -335,10 +335,10 @@ void main() {
     ENABLE_RAM_MBC1;
     if (sg->magic != 'V') {
         sg->level_x = 1;
-        sg->level_y = 0;
+        sg->level_y = 2;
 
-        sg->player.x = 2;
-        sg->player.y = 3;
+        sg->player.x = 4;
+        sg->player.y = 4;
         sg->player.sprite = 1;
         sg->player.direction = 0;
         sg->player.palette = 4;

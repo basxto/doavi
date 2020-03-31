@@ -77,7 +77,8 @@ pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
 %_tmap.c: %.tmx
 	$(tmxconvert) $^
 
-level.c: $(LEVEL)
+level.c: $(LEVELTMX)
+	$(tmxconvert) -r 0x4000 $^
 	$(DEV)/worldmap.sh
 
 strings.c: strings.txt

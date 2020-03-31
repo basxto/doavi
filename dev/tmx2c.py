@@ -59,19 +59,19 @@ for filename in args.tmx:
                     counter += 1
                     if counter == 8:
                         if rom != -1:
-                            rom += 2
+                            rom += 1
                         file.write(hex(hexnum))
                         hexnum = 0
                         counter = 0
                 if counter != 0:
                     if rom != -1:
-                        rom += 2
+                        rom += 1
                     file.write(hex(hexnum))
                 file.write('};\n')
             else:
                 values = l.getElementsByTagName('data')[0].firstChild.nodeValue
                 file.write('const UINT8 ' + name + '[] = {' + values + '};\n')
                 if rom != -1:
-                    rom += len(values.split(','))*2
+                    rom += len(values.split(','))
     file.close() 
     print('File written to ' + cfilename)

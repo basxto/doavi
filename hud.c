@@ -24,6 +24,73 @@ void init_hud() {
     }
 }
 
+// fill area with spaces
+void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height){
+    buffer[0] = WIN_START + ' ';
+    for(UINT8 tmp_y = 0; tmp_y < height; ++tmp_y){
+        for(UINT8 tmp_x = 0; tmp_x < width; ++tmp_x){
+            set_win_tiles(x + tmp_x, y + tmp_y, 1, 1, buffer);
+        }
+    }
+}
+
+// write text into an area
+// scroll if necessary
+void smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, UINT8 length, char *str){
+    UINT8 start = 0;
+    UINT8 end = 0;
+    UINT8 run = 1;
+    UINT8 tmp_y = y;
+    UINT8 max = 0;
+    space_area(x, y, width, height);
+    while(run){
+        max = start + 16;
+        if(width < max)
+            max = width;
+        if(length < max)
+            max = length;
+        for(; end < max; ++end)
+            if(str[end] == '\n' || str[end] == '\0')
+                break;
+
+        write_line(x + start, tmp_y, (end-start), str);
+        start = end;
+
+        if(str[start] == '\0' || start >= length){
+            run = 0;
+        } else {
+            if(str[start] == '\n')
+                ++start;//skip
+            length -= start;
+            str += start;
+            start = 0;
+            end = 0;
+            tmp_y += 1;
+        }
+        if(tmp_y >= y+height){
+            // if it reached the width, we overwite the last letter
+            if(str[start-1] != '\n')
+                --str;
+                ++length;
+            buffer[0] = WIN_START + 7;
+            set_win_tiles(x + width - 1, y + height - 1, 1, 1, buffer);
+            delay(100);
+            while (run==1) {
+                switch (joypad()) {
+                case J_A:
+                    run = 0;
+                    break;
+                default:
+                    break;
+                }
+            }
+            run = 1;
+            tmp_y = y;
+            space_area(x, y, width, height);
+        }
+    }
+}
+
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
     UINT8 i;
     for (i = 0; i != length; i++) {
@@ -118,9 +185,6 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     UINT8 y;
     UINT8 accept = 0;
 
-    if(length > 14)
-        length = 14;
-
     //set brown
     VBK_REG = 1;
     tiles[0] = 2;
@@ -186,14 +250,6 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
         tiles[0]--;
     }
 
-    //clear rest
-    tiles[0] = WIN_START + ' ';
-    for (x = 1; x < 20-1-4; ++x) {
-        for (y = 1; y < 4; ++y) {
-            set_win_tiles(x, y, 1, 1, tiles);
-        }
-    }
-
     tiles[0] = WIN_START;
     set_win_tiles(0, 0, 1, 1, tiles);
     tiles[0] = WIN_START + 3;
@@ -202,8 +258,9 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     set_win_tiles(1+namelength, 0, 1, 1, tiles);
 
     write_line(1, 0, namelength, name);
-    write_line(1, 1, length, str);
+
     move_win(7, 14 * 8);
+    smart_write(1, 1, 14, 3, length, str);
     delay(100);
     while (accept==0) {
         switch (joypad()) {

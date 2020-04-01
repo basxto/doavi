@@ -1,8 +1,8 @@
 #!/bin/bash
 IFS='
 '
-value=(`grep -o '^[^#]*' $1 | tr '[:lower:]' '[:upper:]'`)
-name=(`grep -o '^[^#]*' $1 | sed 's/[^a-z0-9A-Z]//g' | tr '[:upper:]' '[:lower:]'`)
+value=(`grep -o '^[^#]*' $1 | tr '[:lower:]' '[:upper:]' | sed 's/\\\\N/\\\\n/g'`)
+name=(`grep -o '^[^#]*' $1 | sed 's/\\\\n//g' | sed 's/[^a-z0-9A-Z]//g' | tr '[:upper:]' '[:lower:]'`)
 
 address=-1
 if [ $# -eq 3 ]; then

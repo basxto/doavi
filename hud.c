@@ -1,6 +1,9 @@
 #include "hud.h"
 #include "pix/dialog_photos_data.c"
 
+// as defined in makefile
+const unsigned char * win_gbc_data_inrom = (0x7FFF-0x1880);
+
 #define buffer_length (16)
 UINT8 buffer[buffer_length];
 
@@ -173,8 +176,8 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     move_win(7, 16 * 8);
 }
 
-void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrait){
-    unsigned char tiles[1];
+void dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, UINT8 portrait){
+    unsigned char tiles[16];
     UINT8 x;
     UINT8 y;
     UINT8 accept = 0;
@@ -187,10 +190,10 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
             set_win_tiles(x, y, 1, 1, tiles);
         }
     }
-    tiles[0] = 5;
+    /*tiles[0] = 5;
     for (x = 0; x < namelength; ++x) {
         set_win_tiles(1 + x, 0, 1, 1, tiles);
-    }
+    }*/
     VBK_REG = 0;
 
     tiles[0] = 2;
@@ -235,6 +238,25 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
         set_win_tiles(x, 0, 1, 1, tiles);
     }
 
+    // generate name field data blocks
+    // line at bottom and top
+    tiles[0] = tiles[1] = 0xFF;
+    tiles[14] = tiles[15] = 0xFF;
+    for(y = 0; y < namelength; ++y){
+       for(x = 2; x < 14; ++x){
+           tiles[x] = ~win_gbc_data_inrom[(name[y])*16 + x];
+       }
+       set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
+    }
+    //set_win_data(PORTRAIT_START + PORTRAIT_LENGTH, 1, tiles);
+    // write name field
+    for(y = 0; y < namelength; ++y){
+        tiles[0] = PORTRAIT_START + PORTRAIT_LENGTH + y;
+        set_win_tiles(1 + y, 0, 1, 1, tiles);
+    }
+    tiles[0] = WIN_START + 1;
+    set_win_tiles(1 + namelength , 0, 1, 1, tiles);
+
     // line left and right
     tiles[0] = WIN_START + 4;
     for (y = 1; y < 4; ++y) {
@@ -248,10 +270,8 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     set_win_tiles(0, 0, 1, 1, tiles);
     tiles[0] = WIN_START + 3;
     set_win_tiles(20-1-4, 0, 1, 1, tiles);
-    tiles[0] = WIN_START + 1;
-    set_win_tiles(1+namelength, 0, 1, 1, tiles);
 
-    write_line(1, 0, namelength, name);
+    //write_line(1, 0, namelength, name);
 
     move_win(7, 14 * 8);
     smart_write(1, 1, 14, 3, length, str);

@@ -2,7 +2,7 @@
 set -e
 IFS='
 '
-value=($(grep -o '^[^#]*' "$1" | sed 's/\\N/\\n/g'))
+value=($(grep -o '^[^#]*' "$1" | tr '[:lower:]' '[:upper:]' | sed 's/\\N/\\n/g'))
 name=($(grep -o '^[^#]*' "$1" | sed 's/\\n//g' | sed 's/[^a-z0-9A-Z]//g' | tr '[:upper:]' '[:lower:]'))
 
 address=-1

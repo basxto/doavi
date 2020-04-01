@@ -1,6 +1,6 @@
 #!/bin/sh
-cd `dirname "$(readlink -f "$0")"`
-cd ../level
+cd "$(dirname "$(readlink -f "$0")")" || exit 1
+cd ../level || exit 1
 
 echo '#include "level.h"' > ../level.c
 
@@ -8,11 +8,11 @@ max_x=0
 max_y=0
 
 for l in lvl_*.tmx; do
-    x=`echo $l | sed 's/\./_/g' | awk -F_ '{print $2}'`
+    x=$(echo "$l" | sed 's/\./_/g' | awk -F_ '{print $2}')
     if [ "$max_x" -lt "$x" ]; then
         max_x=$x
     fi
-    y=`echo $l | sed 's/\./_/g' | awk -F_ '{print $3}'`
+    y=$(echo "$l" | sed 's/\./_/g' | awk -F_ '{print $3}')
     if [ "$max_y" -lt "$y" ]; then
         max_y=$y
     fi
@@ -20,17 +20,17 @@ for l in lvl_*.tmx; do
 done
 
 echo "Level level[][$((max_x + 1))] = {" >> ../level.c
-for y in `seq 0 ${max_y}`; do
-    echo -e "\t{" >> ../level.c
-    for x in `seq 0 ${max_x}`; do
-        file=lvl_${x}_${y}_tmap
+for y in $(seq 0 "${max_y}"); do
+    printf "\t{\n" >> ../level.c
+    for x in $(seq 0 "${max_x}"); do
+        file="lvl_${x}_${y}_tmap"
         if [ -f "${file}.c" ]; then
-            echo -e "\t\t{${file}_background, ${file}_collision}," >> ../level.c
+            printf '\t\t{%s_background, %s_collision},\n' "${file}" "${file}" >> ../level.c
         else
-            echo -e "\t\t{0, 0}," >> ../level.c
+            printf "\t\t{0, 0},\n" >> ../level.c
         fi
     done
-    echo -e "\t}," >> ../level.c
+    printf "\t},\n" >> ../level.c
 done
 
 echo "};" >> ../level.c

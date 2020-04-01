@@ -1,8 +1,8 @@
 # title
-Dessert on a Vegan Island
+Dessert on a\nVegan Island
 by basxto
 #intro
-You are a muffin.\nYou fled from COVID-10 with a boat filled with toilet paper.\nBut you stranded on an isolated island and your toilet paper got spread all over the island.
+You are a muffin\n\nYou fled from\nCOVID-19 with a\nboat filled with\ntoilet paper.\nBut you stranded\non an isolated\nisland and your\ntoilet paper got\nspread all over\nthe island.
 #Credits
 Credits:\nCoded by basxto\n\nGraphics:
 # entities

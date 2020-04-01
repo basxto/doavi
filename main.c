@@ -348,7 +348,6 @@ void main() {
     BGP_REG = 0xE1; // 11100001
     OBP0_REG = 0xE1;
 
-    init_hud();
     init_music(&the_journey_begins);
 
     render_character(&(sg->player));
@@ -364,13 +363,11 @@ void main() {
     load_map(current_level->background);
 
     // init_hud();
-    draw_hud(sg->lives, sg->tpaper);
 
     // render_character(&(sg->player));
 
     SHOW_BKG;
     SHOW_WIN;
-    SHOW_SPRITES;
     DISPLAY_ON;
     // reset();
 
@@ -385,7 +382,22 @@ void main() {
     enable_interrupts();
     // gbdk needs VBL iflag
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
-    UINT8 rom = 1;
+    //UINT8 rom = 1;
+
+    move_win(7, 0);
+    space_area(0, 0, 20, 18);
+    smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
+
+    smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);
+    waitpad(J_A);
+    delay(100);
+    smart_write(0, 0, 20, 18, strlen(text_youaream), text_youaream);
+    waitpad(J_A);
+    delay(100);
+    init_hud();
+    draw_hud(sg->lives, sg->tpaper);
+
+    SHOW_SPRITES;
 
     while (1) {
 
@@ -424,8 +436,8 @@ void main() {
             break;
         // for bank testing
         case J_SELECT:
-            rom = 1 + (rom%2);
-            SWITCH_ROM_MBC1(rom);
+            //rom = 1 + (rom%2);
+            //SWITCH_ROM_MBC1(rom);
             delay(200);
         default:
             break;

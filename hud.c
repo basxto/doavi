@@ -75,16 +75,8 @@ void smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 he
             buffer[0] = WIN_START + 7;
             set_win_tiles(x + width - 1, y + height - 1, 1, 1, buffer);
             delay(100);
-            while (run==1) {
-                switch (joypad()) {
-                case J_A:
-                    run = 0;
-                    break;
-                default:
-                    break;
-                }
-            }
-            run = 1;
+            waitpad(J_A);
+            delay(100);
             tmp_y = y;
             space_area(x, y, width, height);
         }
@@ -93,6 +85,8 @@ void smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 he
 
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
     UINT8 i;
+    if(length == 0)
+        return;
     for (i = 0; i != length; i++) {
         buffer[i] = WIN_START + ' ';
         // strings end with a nullbyte
@@ -262,14 +256,7 @@ void dialog(UINT8 length, char *str, UINT8 namelength, char* name, UINT8 portrai
     move_win(7, 14 * 8);
     smart_write(1, 1, 14, 3, length, str);
     delay(100);
-    while (accept==0) {
-        switch (joypad()) {
-        case J_A:
-            accept = 1;
-            break;
-        default:
-            break;
-        }
-    }
+    waitpad(J_A);
+    delay(100);
     init_hud();
 }

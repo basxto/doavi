@@ -14,3 +14,5 @@
 *_tmap.c
 level.c
 strings.c
+*.zip
+*.bank

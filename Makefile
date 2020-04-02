@@ -53,7 +53,7 @@ hud.rel: hud.c pix/dialog_photos_data.c
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes --datarom $(call calc_hex,0x7FFF-0x100-2*0x40-2*0x1000-(3*16*4*16)) $^ -o $@
 
-pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
+pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes --datarom $(call calc_hex,0x7FFF-0x100-2*0x40-2*0x1000-(3*16*4*16)-0x800) $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
@@ -61,8 +61,8 @@ pix/win_gbc_data.c: pix/win_gbc.png
 
 # define position in rom
 # datrom and palrom have fixed max size
-pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png
-	$(pngconvert) --width 2 --height 2 --datarom $(call calc_hex,0x7FFF-0x1000) --palrom $(call calc_hex,0x7FFF-0x1000-2*0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-2*0x100) $^
+pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png  pix/bush.png
+	$(pngconvert) --width 2 --height 2 --limit 128 --datarom $(call calc_hex,0x7FFF-0x1000) --palrom $(call calc_hex,0x7FFF-0x1000-2*0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-2*0x100) $^
 
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
 	$(pngconvert) --width 2 --height 2 --datarom $(call calc_hex,0x7FFF-0x800) --palrom $(call calc_hex,0x7FFF-0x1000-0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-0x100) $^

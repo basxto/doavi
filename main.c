@@ -20,9 +20,9 @@
 #include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_b_gbc_map.c"
 
+#include "pix/characters_pal.c"
 #include "pix/overworld_a_gbc_pal.c"
 #include "pix/overworld_b_gbc_pal.c"
-#define bkgPalette overworld_b_gbc_pal
 
 #include "strings.c"
 
@@ -166,14 +166,12 @@ void load_map(const UINT8 background[]) {
         set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data) / 16,
                      overworld_b_gbc_data);
         set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
-        set_sprite_palette(0, 6, overworld_b_gbc_pal[0]);
         BGP_REG = 0xE4; // 11100100
     } else {
         current_map = overworld_a_gbc_map;
         set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data) / 16,
                      overworld_a_gbc_data);
         set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
-        set_sprite_palette(0, 6, overworld_a_gbc_pal[0]);
         BGP_REG = 0xE1;
     }
 
@@ -253,7 +251,7 @@ void interact() {
         dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
                text_flame, 3);
         draw_hud(sg->lives, sg->tpaper);
-        reset();
+        //reset();
     }
     if (tile == 32) {
         if (!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1) {
@@ -325,7 +323,7 @@ void main() {
         sg->player.y = 4;
         sg->player.sprite = 1;
         sg->player.direction = 0;
-        sg->player.palette = 4;
+        sg->player.palette = 2;
         sg->player.sprite_index = 38;
 
         sg->lives = 5;
@@ -353,8 +351,8 @@ void main() {
     render_character(&(sg->player));
 
     cgb_compatibility();
-    set_bkg_palette(0, 6, bkgPalette[0]);
-    set_sprite_palette(0, 6, bkgPalette[0]);
+    set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
+    set_sprite_palette(0, 6, characters_pal[0]);
 
     // load tilesets
     set_win_data(WIN_START, sizeof(win_gbc_data) / 16, win_gbc_data);

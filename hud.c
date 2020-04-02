@@ -56,47 +56,49 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
                 firstchoice = tmp_y;
             buffer[buffer_length - 1] = ' ';
             write_line(x + start, tmp_y, 1, buffer + (buffer_length - 1));
-            start += 2;
-        } else {
-            // regular stuff
-            max = start + 16;
-            if(width < max)
-                max = width;
-            if(length < max)
-                max = length;
-            for(; end < max; ++end)
-                if(str[end] == '\n' || str[end] == '\0')
-                    break;
-
-            write_line(x + start, tmp_y, (end-start), str + start);
-            start = end;
-
-            if(str[start] == '\0' || start >= length){
-                run = 0;
-            } else {
-                if(str[start] == '\n')
-                    ++start;//skip
-                length -= start;
-                str += start;
-                start = 0;
-                end = 0;
-                tmp_y += 1;
-            }
-            if(tmp_y >= y+height){
-                // if it reached the width, we overwite the last letter
-                if(str[start-1] != '\n')
-                    --str;
-                    ++length;
-                buffer[0] = WIN_START + 7;
-                buffer[buffer_length - 1] = 7;
-                write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
-                delay(100);
-                waitpad(J_A);
-                delay(100);
-                tmp_y = y;
-                space_area(x, y, width, height);
-            }
+            start += 1;
         }
+        // regular stuff
+        max = start + 16;
+        if(width < max)
+            max = width;
+        if(length < max)
+            max = length;
+        for(; end < max; ++end)
+            //get to that next round
+            //end of this line
+            if(str[end] == '\n' || str[end] == '\0')
+                break;
+
+        write_line(x + start, tmp_y, (end-start), str + start);
+        start = end;
+
+        if(str[start] == '\0' || start >= length){
+            run = 0;
+        } else {
+            if(str[start] == '\n')
+                ++start;//skip
+            length -= start;
+            str += start;
+            start = 0;
+            end = 0;
+            tmp_y += 1;
+        }
+        if(tmp_y >= y+height){
+            // if it reached the width, we overwite the last letter
+            if(str[start-1] != '\n')
+                --str;
+                ++length;
+            buffer[0] = WIN_START + 7;
+            buffer[buffer_length - 1] = 7;
+            write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
+            delay(100);
+            waitpad(J_A);
+            delay(100);
+            tmp_y = y;
+            space_area(x, y, width, height);
+        }
+        
     }
     // let user select
     if(choices != 0){

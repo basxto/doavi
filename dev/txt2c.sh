@@ -2,7 +2,7 @@
 set -e
 IFS='
 '
-value=($(grep -o '^[^#]*' "$1" | tr '[:lower:]' '[:upper:]' | sed 's/\\N/\\n/g'))
+value=($(grep -o '^[^#]*' "$1" | tr '[:lower:]' '[:upper:]' | sed 's/\\N/\\n/g' | sed 's/\\X/\\x/g'))
 name=($(grep -o '^[^#]*' "$1" | sed 's/\\n//g' | sed 's/[^a-z0-9A-Z]//g' | tr '[:upper:]' '[:lower:]'))
 
 address=-1
@@ -14,7 +14,7 @@ echo "// Generated with text2c.sh" > "$2"
 echo "#define strlen(x) (sizeof(x) - 1)" >> "$2"
 
 for i in $(seq 0 $((${#name[@]}-1))); do
-    size=$(echo -n "${value[i]}" | sed 's/\\n/./g' | wc -c)
+    size=$(echo -n "${value[i]}" | sed 's/\\././g' | wc -c)
     varname=text_${name[i]:0:8}
     if [ "$address" != "-1" ]; then
         printf "__at (0x%X) " ${address} >> "$2"

@@ -5,7 +5,7 @@ by basxto
 You are a muffin\n\nYou fled from\nCOVID-19 with a\nboat filled with\ntoilet paper.\nBut you stranded\non an isolated\nisland and your\ntoilet paper got\nspread all over\nthe island.
 #Menus
 Menu:\n\n\n\n> continue\n> credits
-Credits:\n Coded by basxto\n\nGraphics:\nBased on work of DragonDePlatino (CC-BY 4.0), SIILTOCYN & Alex Gleason (CC-BY-SA 4.0), Lanea Zimmerman (CC-BY 3.0), Angel (CC0), basxto (CC-BY-SA 4.0)\nSee readme for more details
+Credits:\n Coded by basxto\n\nGraphics:\nBased on work of\nDragonDePlatino (\x13\x16 4\x10),\nSILTOCYN &\nAlex Gleason\n(\x13\x16-SA 4\x10),\nLanea Zimmerman\n(\x13\x16 3\x10),\nAngel (\x13""0),\nbasxto\n(\x13\x16-SA 4\x10)\n\nSee readme for\nmore details
 # entities
 Sign
 Flame
@@ -13,5 +13,5 @@ Grave
 # dialog
 What's up?\n> Nothing\n> I'm sad
 Hello World!
-Somebody died here...
+Somebody died here\x1A.
 Burn\neverything!\nI wanna see\nit burn

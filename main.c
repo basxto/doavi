@@ -134,6 +134,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         render_character(&(sg->player));
         return 0;
     } else {
+        blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }
 }
@@ -259,6 +260,7 @@ void interact() {
             sg->collectable |= 0x1;
             sg->tpaper++;
             draw_hud(sg->lives, sg->tpaper);
+            blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
         }
     }
 }

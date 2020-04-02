@@ -12,7 +12,12 @@ tmxconvert=$(DEV)/tmx2c.py
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
+MUSIC=dev/gbdk-music/music/the_journey_begins.c
 PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc overworld_anim_gbc characters win_gbc characters))
+
+define calc_hex
+$(shell printf '0x%X' $$(($(1))))
+endef
 
 ROM=doavi.gb
 
@@ -36,7 +41,7 @@ main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel
 %.ihx: %.rel
 	$(LK) -o $@ $^
 
-main.rel: main.c $(PIX) level.c strings.c
+main.rel: main.c $(PIX) $(MUSIC) level.c strings.c
 	$(CC) -o $@ $<
 
 hud.rel: hud.c pix/dialog_photos_data.c
@@ -46,10 +51,10 @@ hud.rel: hud.c pix/dialog_photos_data.c
 	$(CC) -o $@ $^
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
-	$(pngconvert) --width 4 --height 4 -u yes --datarom "0x7FFF-0x2480" $^ -o $@
+	$(pngconvert) --width 4 --height 4 -u yes --datarom $(call calc_hex,0x7FFF-0x100-2*0x40-2*0x1000-(3*16*4*16)) $^ -o $@
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png
-	$(pngconvert) --width 2 --height 2 -u yes --datarom "0x7FFF-0x1C80" $^ -o $@
+	$(pngconvert) --width 2 --height 2 -u yes --datarom $(call calc_hex,0x7FFF-0x100-2*0x40-2*0x1000-(3*16*4*16)-0x800) $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
 	$(pngconvert) --datarom "0x7FFF-0x1880" $^
@@ -57,10 +62,10 @@ pix/win_gbc_data.c: pix/win_gbc.png
 # define position in rom
 # datrom and palrom have fixed max size
 pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png
-	$(pngconvert) --width 2 --height 2 --datarom "0x7FFF-0x1000" --palrom "0x7FFF-0x1080" --maprom "0x7FFF-0x1280" $^
+	$(pngconvert) --width 2 --height 2 --datarom $(call calc_hex,0x7FFF-0x1000) --palrom $(call calc_hex,0x7FFF-0x1000-2*0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-2*0x100) $^
 
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
-	$(pngconvert) --width 2 --height 2 --datarom "0x7FFF-0x800" --palrom "0x7FFF-0x1040" --maprom "0x7FFF-0x1180" $^
+	$(pngconvert) --width 2 --height 2 --datarom $(call calc_hex,0x7FFF-0x800) --palrom $(call calc_hex,0x7FFF-0x1000-0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-0x100) $^
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
@@ -101,8 +106,6 @@ clean:
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
 
-test: build run
-
 base64:
 	base64 $(ROM) | xclip -selection clipboard
 
@@ -127,12 +130,15 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 wordcount:
 	wc -m main.c
 
+rompng:
+	$(DEV)/gb2png/gb2png.py doavi.gb --byteoffset 15
+
 ### tests for building banks
 pix/overworld_a_test_gbc_data.c: pix/overworld_a_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x800" --palrom "0x7FFF-0x1040" --maprom "0x5FFF-0x1180" -o pix/overworld_a_test_gbc
+	$(pngconvert) --width 2 --height 2 $^ --datarom $(call calc_hex,0x7FFF-0x800) --palrom $(call calc_hex,0x7FFF-0x1000-0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-0x100) -o pix/overworld_a_test_gbc
 
 pix/overworld_b_test_gbc_data.c: pix/overworld_b_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ --datarom "0x7FFF-0x1000" --palrom "0x7FFF-0x1080" --maprom "0x5FFF-0x1280" -o pix/overworld_b_test_gbc
+	$(pngconvert) --width 2 --height 2 $^ --datarom $(call calc_hex,0x7FFF-0x1000) --palrom $(call calc_hex,0x7FFF-0x1000-2*0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-2*0x100) -o pix/overworld_b_test_gbc
 
 banking.gb: banking.ihx
 	$(MKROM) $< $@

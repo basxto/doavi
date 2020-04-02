@@ -5,6 +5,7 @@
 const unsigned char * win_gbc_data_inrom = (0x7FFF-0x1880);
 
 #define buffer_length (16)
+// be cautious with this!
 UINT8 buffer[buffer_length];
 
 void init_hud() {
@@ -39,51 +40,93 @@ void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 hei
 
 // write text into an area
 // scroll if necessary
-void smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, UINT8 length, char *str){
+UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, UINT8 length, char *str){
     UINT8 start = 0;
     UINT8 end = 0;
     UINT8 run = 1;
     UINT8 tmp_y = y;
     UINT8 max = 0;
+    UINT8 choices = 0;
+    UINT8 firstchoice = y;
     space_area(x, y, width, height);
     while(run){
-        max = start + 16;
-        if(width < max)
-            max = width;
-        if(length < max)
-            max = length;
-        for(; end < max; ++end)
-            if(str[end] == '\n' || str[end] == '\0')
-                break;
-
-        write_line(x + start, tmp_y, (end-start), str);
-        start = end;
-
-        if(str[start] == '\0' || start >= length){
-            run = 0;
+        // detect choices
+        if(start == 0 && str[start] == '>'){
+            if(choices++ == 0)
+                firstchoice = tmp_y;
+            buffer[buffer_length - 1] = ' ';
+            write_line(x + start, tmp_y, 1, buffer + (buffer_length - 1));
+            start += 2;
         } else {
-            if(str[start] == '\n')
-                ++start;//skip
-            length -= start;
-            str += start;
-            start = 0;
-            end = 0;
-            tmp_y += 1;
-        }
-        if(tmp_y >= y+height){
-            // if it reached the width, we overwite the last letter
-            if(str[start-1] != '\n')
-                --str;
-                ++length;
-            buffer[0] = WIN_START + 7;
-            set_win_tiles(x + width - 1, y + height - 1, 1, 1, buffer);
-            delay(100);
-            waitpad(J_A);
-            delay(100);
-            tmp_y = y;
-            space_area(x, y, width, height);
+            // regular stuff
+            max = start + 16;
+            if(width < max)
+                max = width;
+            if(length < max)
+                max = length;
+            for(; end < max; ++end)
+                if(str[end] == '\n' || str[end] == '\0')
+                    break;
+
+            write_line(x + start, tmp_y, (end-start), str + start);
+            start = end;
+
+            if(str[start] == '\0' || start >= length){
+                run = 0;
+            } else {
+                if(str[start] == '\n')
+                    ++start;//skip
+                length -= start;
+                str += start;
+                start = 0;
+                end = 0;
+                tmp_y += 1;
+            }
+            if(tmp_y >= y+height){
+                // if it reached the width, we overwite the last letter
+                if(str[start-1] != '\n')
+                    --str;
+                    ++length;
+                buffer[0] = WIN_START + 7;
+                buffer[buffer_length - 1] = 7;
+                write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
+                delay(100);
+                waitpad(J_A);
+                delay(100);
+                tmp_y = y;
+                space_area(x, y, width, height);
+            }
         }
     }
+    // let user select
+    if(choices != 0){
+        tmp_y = firstchoice;
+        run = 1;
+        //write arrow
+        buffer[buffer_length - 1] = 6;
+        write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
+        while(run){
+            delay(100);
+            buffer[buffer_length - 1] = ' ';
+            write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
+            switch(joypad()){
+                case J_UP:
+                    if(tmp_y > firstchoice)
+                        --tmp_y;
+                    break;
+                case J_DOWN:
+                    if(tmp_y < firstchoice + choices - 1)
+                        ++tmp_y;
+                    break;
+                case J_A:
+                    return (tmp_y - firstchoice) + 1;
+                    break;
+            }
+            buffer[buffer_length - 1] = 6;
+            write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
+        }
+    }
+    return 0;
 }
 
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
@@ -96,16 +139,8 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
         if (str[i] == '\0') {
             break;
         }
-        if (str[i] > 0x20 && str[i] < 0x60) {
-            buffer[i] = WIN_START + (str[i]);
-        } else if (str[i] > 0x60 && str[i] < 0x7B) {
-            // we don't have lower case in our font
-            // shift to upper case
-            buffer[i] = WIN_START + (str[i] - 0x20);
-        } else {
-            // everything else, including space, becomes a space
-            buffer[i] = WIN_START + ' ';
-        }
+        // we handle lower case in converter script
+        buffer[i] = WIN_START + (str[i]);
     }
     for (; i != buffer_length; i++) {
         buffer[i] = WIN_START + ' ';
@@ -176,11 +211,12 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     move_win(7, 16 * 8);
 }
 
-void dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, UINT8 portrait){
+UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, UINT8 portrait){
     unsigned char tiles[16];
     UINT8 x;
     UINT8 y;
     UINT8 accept = 0;
+    UINT8 ret = 0;
 
     //set brown
     VBK_REG = 1;
@@ -274,9 +310,13 @@ void dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, U
     //write_line(1, 0, namelength, name);
 
     move_win(7, 14 * 8);
-    smart_write(1, 1, 14, 3, length, str);
+    ret = smart_write(1, 1, 14, 3, length, str);
     delay(100);
-    waitpad(J_A);
-    delay(100);
+    // only wait for A if this isn't a selection
+    if(ret == 0){
+        waitpad(J_A);
+        delay(100);
+    }
     init_hud();
+    return ret;
 }

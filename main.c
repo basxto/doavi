@@ -73,6 +73,22 @@ typedef struct {
 // Savegame noram;
 Savegame *sg;
 
+void menu(){
+    move_win(7, 0);
+    HIDE_SPRITES;
+    UINT8 ret = smart_write(0, 0, 20, 18, strlen(text_menucont), text_menucont);
+    write_num(12, 1, 3, ret);
+    switch(ret){
+        case 2:
+            smart_write(0, 0, 20, 18, strlen(text_creditsc), text_creditsc);
+            waitpad(J_A);
+            delay(100);
+            break;
+    }
+    draw_hud(sg->lives, sg->tpaper);
+    SHOW_SPRITES;
+}
+
 void screen_shake(){
     for(int i = 0; i < 8; ++i){
         scroll_bkg(-2,0);
@@ -297,7 +313,7 @@ void interact() {
     write_num(8, 1, 3, tile);
     if (tile == 18) {
         if (sg->level_x == 0 && sg->level_y == 0) {
-            dialog(strlen(text_whatsup), text_whatsup, strlen(text_sign),
+            dialog(strlen(text_whatsupn), text_whatsupn, strlen(text_sign),
                    text_sign, 1);
         } else {
             dialog(strlen(text_hellowor), text_hellowor, strlen(text_sign),
@@ -474,10 +490,9 @@ void main() {
             delay(100);
             break;
         // for bank testing
-        case J_SELECT:
-            //rom = 1 + (rom%2);
-            //SWITCH_ROM_MBC1(rom);
-            delay(200);
+        case J_START:
+            menu();
+            delay(100);
         default:
             break;
         }

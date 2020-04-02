@@ -32,7 +32,7 @@ run: $(ROM)
 playmusic:
 	$(MAKE) -C $(DEV)/gbdk-music playmusic DEV="../" EMU="$(EMU)"
 
-$(DEV)/gbdk-music/music.rel:
+$(DEV)/gbdk-music/music.rel: $(DEV)/gbdk-music/music.c
 	$(MAKE) -C $(DEV)/gbdk-music music.rel DEV="../" EMU="$(EMU)"
 
 main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel

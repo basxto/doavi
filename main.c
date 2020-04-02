@@ -73,6 +73,68 @@ typedef struct {
 // Savegame noram;
 Savegame *sg;
 
+void screen_shake(){
+    for(int i = 0; i < 8; ++i){
+        scroll_bkg(-2,0);
+        wait_vbl_done();
+        wait_vbl_done();
+        scroll_bkg(0,-2);
+        wait_vbl_done();
+        scroll_bkg(+4,0);
+        wait_vbl_done();
+        wait_vbl_done();
+        scroll_bkg(0,+4);
+        wait_vbl_done();
+        scroll_bkg(-2,0);
+        wait_vbl_done();
+        scroll_bkg(0,-2);
+    }
+}
+
+void init_screen(){
+    UINT8 tiles[0] ={1};
+    HIDE_BKG;
+    HIDE_WIN;
+    HIDE_SPRITES;
+    DISPLAY_OFF;
+    cgb_compatibility();
+    SPRITES_8x16;
+    used_sprites = 0;
+    anim_counter = 0;
+
+    BGP_REG = 0xE1; // 11100001
+    OBP0_REG = 0xE1;
+
+    set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
+    set_sprite_palette(0, 6, characters_pal[0]);
+
+    // load tilesets
+    set_win_data(WIN_START, sizeof(win_gbc_data) / 16, win_gbc_data);
+    set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
+                    characters_data);
+
+    VBK_REG = 1;
+    for (int x = 0; x < 22; ++x){
+        set_bkg_tiles(x, 17, 1, 1, tiles);
+        set_bkg_tiles(x, 0, 1, 1, tiles);
+    }
+    for (int y = 1; y <= 16; ++y){
+        set_bkg_tiles(21, y, 1, 1, tiles);
+        set_bkg_tiles(0, y, 1, 1, tiles);
+    }
+    VBK_REG = 0;
+    tiles[0] = WIN_START + (' '-8);
+    for (int x = 0; x < 22; ++x){
+        set_bkg_tiles(x, 17, 1, 1, tiles);
+        set_bkg_tiles(x, 0, 1, 1, tiles);
+    }
+    for (int y = 1; y <= 16; ++y){
+        set_bkg_tiles(21, y, 1, 1, tiles);
+        set_bkg_tiles(0, y, 1, 1, tiles);
+    }
+    move_bkg(8,8);
+}
+
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
     load_map(current_level->background);
@@ -146,7 +208,7 @@ void incject_map(UINT8 x, UINT8 y, UINT16 index) {
     tiles[1] = SHEET_START + current_map[index + 2];
     tiles[2] = SHEET_START + current_map[index + 1];
     tiles[3] = SHEET_START + current_map[index + 3];
-    set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
+    set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
 }
 
 void load_map(const UINT8 background[]) {
@@ -195,14 +257,14 @@ void load_map(const UINT8 background[]) {
                 palette = 4;
             }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
-            set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
+            set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
             VBK_REG = 0;
             // set tiles
             tiles[0] = SHEET_START + current_map[index];
             tiles[1] = SHEET_START + current_map[index + 2];
             tiles[2] = SHEET_START + current_map[index + 1];
             tiles[3] = SHEET_START + current_map[index + 3];
-            set_bkg_tiles(x * 2, y * 2, 2, 2, tiles);
+            set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
         }
     }
 
@@ -244,6 +306,7 @@ void interact() {
         draw_hud(sg->lives, sg->tpaper);
     }
     if (tile == 26) {
+        screen_shake();
         dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
                text_grave, 2);
         draw_hud(sg->lives, sg->tpaper);
@@ -336,42 +399,19 @@ void main() {
         sg->magic = 'V';
     }
     current_level = &level[sg->level_y][sg->level_x];
-    HIDE_BKG;
-    HIDE_WIN;
-    HIDE_SPRITES;
-    DISPLAY_OFF;
-    SPRITES_8x16;
-    used_sprites = 0;
     counter = 0;
-    anim_counter = 0;
-
-    BGP_REG = 0xE1; // 11100001
-    OBP0_REG = 0xE1;
+    init_screen();
+    init_hud();
 
     init_music(&the_journey_begins);
 
     render_character(&(sg->player));
-
-    cgb_compatibility();
-    set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
-    set_sprite_palette(0, 6, characters_pal[0]);
-
-    // load tilesets
-    set_win_data(WIN_START, sizeof(win_gbc_data) / 16, win_gbc_data);
-    set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
-                    characters_data);
     load_map(current_level->background);
 
-    // init_hud();
-
-    // render_character(&(sg->player));
 
     SHOW_BKG;
     SHOW_WIN;
     DISPLAY_ON;
-    // reset();
-
-    // set_sprite_tile(2, SHEET_START + current_map[20]);
 
     // configure interrupt
     TIMA_REG = TMA_REG = 0x1A;
@@ -394,7 +434,6 @@ void main() {
     smart_write(0, 0, 20, 18, strlen(text_youaream), text_youaream);
     waitpad(J_A);
     delay(100);
-    init_hud();
     draw_hud(sg->lives, sg->tpaper);
 
     SHOW_SPRITES;

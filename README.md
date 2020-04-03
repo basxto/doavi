@@ -81,3 +81,11 @@ All code is put under [MIT](license.md) license by [basxto][].
 [cc-by-sa 4.0]: https://creativecommons.org/licenses/by-sa/4.0/
 
 [GameBoy Online]: https://github.com/taisel/GameBoy-Online
+
+## After jam stretch goals:
+* [ ] Support items that can be actively used
+* [ ] Allow environment destruction (digging, gras cutting)
+* [ ] Support houses and caves
+* [ ] Implement 20min of story
+* [ ] Fill up ROM
+* [ ] Compress data and fill up ROM even more

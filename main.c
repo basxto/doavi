@@ -240,7 +240,7 @@ void load_map(const UINT8 background[]) {
 
     DISPLAY_OFF;
     // load spritesheet
-    if (sg->level_y > 1) {
+    if (sg->level_y > 3) {
         current_map = overworld_b_gbc_map;
         set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data) / 16,
                      overworld_b_gbc_data);
@@ -398,7 +398,7 @@ void main() {
     ENABLE_RAM_MBC1;
     if (sg->magic != 'V') {
         sg->level_x = 1;
-        sg->level_y = 2;
+        sg->level_y = 4;
 
         sg->player.x = 4;
         sg->player.y = 4;

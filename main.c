@@ -285,8 +285,8 @@ void load_map(const UINT8 background[]) {
     }
 
     // map scripting
-    if (!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1) {
-        incject_map(7, 3, 29);
+    if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+        incject_map(2, 2, 29);
     }
     DISPLAY_ON;
 }
@@ -334,8 +334,8 @@ void interact() {
         //reset();
     }
     if (tile == 32) {
-        if (!(sg->collectable & 0x1) && sg->level_x == 2 && sg->level_y == 1) {
-            incject_map(7, 3, 30);
+        if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+            incject_map(2, 2, 30);
             sg->collectable |= 0x1;
             sg->tpaper++;
             draw_hud(sg->lives, sg->tpaper);

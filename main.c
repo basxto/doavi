@@ -77,7 +77,7 @@ void menu(){
     move_win(7, 0);
     HIDE_SPRITES;
     UINT8 ret = smart_write(0, 0, 20, 18, strlen(text_menucont), text_menucont);
-    write_num(12, 1, 3, ret);
+    //write_num(12, 1, 3, ret);
     switch(ret){
         case 2:
             smart_write(0, 0, 20, 18, strlen(text_creditsc), text_creditsc);
@@ -310,7 +310,7 @@ void interact() {
         break;
     }
     tile = current_level->background[(y * WIDTH) + x];
-    write_num(8, 1, 3, tile);
+    //write_num(8, 1, 3, tile);
     if (tile == 18) {
         if (sg->level_x == 0 && sg->level_y == 0) {
             dialog(strlen(text_whatsupn), text_whatsupn, strlen(text_sign),
@@ -450,6 +450,7 @@ void main() {
     smart_write(0, 0, 20, 18, strlen(text_youaream), text_youaream);
     waitpad(J_A);
     delay(100);
+    init_hud();
     draw_hud(sg->lives, sg->tpaper);
 
     SHOW_SPRITES;

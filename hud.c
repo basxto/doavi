@@ -13,16 +13,16 @@ void init_hud() {
     UINT8 x;
     UINT8 y;
     VBK_REG = 1;
-    tiles[0] = 4;
+    tiles[0] = 2;
     for (x = 0; x < 20; ++x) {
-        for (y = 0; y < 4; ++y) {
+        for (y = 0; y < 20; ++y) {
             set_win_tiles(x, y, 1, 1, tiles);
         }
     }
     VBK_REG = 0;
     tiles[0] = WIN_START + (' '-8);
     for (x = 0; x < 20; ++x) {
-        for (y = 0; y < 4; ++y) {
+        for (y = 0; y < 20; ++y) {
             set_win_tiles(x, y, 1, 1, tiles);
         }
     }

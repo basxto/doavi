@@ -3,7 +3,6 @@
  <tileset firstgid="1" source="collision.tsx"/>
  <tileset firstgid="2" source="overworld_gb.tsx"/>
  <tileset firstgid="34" source="house.tsx"/>
- <tileset firstgid="54" source="bush.tsx"/>
  <layer id="1" name="background" width="10" height="8">
   <data encoding="csv">
 2,5,2,2,2,6,5,2,2,5,

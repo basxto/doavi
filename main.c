@@ -185,7 +185,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         sg->level_x--;
         chrctr->x += WIDTH + x;
         wait_vbl_done();
-        render_character(&(sg->player));
+        render_character(chrctr);
         change_level();
         return 0;
     }
@@ -193,7 +193,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         sg->level_x++;
         chrctr->x += -WIDTH + x;
         wait_vbl_done();
-        render_character(&(sg->player));
+        render_character(chrctr);
         change_level();
         return 0;
     }
@@ -201,7 +201,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         sg->level_y--;
         chrctr->y += HEIGHT + y;
         wait_vbl_done();
-        render_character(&(sg->player));
+        render_character(chrctr);
         change_level();
         return 0;
     }
@@ -209,7 +209,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         sg->level_y++;
         chrctr->y += -HEIGHT + y;
         wait_vbl_done();
-        render_character(&(sg->player));
+        render_character(chrctr);
         change_level();
         return 0;
     }
@@ -223,7 +223,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
                 chrctr->offset_y++;
             }
             wait_vbl_done();
-            render_character(&(sg->player));
+            render_character(chrctr);
             if(i == 5){
                 chrctr->offset_y--;
             }
@@ -233,12 +233,45 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         chrctr->x += x;
         chrctr->y += y;
         wait_vbl_done();
-        render_character(&(sg->player));
+        render_character(chrctr);
         return 0;
     } else {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }
+}
+
+UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
+    if(move_character(&(sg->player), x, y, collision) == 1){
+        blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
+        return 1;
+    }
+    UINT8 tile = current_level->background[(sg->player.y * WIDTH) + sg->player.x];
+
+    // trigger stuff
+
+    //  house entrance
+    if(tile == 34 + 10){
+        sg->level_x = 0;
+        sg->level_y = 5;
+        sg->player.x = 5;
+        sg->player.y = 6;
+        wait_vbl_done();
+        render_character(&(sg->player));
+        change_level();
+    }
+
+    // player stepped into the doorway
+    if(sg->level_x == 0 && sg->level_y == 5 && sg->player.y == 7){
+        sg->level_x = 1;
+        sg->level_y = 1;
+        sg->player.x = 7;
+        sg->player.y = 5;
+        wait_vbl_done();
+        render_character(&(sg->player));
+        change_level();
+    }
+    return 0;
 }
 
 void incject_map(UINT8 x, UINT8 y, UINT16 index) {
@@ -500,29 +533,25 @@ void main() {
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
             sg->player.direction = 3;
-            if (move_character(&(sg->player), 1, 0, current_level->collision) ==
-                1)
+            if (move_player(1, 0, current_level->collision) ==1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
             sg->player.direction = 2;
-            if (move_character(&(sg->player), -1, 0,
-                               current_level->collision) == 1)
+            if (move_player(-1, 0,current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
             sg->player.direction = 1;
-            if (move_character(&(sg->player), 0, -1,
-                               current_level->collision) == 1)
+            if (move_player(0, -1,current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
             sg->player.direction = 0;
-            if (move_character(&(sg->player), 0, 1, current_level->collision) ==
-                1)
+            if (move_player(0, 1, current_level->collision) ==1)
                 render_character(&(sg->player));
             delay(100);
             break;

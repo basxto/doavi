@@ -2,8 +2,7 @@
 <map version="1.2" tiledversion="1.3.3" orientation="orthogonal" renderorder="right-down" width="10" height="8" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#c865ca00" nextlayerid="4" nextobjectid="1">
  <tileset firstgid="1" source="collision.tsx"/>
  <tileset firstgid="2" source="overworld_gb.tsx"/>
- <tileset firstgid="34" source="../../../Projekte/dessert_on_a_vegan_island/level/house.tsx"/>
- <tileset firstgid="54" source="../../../Projekte/dessert_on_a_vegan_island/level/collision.tsx"/>
+ <tileset firstgid="34" source="house.tsx"/>
  <layer id="1" name="background" width="10" height="8">
   <data encoding="csv">
 12,11,5,2,5,2,2,4,29,4,
@@ -31,11 +30,11 @@
  <layer id="3" name="collision" width="10" height="8" opacity="0.3">
   <data encoding="csv">
 1,1,0,0,0,0,0,0,0,0,
-1,1,0,54,54,54,54,54,0,0,
-1,1,0,54,54,54,54,54,0,0,
-1,1,0,54,54,54,54,54,0,0,
-1,1,0,54,54,54,54,54,0,0,
-1,1,0,54,54,0,54,54,0,0,
+1,1,0,1,1,1,1,1,0,0,
+1,1,0,1,1,1,1,1,0,0,
+1,1,0,1,1,1,1,1,0,0,
+1,1,0,1,1,1,1,1,0,0,
+1,1,0,1,1,0,1,1,0,0,
 1,1,0,0,0,0,0,0,0,0,
 1,1,1,1,1,1,1,1,1,1
 </data>

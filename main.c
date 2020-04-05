@@ -61,6 +61,8 @@ typedef struct {
     UINT8 sprite; // sprite character section
     // maybe completely remove this and do this in animation tick
     UINT8 sprite_index;
+    INT8 offset_x;
+    INT8 offset_y;
 } Character;
 
 typedef struct {
@@ -167,13 +169,13 @@ void render_character(const Character *chrctr) {
     UINT8 base = chrctr->sprite * 4 * 4 + chrctr->direction * 4;
     set_sprite_tile(chrctr->sprite_index,
                     CHARACTERS_START + characters_map[base]);
-    move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16,
-                16 + (chrctr->y) * 16);
+    move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16 + chrctr->offset_x,
+                16 + (chrctr->y) * 16 + chrctr->offset_y);
     set_sprite_prop(chrctr->sprite_index, chrctr->palette);
     set_sprite_tile(chrctr->sprite_index + 1,
                     CHARACTERS_START + characters_map[base + 2]);
-    move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x) * 16 + 8,
-                16 + (chrctr->y) * 16);
+    move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
+                16 + (chrctr->y) * 16 + chrctr->offset_y);
     set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
 }
 
@@ -213,8 +215,24 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
+        for(int i = 0; i < 8; ++i){
+            chrctr->offset_x += x*2;
+            chrctr->offset_y += y*2;
+            // a little jump in the walk
+            if(i == 3){
+                chrctr->offset_y++;
+            }
+            wait_vbl_done();
+            render_character(&(sg->player));
+            if(i == 5){
+                chrctr->offset_y--;
+            }
+        }
+        chrctr->offset_x = 0;
+        chrctr->offset_y = 0;
         chrctr->x += x;
         chrctr->y += y;
+        wait_vbl_done();
         render_character(&(sg->player));
         return 0;
     } else {
@@ -426,6 +444,8 @@ void main() {
         sg->player.direction = 0;
         sg->player.palette = 2;
         sg->player.sprite_index = 38;
+        sg->player.offset_x = 0;
+        sg->player.offset_y = 0;
 
         sg->lives = 5;
         sg->tpaper = 0;

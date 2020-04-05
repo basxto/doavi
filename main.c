@@ -13,16 +13,19 @@
 #include "pix/overworld_a_gbc_data.c"
 #include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_b_gbc_data.c"
+#include "pix/inside_wood_house_data.c"
 #include "pix/win_gbc_data.c"
 
 #include "pix/characters_map.c"
 #include "pix/overworld_a_gbc_map.c"
 #include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_b_gbc_map.c"
+#include "pix/inside_wood_house_map.c"
 
 #include "pix/characters_pal.c"
 #include "pix/overworld_a_gbc_pal.c"
 #include "pix/overworld_b_gbc_pal.c"
+#include "pix/inside_wood_house_pal.c"
 
 #include "strings.c"
 
@@ -69,6 +72,9 @@ typedef struct {
     // each bit for one
     UINT8 collectable;
     Character player;
+    // allow player to have 8 items
+    UINT8 items[8];
+    UINT8 selected_item;
 } Savegame;
 // Savegame noram;
 Savegame *sg;
@@ -240,11 +246,17 @@ void load_map(const UINT8 background[]) {
 
     DISPLAY_OFF;
     // load spritesheet
-    if (sg->level_y > 3) {
+    if (sg->level_y == 4) {
         current_map = overworld_b_gbc_map;
         set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data) / 16,
                      overworld_b_gbc_data);
         set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
+        BGP_REG = 0xE4; // 11100100
+    } else if (sg->level_y > 4) {
+        current_map = inside_wood_house_map;
+        set_bkg_data(SHEET_START, sizeof(inside_wood_house_data) / 16,
+                     inside_wood_house_data);
+        set_bkg_palette(0, 6, inside_wood_house_pal[0]);
         BGP_REG = 0xE4; // 11100100
     } else {
         current_map = overworld_a_gbc_map;
@@ -271,6 +283,14 @@ void load_map(const UINT8 background[]) {
                 (tile % (SPRITEWIDTH / 2)) >= 4) {
                 // last row has two palletes
                 palette = 4;
+            }
+            // houses extension
+            if (current_map == overworld_a_gbc_map && palette > 3){
+                palette = 2;
+            }
+            // inside house
+            if (current_map == inside_wood_house_map){
+                palette = 2;
             }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
             set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);

@@ -2,7 +2,8 @@
 #include "pix/dialog_photos_data.c"
 
 // as defined in makefile
-const unsigned char * win_gbc_data_inrom = (0x7FFF-0x1880);
+//const unsigned char * win_gbc_data_inrom;// = (0x7FFF-0x1880);
+extern const unsigned char win_gbc_data[];
 
 #define buffer_length (16)
 // be cautious with this!
@@ -282,7 +283,7 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
     tiles[14] = tiles[15] = 0xFF;
     for(y = 0; y < namelength; ++y){
        for(x = 2; x < 14; ++x){
-           tiles[x] = ~win_gbc_data_inrom[(name[y])*16 + x];
+           tiles[x] = ~win_gbc_data[(name[y])*16 + x];
        }
        set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
     }

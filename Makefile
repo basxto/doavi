@@ -35,14 +35,14 @@ playmusic:
 $(DEV)/gbdk-music/music.rel: $(DEV)/gbdk-music/music.c
 	$(MAKE) -C $(DEV)/gbdk-music music.rel DEV="../" EMU="$(EMU)"
 
-main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel
+main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel
 	$(LK) -o $@ $^
 
 %.ihx: %.rel
 	$(LK) -o $@ $^
 
 main.rel: main.c $(PIX) $(MUSIC) level.c strings.c
-	$(CC) -o $@ $<
+	$(CC) -o $@ $< 
 
 hud.rel: hud.c pix/dialog_photos_data.c
 	$(CC) -o $@ $<
@@ -51,21 +51,21 @@ hud.rel: hud.c pix/dialog_photos_data.c
 	$(CC) -o $@ $^
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
-	$(pngconvert) --width 4 --height 4 -u yes --datarom $(call calc_hex,0x7FFF-0x100-2*0x40-2*0x1000-(3*16*4*16)) $^ -o $@
+	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
-	$(pngconvert) --width 2 --height 2 -u yes --datarom $(call calc_hex,0x7FFF-0x100-2*0x40-2*0x1000-(3*16*4*16)-0x800) $^ -o $@
+	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
-	$(pngconvert) --datarom "0x7FFF-0x1880" $^
+	$(pngconvert) $^
 
 # define position in rom
 # datrom and palrom have fixed max size
 pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png  pix/bush.png
-	$(pngconvert) --width 2 --height 2 --limit 128 --datarom $(call calc_hex,0x7FFF-0x1000) --palrom $(call calc_hex,0x7FFF-0x1000-2*0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-2*0x100) $^
+	$(pngconvert) --width 2 --height 2 --limit 128 $^
 
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
-	$(pngconvert) --width 2 --height 2 --datarom $(call calc_hex,0x7FFF-0x800) --palrom $(call calc_hex,0x7FFF-0x1000-0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-0x100) $^
+	$(pngconvert) --width 2 --height 2 $^
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
@@ -83,11 +83,11 @@ pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
 	$(tmxconvert) $^
 
 level.c: $(LEVELTMX)
-	$(tmxconvert) -r 0x4000 $^
+	$(tmxconvert) $^
 	$(DEV)/worldmap.sh
 
 strings.c: strings.txt
-	$(DEV)/txt2c.sh $^ $@ 0x5000
+	$(DEV)/txt2c.sh $^ $@
 
 pix/overworld%gb.png: pix/overworld%gbc.png
 	$(loadgpl) $^ pix/overworld_gb.gpl $@
@@ -135,10 +135,10 @@ rompng:
 
 ### tests for building banks
 pix/overworld_a_test_gbc_data.c: pix/overworld_a_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ --datarom $(call calc_hex,0x7FFF-0x800) --palrom $(call calc_hex,0x7FFF-0x1000-0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-0x100) -o pix/overworld_a_test_gbc
+	$(pngconvert) --width 2 --height 2 $^ -o pix/overworld_a_test_gbc
 
 pix/overworld_b_test_gbc_data.c: pix/overworld_b_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ --datarom $(call calc_hex,0x7FFF-0x1000) --palrom $(call calc_hex,0x7FFF-0x1000-2*0x40) --maprom $(call calc_hex,0x7FFF-0x1000-2*0x40-2*0x100) -o pix/overworld_b_test_gbc
+	$(pngconvert) --width 2 --height 2 $^ -o pix/overworld_b_test_gbc
 
 banking.gb: banking.ihx
 	$(MKROM) $< $@

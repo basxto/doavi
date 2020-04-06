@@ -11,10 +11,16 @@ if [ $# -eq 3 ]; then
 fi
 
 echo "// Generated with text2c.sh" > "$2"
-echo "#define strlen(x) (sizeof(x) - 1)" >> "$2"
+#echo "#include \"${2/.c/.h}\"" >> "$2"
+echo "#define strlen(x) (sizeof(x) - 1)" >> "${2}"
+
+echo "// Generated with text2c.sh" > "${2/.c/.h}"
+echo "#ifndef ${2/.c/_h}" >> "${2/.c/.h}"
+echo "#define ${2/.c/_h}" >> "${2/.c/.h}"
+echo "#define strlen(x) (sizeof(x) - 1)" >> "${2/.c/.h}"
 
 for i in $(seq 0 $((${#name[@]}-1))); do
-    size=$(echo -n "${value[i]}" | sed 's/\\././g' | wc -c)
+    size=$(echo -n "${value[i]}" | sed 's/\\x[0-9]*/./g' | sed 's/\\././g' | sed 's/""//g' | wc -c)
     varname=text_${name[i]:0:8}
     if [ "$address" != "-1" ]; then
         printf "__at (0x%X) " ${address} >> "$2"
@@ -24,5 +30,8 @@ for i in $(seq 0 $((${#name[@]}-1))); do
         >&2 echo Error: ${varname} has a length of ${size}, which does not fit into UINT8
         exit 1
     fi
-    echo const unsigned char ${varname}[] = \""${value[i]}"\"\; >> "$2"
+    echo const unsigned char ${varname}[$((size+1))] = \""${value[i]}"\"\; >> "$2"
+    echo extern const unsigned char ${varname}[$((size+1))]\; >> "${2/.c/.h}"
 done
+
+echo "#endif" >> "${2/.c/.h}"

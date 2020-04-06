@@ -4,81 +4,38 @@
 #include <gb/cgb.h>
 #include <stdio.h>
 
+#include "main.h"
+
 #include "hud.h"
+#include "logic.h"
+#include "map.h"
 
 #include "dev/gbdk-music/music.h"
 #include "dev/gbdk-music/music/the_journey_begins.c"
 
 #include "pix/characters_data.c"
-#include "pix/inside_wood_house_data.c"
-#include "pix/overworld_a_gbc_data.c"
 #include "pix/overworld_anim_gbc_data.c"
-#include "pix/overworld_b_gbc_data.c"
 #include "pix/win_gbc_data.c"
 
 #include "pix/characters_map.c"
-#include "pix/inside_wood_house_map.c"
-#include "pix/overworld_a_gbc_map.c"
 #include "pix/overworld_anim_gbc_map.c"
-#include "pix/overworld_b_gbc_map.c"
 
 #include "pix/characters_pal.c"
-#include "pix/inside_wood_house_pal.c"
-#include "pix/overworld_a_gbc_pal.c"
-#include "pix/overworld_b_gbc_pal.c"
 
-#include "strings.c"
+#include "strings.h"
 
-// all maps are 10 tiles (16x16) wide and 9 tiles high
-#define HEIGHT (8)
-#define WIDTH (10)
-// tile (8x8) width of our sprite
-#define SPRITEWIDTH (16)
-#define TRANSPARENT (RGB(12, 25, 0))
-
-#define CHARACTERS_START (0)
-#define SHEET_START (128)
-// width in 16x16 blocks
-#define SHEET_WIDTH (8)
-#define ANIM_WIDTH (4)
 
 #include "level.c"
 
-void load_map(const UINT8 background[]);
+extern const unsigned char overworld_a_gbc_map[];
+extern const unsigned char overworld_b_gbc_map[];
 
-UINT8 used_sprites;
+
 UINT8 counter;
 UINT8 anim_counter;
 
 Level *current_level;
-const unsigned char *current_map;
-
-typedef struct {
-    UINT8 x; // position
-    UINT8 y;
-    UINT8 direction;
-    UINT8 palette;
-    UINT8 sprite; // sprite character section
-    // maybe completely remove this and do this in animation tick
-    UINT8 sprite_index;
-    INT8 offset_x;
-    INT8 offset_y;
-} Character;
-
-typedef struct {
-    char magic;
-    UINT8 level_x;
-    UINT8 level_y;
-    UINT8 lives;
-    UINT8 tpaper;
-    // each bit for one
-    UINT8 collectable;
-    Character player;
-    // allow player to have 8 items
-    UINT8 items[8];
-    UINT8 selected_item;
-} Savegame;
-// Savegame noram;
+extern const unsigned char *current_map;
 Savegame *sg;
 
 void menu() {
@@ -123,13 +80,12 @@ void init_screen() {
     DISPLAY_OFF;
     cgb_compatibility();
     SPRITES_8x16;
-    used_sprites = 0;
     anim_counter = 0;
 
     BGP_REG = 0xE1; // 11100001
     OBP0_REG = 0xE1;
 
-    set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
+    //set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
     set_sprite_palette(0, 6, characters_pal[0]);
 
     // load tilesets
@@ -241,197 +197,6 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         return 1;
     }
 }
-
-UINT8 teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
-    sg->level_x = lx;
-    sg->level_y = ly;
-    sg->player.x = px;
-    sg->player.y = py;
-    wait_vbl_done();
-    render_character(&(sg->player));
-    change_level();
-}
-
-UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
-    if (move_character(&(sg->player), x, y, collision) == 1) {
-        blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
-        return 1;
-    }
-    UINT8 tile =
-        current_level->background[(sg->player.y * WIDTH) + sg->player.x];
-
-    // trigger stuff
-
-    //  house entrance
-    if (tile == 34 + 10) {
-        teleport_to(0, 5, 5, 6);
-    }
-
-    // player stepped into the doorway
-    if (sg->level_x == 0 && sg->level_y == 5 && sg->player.y == 7) {
-        teleport_to(1, 1, 7, 5);
-    }
-    return 0;
-}
-
-void incject_map(UINT8 x, UINT8 y, UINT16 index) {
-    unsigned char tiles[4];
-    index *= 4;
-    tiles[0] = SHEET_START + current_map[index];
-    tiles[1] = SHEET_START + current_map[index + 2];
-    tiles[2] = SHEET_START + current_map[index + 1];
-    tiles[3] = SHEET_START + current_map[index + 3];
-    set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
-}
-
-void load_map(const UINT8 background[]) {
-    UINT8 y;
-    UINT8 x;
-    UINT16 index;
-    UINT8 i;
-    // tmx
-    UINT16 tile;
-    // loaded spritesheet
-    UINT8 palette;
-    unsigned char tiles[4];
-
-    DISPLAY_OFF;
-    // load spritesheet
-    if (sg->level_y == 4) {
-        current_map = overworld_b_gbc_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data) / 16,
-                     overworld_b_gbc_data);
-        set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
-        BGP_REG = 0xE4; // 11100100
-    } else if (sg->level_y > 4) {
-        current_map = inside_wood_house_map;
-        set_bkg_data(SHEET_START, sizeof(inside_wood_house_data) / 16,
-                     inside_wood_house_data);
-        set_bkg_palette(0, 6, inside_wood_house_pal[0]);
-        BGP_REG = 0xE4; // 11100100
-    } else {
-        current_map = overworld_a_gbc_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data) / 16,
-                     overworld_a_gbc_data);
-        set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
-        BGP_REG = 0xE1;
-    }
-
-    // reset all sprites used_sprites
-    for (i = 0; i < used_sprites; ++i)
-        move_sprite(used_sprites, 0, 0);
-
-    for (y = 0; y < HEIGHT; ++y) {
-        for (x = 0; x < WIDTH; ++x) {
-            // load background
-            tile = background[(y * WIDTH) + x] - 2;
-            index = tile * 4;
-            // set color (GBC only)
-            VBK_REG = 1;
-            // each row has own palette
-            palette = tile / (SPRITEWIDTH / 2);
-            if (current_map == overworld_a_gbc_map && palette == 3 &&
-                (tile % (SPRITEWIDTH / 2)) >= 4) {
-                // last row has two palletes
-                palette = 4;
-            }
-            // houses extension
-            if (current_map == overworld_a_gbc_map && palette > 3) {
-                palette = 2;
-            }
-            // inside house
-            if (current_map == inside_wood_house_map) {
-                palette = 2;
-            }
-            tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
-            set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
-            VBK_REG = 0;
-            // set tiles
-            tiles[0] = SHEET_START + current_map[index];
-            tiles[1] = SHEET_START + current_map[index + 2];
-            tiles[2] = SHEET_START + current_map[index + 1];
-            tiles[3] = SHEET_START + current_map[index + 3];
-            set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
-        }
-    }
-
-    // map scripting
-    if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
-        incject_map(2, 2, 29);
-    }
-    DISPLAY_ON;
-}
-
-void interact() {
-    UINT8 x = sg->player.x;
-    UINT8 y = sg->player.y;
-    UINT8 tile;
-    switch (sg->player.direction) {
-    case 0:
-        y++;
-        break;
-    case 1:
-        y--;
-        break;
-    case 2:
-        x--;
-        break;
-    case 3:
-        x++;
-        break;
-    }
-    tile = current_level->background[(y * WIDTH) + x];
-    // write_num(8, 1, 3, tile);
-    if (tile == 18) {
-        if (sg->level_x == 0 && sg->level_y == 0) {
-            dialog(strlen(text_whatsupn), text_whatsupn, strlen(text_sign),
-                   text_sign, 1);
-        } else {
-            dialog(strlen(text_hellowor), text_hellowor, strlen(text_sign),
-                   text_sign, 1);
-        }
-        draw_hud(sg->lives, sg->tpaper);
-    }
-    if (tile == 26) {
-        screen_shake();
-        dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
-               text_grave, 2);
-        draw_hud(sg->lives, sg->tpaper);
-    }
-    if (tile == 30) {
-        dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
-               text_flame, 3);
-        draw_hud(sg->lives, sg->tpaper);
-        // reset();
-    }
-    if (tile == 32) {
-        if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
-            incject_map(2, 2, 30);
-            sg->collectable |= 0x1;
-            sg->tpaper++;
-            draw_hud(sg->lives, sg->tpaper);
-            blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
-        }
-    }
-}
-
-// index of tile in spritesheet; index of tile in animation sheet
-// 16x16 block indices
-#define replace_tile(index, indexa, counter)                                   \
-    (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4], 4,                               \
-        &overworld_anim_gbc_data                                               \
-            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4] *   \
-             16]))
-
-// for compressed tiles
-#define replace_subtile(index, indexa, counter, offset)                        \
-    (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4 + offset], 1,                      \
-        &overworld_anim_gbc_data                                               \
-            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4 +    \
-                                    offset] *                                  \
-             16]))
 
 inline void tick_animate() {
     if (current_map == overworld_a_gbc_map) {

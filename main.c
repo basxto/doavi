@@ -10,22 +10,22 @@
 #include "dev/gbdk-music/music/the_journey_begins.c"
 
 #include "pix/characters_data.c"
+#include "pix/inside_wood_house_data.c"
 #include "pix/overworld_a_gbc_data.c"
 #include "pix/overworld_anim_gbc_data.c"
 #include "pix/overworld_b_gbc_data.c"
-#include "pix/inside_wood_house_data.c"
 #include "pix/win_gbc_data.c"
 
 #include "pix/characters_map.c"
+#include "pix/inside_wood_house_map.c"
 #include "pix/overworld_a_gbc_map.c"
 #include "pix/overworld_anim_gbc_map.c"
 #include "pix/overworld_b_gbc_map.c"
-#include "pix/inside_wood_house_map.c"
 
 #include "pix/characters_pal.c"
+#include "pix/inside_wood_house_pal.c"
 #include "pix/overworld_a_gbc_pal.c"
 #include "pix/overworld_b_gbc_pal.c"
-#include "pix/inside_wood_house_pal.c"
 
 #include "strings.c"
 
@@ -81,42 +81,42 @@ typedef struct {
 // Savegame noram;
 Savegame *sg;
 
-void menu(){
+void menu() {
     move_win(7, 0);
     HIDE_SPRITES;
     UINT8 ret = smart_write(0, 0, 20, 18, strlen(text_menucont), text_menucont);
-    //write_num(12, 1, 3, ret);
-    switch(ret){
-        case 2:
-            smart_write(0, 0, 20, 18, strlen(text_creditsc), text_creditsc);
-            waitpad(J_A);
-            delay(100);
-            break;
+    // write_num(12, 1, 3, ret);
+    switch (ret) {
+    case 2:
+        smart_write(0, 0, 20, 18, strlen(text_creditsc), text_creditsc);
+        waitpad(J_A);
+        delay(100);
+        break;
     }
     draw_hud(sg->lives, sg->tpaper);
     SHOW_SPRITES;
 }
 
-void screen_shake(){
-    for(int i = 0; i < 8; ++i){
-        scroll_bkg(-2,0);
+void screen_shake() {
+    for (int i = 0; i < 8; ++i) {
+        scroll_bkg(-2, 0);
         wait_vbl_done();
         wait_vbl_done();
-        scroll_bkg(0,-2);
+        scroll_bkg(0, -2);
         wait_vbl_done();
-        scroll_bkg(+4,0);
+        scroll_bkg(+4, 0);
         wait_vbl_done();
         wait_vbl_done();
-        scroll_bkg(0,+4);
+        scroll_bkg(0, +4);
         wait_vbl_done();
-        scroll_bkg(-2,0);
+        scroll_bkg(-2, 0);
         wait_vbl_done();
-        scroll_bkg(0,-2);
+        scroll_bkg(0, -2);
     }
 }
 
-void init_screen(){
-    UINT8 tiles[0] ={1};
+void init_screen() {
+    UINT8 tiles[0] = {1};
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
@@ -138,25 +138,25 @@ void init_screen(){
                     characters_data);
 
     VBK_REG = 1;
-    for (int x = 0; x < 22; ++x){
+    for (int x = 0; x < 22; ++x) {
         set_bkg_tiles(x, 17, 1, 1, tiles);
         set_bkg_tiles(x, 0, 1, 1, tiles);
     }
-    for (int y = 1; y <= 16; ++y){
+    for (int y = 1; y <= 16; ++y) {
         set_bkg_tiles(21, y, 1, 1, tiles);
         set_bkg_tiles(0, y, 1, 1, tiles);
     }
     VBK_REG = 0;
-    tiles[0] = WIN_START + (' '-8);
-    for (int x = 0; x < 22; ++x){
+    tiles[0] = WIN_START + (' ' - 8);
+    for (int x = 0; x < 22; ++x) {
         set_bkg_tiles(x, 17, 1, 1, tiles);
         set_bkg_tiles(x, 0, 1, 1, tiles);
     }
-    for (int y = 1; y <= 16; ++y){
+    for (int y = 1; y <= 16; ++y) {
         set_bkg_tiles(21, y, 1, 1, tiles);
         set_bkg_tiles(0, y, 1, 1, tiles);
     }
-    move_bkg(8,8);
+    move_bkg(8, 8);
 }
 
 void change_level() {
@@ -174,7 +174,8 @@ void render_character(const Character *chrctr) {
     set_sprite_prop(chrctr->sprite_index, chrctr->palette);
     set_sprite_tile(chrctr->sprite_index + 1,
                     CHARACTERS_START + characters_map[base + 2]);
-    move_sprite(chrctr->sprite_index + 1, 8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
+    move_sprite(chrctr->sprite_index + 1,
+                8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
                 16 + (chrctr->y) * 16 + chrctr->offset_y);
     set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
 }
@@ -215,16 +216,16 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
-        for(int i = 0; i < 8; ++i){
-            chrctr->offset_x += x*2;
-            chrctr->offset_y += y*2;
+        for (int i = 0; i < 8; ++i) {
+            chrctr->offset_x += x * 2;
+            chrctr->offset_y += y * 2;
             // a little jump in the walk
-            if(i == 3){
+            if (i == 3) {
                 chrctr->offset_y++;
             }
             wait_vbl_done();
             render_character(chrctr);
-            if(i == 5){
+            if (i == 5) {
                 chrctr->offset_y--;
             }
         }
@@ -241,35 +242,34 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
 }
 
+UINT8 teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
+    sg->level_x = lx;
+    sg->level_y = ly;
+    sg->player.x = px;
+    sg->player.y = py;
+    wait_vbl_done();
+    render_character(&(sg->player));
+    change_level();
+}
+
 UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
-    if(move_character(&(sg->player), x, y, collision) == 1){
+    if (move_character(&(sg->player), x, y, collision) == 1) {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }
-    UINT8 tile = current_level->background[(sg->player.y * WIDTH) + sg->player.x];
+    UINT8 tile =
+        current_level->background[(sg->player.y * WIDTH) + sg->player.x];
 
     // trigger stuff
 
     //  house entrance
-    if(tile == 34 + 10){
-        sg->level_x = 0;
-        sg->level_y = 5;
-        sg->player.x = 5;
-        sg->player.y = 6;
-        wait_vbl_done();
-        render_character(&(sg->player));
-        change_level();
+    if (tile == 34 + 10) {
+        teleport_to(0, 5, 5, 6);
     }
 
     // player stepped into the doorway
-    if(sg->level_x == 0 && sg->level_y == 5 && sg->player.y == 7){
-        sg->level_x = 1;
-        sg->level_y = 1;
-        sg->player.x = 7;
-        sg->player.y = 5;
-        wait_vbl_done();
-        render_character(&(sg->player));
-        change_level();
+    if (sg->level_x == 0 && sg->level_y == 5 && sg->player.y == 7) {
+        teleport_to(1, 1, 7, 5);
     }
     return 0;
 }
@@ -336,11 +336,11 @@ void load_map(const UINT8 background[]) {
                 palette = 4;
             }
             // houses extension
-            if (current_map == overworld_a_gbc_map && palette > 3){
+            if (current_map == overworld_a_gbc_map && palette > 3) {
                 palette = 2;
             }
             // inside house
-            if (current_map == inside_wood_house_map){
+            if (current_map == inside_wood_house_map) {
                 palette = 2;
             }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
@@ -381,7 +381,7 @@ void interact() {
         break;
     }
     tile = current_level->background[(y * WIDTH) + x];
-    //write_num(8, 1, 3, tile);
+    // write_num(8, 1, 3, tile);
     if (tile == 18) {
         if (sg->level_x == 0 && sg->level_y == 0) {
             dialog(strlen(text_whatsupn), text_whatsupn, strlen(text_sign),
@@ -402,7 +402,7 @@ void interact() {
         dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
                text_flame, 3);
         draw_hud(sg->lives, sg->tpaper);
-        //reset();
+        // reset();
     }
     if (tile == 32) {
         if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
@@ -497,7 +497,6 @@ void main() {
     render_character(&(sg->player));
     load_map(current_level->background);
 
-
     SHOW_BKG;
     SHOW_WIN;
     DISPLAY_ON;
@@ -511,7 +510,7 @@ void main() {
     enable_interrupts();
     // gbdk needs VBL iflag
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
-    //UINT8 rom = 1;
+    // UINT8 rom = 1;
 
     move_win(7, 0);
     space_area(0, 0, 20, 18);
@@ -533,25 +532,25 @@ void main() {
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
             sg->player.direction = 3;
-            if (move_player(1, 0, current_level->collision) ==1)
+            if (move_player(1, 0, current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
             sg->player.direction = 2;
-            if (move_player(-1, 0,current_level->collision) == 1)
+            if (move_player(-1, 0, current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
             sg->player.direction = 1;
-            if (move_player(0, -1,current_level->collision) == 1)
+            if (move_player(0, -1, current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
             sg->player.direction = 0;
-            if (move_player(0, 1, current_level->collision) ==1)
+            if (move_player(0, 1, current_level->collision) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;

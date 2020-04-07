@@ -64,13 +64,28 @@ void interact() {
     }
     tile = current_level->background[(y * WIDTH) + x];
     // write_num(8, 1, 3, tile);
+    // s
     if (tile == 18) {
-        if (sg->level_x == 0 && sg->level_y == 0) {
-            dialog(strlen(text_whatsupn), text_whatsupn, strlen(text_sign),
+        if (sg->level_x == 1 && sg->level_y == 1) {
+            dialog(strlen(text_welcomet), text_welcomet, strlen(text_sign),
                    text_sign, 1);
         } else {
             dialog(strlen(text_hellowor), text_hellowor, strlen(text_sign),
                    text_sign, 1);
+        }
+        draw_hud(sg->lives, sg->tpaper);
+    }
+    // bottle
+    if (tile == 34) {
+        if(sg->collectable & 0x2){
+            dialog(strlen(text_thisbott), text_thisbott, strlen(text_narrator),
+               text_narrator, 0);
+        }else{
+            dialog(strlen(text_ohlookth), text_ohlookth, strlen(text_narrator),
+               text_narrator, 0);
+            dialog(strlen(text_pleasefi), text_pleasefi, strlen(text_letter),
+                text_letter, 4);
+            sg->collectable |= 0x2;
         }
         draw_hud(sg->lives, sg->tpaper);
     }

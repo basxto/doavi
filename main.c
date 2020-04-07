@@ -172,18 +172,12 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
     if ((collision[index / 8] & (1 << (index % 8))) == 0) {
-        for (int i = 0; i < 8; ++i) {
-            chrctr->offset_x += x * 2;
-            chrctr->offset_y += y * 2;
+        for (int i = 0; i < 4; ++i) {
+            chrctr->offset_x += x * 4;
+            chrctr->offset_y += y * 4;
             // a little jump in the walk
-            if (i == 3) {
-                chrctr->offset_y++;
-            }
             wait_vbl_done();
             render_character(chrctr);
-            if (i == 5) {
-                chrctr->offset_y--;
-            }
         }
         chrctr->offset_x = 0;
         chrctr->offset_y = 0;

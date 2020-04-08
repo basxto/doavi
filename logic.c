@@ -26,6 +26,16 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }
+
+    // leaving the beach if bottle is not collected
+    if((sg->collectable & 0x2) == 0 && sg->level_y == 4 && sg->player.y == 0){
+        dialog(strlen(text_youdontw), text_youdontw, strlen(text_narrator),
+               text_narrator, 0);
+        sg->player.direction = 0;
+        sg->player.y++;
+        return 1;
+    }
+
     UINT8 tile =
         current_level->background[(sg->player.y * WIDTH) + sg->player.x];
 

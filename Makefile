@@ -64,7 +64,7 @@ pix/win_gbc_data.c: pix/win_gbc.png
 pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png  pix/bush.png
 	$(pngconvert) --width 2 --height 2 --limit 128 $^
 
-pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png
+pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
 	$(pngconvert) --width 2 --height 2 $^
 
 %_anim_gbc_data.c: %_anim_gbc.png

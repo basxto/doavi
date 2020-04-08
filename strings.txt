@@ -32,3 +32,9 @@ You don't want\nto leave the\nbeach yet.
 Welcome to\nSorira village
 Oh look, the bottle contains a letter.
 This bottle is empty.
+A lighter is inside the box.
+A sword is inside the box.
+Power gloves are inside the box.
+You light the flame up.
+You have nothing to light this up.
+You need a weapon to cut this down.

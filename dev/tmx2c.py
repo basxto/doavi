@@ -3,12 +3,112 @@ from xml.dom import minidom
 import argparse
 import os
 import sys
+import math
+
+# long notation to bytes
+def long2byte(value, bytepart):
+    cvalues = ""
+    if bytepart == 0:
+        cvalues += "0x{0:02x}, ".format(value)
+    else:
+        cvalues += "{0:01x}, 0x{1:01x}".format((value>>4)&0xF, value&0xF)
+    return cvalues
+
+def short2halfbyte(value, bytepart):
+    cvalues = ""
+    if bytepart == 0:
+        cvalues += "0x"
+    cvalues += "{0:01x}".format(value&0xF)
+    if bytepart == 1:
+        cvalues += ", "
+    return cvalues
+
+def transform_value(v, byte, counter, cvalues, bytepart):
+    value = 0
+    # long grass in 4er blocks
+    if counter >= 4 and byte == 2:
+        amount = math.floor(counter/4)
+        for i in range(0, amount):
+            cvalues += long2byte(0xC0 | 0, bytepart)
+        # let the tail half do the rest
+        counter -= amount * 4
+        value = 0x0 | 0
+        byte = v
+    # short notation grass tiles
+    elif byte >= 2 and byte <= 6:
+        value = 0x0 | (byte-2)
+        byte = v
+    #tree tile pairs
+    elif counter == 1 and byte == 10 and v == 11:
+        value = 0x0 | 5
+        byte = -1
+    elif counter == 1 and byte == 12 and v == 13:
+        value = 0x0 | 6
+        byte = -1
+    elif counter == 1 and byte == 14 and v == 15:
+        value = 0x0 | 7
+        byte = -1
+    # long notation
+    else:
+        value = 0x80 | byte
+        byte = v
+    return (value, byte, counter, cvalues)
+
+def compress(values):
+    # 0x0 (half byte) often used
+    # 0x80 (byte) regular tiles
+    # 0xC0 (byte) special tile mapping
+    counter = 0
+    byte = -1
+    # first (0) or second (1)
+    bytepart = 0
+    # comrpessed values
+    cvalues = ""
+    for v in values:
+        # convert to interger, since they are all numbers
+        v = int(v)
+        if byte == -1:
+            byte = v
+            counter = 1
+        elif v == byte:
+            counter+=1
+        else:
+            value, byte, counter, cvalues = transform_value(v, byte, counter, cvalues, bytepart)
+            
+            for i in range(0, counter):
+                # byte
+                if value > 7:
+                    cvalues += long2byte(value, bytepart)
+                # half byte
+                else:
+                    cvalues += short2halfbyte(value, bytepart)
+                    bytepart = (bytepart + 1) % 2
+            # reset counter
+            counter = 1
+    
+    # handle the last byte
+    value, byte, counter, cvalues = transform_value(-1, byte, counter, cvalues, bytepart)
+    
+    for i in range(0, counter):
+        # byte
+        if value > 7:
+            cvalues += long2byte(value, bytepart)
+        # half byte
+        else:
+            cvalues += short2halfbyte(value, bytepart)
+            bytepart = (bytepart + 1) % 2
+    
+    # add missing half byte
+    if bytepart == 1:
+        cvalues += "0"
+    return cvalues
 
 ignore = ['sprites']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('tmx', metavar='map.tmx', nargs='+',help='Tiled map file')
 parser.add_argument("--rom", "-r", default="", help="Address within the ROM (gets incremented if multiple files are given)")
+parser.add_argument("--compress", "-c", default="no", help="Compress maps")
 global args
 
 args = parser.parse_args()
@@ -33,6 +133,8 @@ for filename in args.tmx:
 
     file = open(cfilename,'w')
     file.write('//Generated from ' + filename + ' by tmx2c\n')
+    if args.compress != "no":
+        file.write('//Compressed\n')
 
     layers = xmldoc.getElementsByTagName('layer')
     for l in layers:
@@ -70,7 +172,10 @@ for filename in args.tmx:
                 file.write('};\n')
             else:
                 values = l.getElementsByTagName('data')[0].firstChild.nodeValue
+                if args.compress != "no":
+                    values = compress(values.split(','))
                 file.write('const UINT8 ' + name + '[] = {' + values + '};\n')
+                file.write('//{0} bytes\n'.format(len(values.split(','))))
                 if rom != -1:
                     rom += len(values.split(','))
     file.close() 

@@ -1,7 +1,6 @@
 DEV?=./dev
 BIN=$(DEV)/gbdk-n/bin
 
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l
 LK?=$(BIN)/gbdk-n-link.sh -Wl-m
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
 MKROM?=$(BIN)/gbdk-n-make-rom.sh -yc -yn "DessertOnAVegI" -ya 4 -yt 2 -yo 4
@@ -9,6 +8,14 @@ EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
 pngconvert=$(DEV)/png2gb/png2gb.py
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
+
+COMPRESS?=0
+
+ifeq ($(COMPRESS),1)
+CC=$(BIN)/gbdk-n-compile.sh -Wa-l -DCOMPRESS=1
+else
+CC=$(BIN)/gbdk-n-compile.sh -Wa-l
+endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
@@ -83,7 +90,11 @@ pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
 	$(tmxconvert) $^
 
 level.c: $(LEVELTMX)
+ifeq ($(COMPRESS),1)
+	$(tmxconvert) --compress 1 $^
+else
 	$(tmxconvert) $^
+endif
 	$(DEV)/worldmap.sh
 
 strings.c: strings.txt

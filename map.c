@@ -15,6 +15,66 @@
 
 const unsigned char *current_map;
 
+#ifdef COMPRESS
+// always the same size
+UINT8 decompressed_background[80];
+
+// 0XXX short notation
+// 10XX XXXX other tiles (long notation)
+// 11XX XXXX special tiles
+// compressed with dev/tmx2c.py --compress=1
+const unsigned char * decompress(const UINT8 *compressed_map){
+    UINT8 c = 0;
+    UINT8 bytepart = 0;
+    UINT8 byte = 0;
+    UINT8 counter = 0;
+    UINT8 hi = 0;
+    UINT8 lo = 0;
+    for(UINT8 i = 0; i < 80; ++i){
+        if(counter > 0){
+            decompressed_background[i] = byte;
+            --counter;
+        }else{
+            if(bytepart == 0){
+                hi = (compressed_map[c] >> 4) & 0xF;
+                lo = compressed_map[c] & 0xF;
+            }else{
+                hi = compressed_map[c] & 0xF;
+                lo = (compressed_map[c+1] >> 4) & 0xF;
+            }
+            if((hi & 0x8) == 0){
+                // short notation
+                if(hi <= 5){
+                    decompressed_background[i] = hi+2;
+                }else{
+                    decompressed_background[i++] = hi*2;
+                    decompressed_background[i] = (hi*2) + 1;
+                }
+                bytepart = (bytepart + 1) % 2;
+                if(bytepart == 0)
+                    ++c;
+            }else if((hi & 0x4) == 0){
+                //other tiles
+                decompressed_background[i] = (hi & 0x3)<<4 | lo;
+                ++c;
+            }else{
+                //special
+                // 4x grass
+                if(hi == 0xC && lo == 0){
+                    decompressed_background[i] = 2;
+                    counter = 3;
+                    byte = 2;
+                }else
+                    decompressed_background[i] = 2;
+                ++c;
+            }
+        }
+
+    }
+    return decompressed_background;
+}
+#endif
+
 void incject_map(UINT8 x, UINT8 y, UINT16 index) {
     unsigned char tiles[4];
     index *= 4;

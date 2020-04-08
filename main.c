@@ -35,6 +35,8 @@ UINT8 counter;
 UINT8 anim_counter;
 
 Level *current_level;
+// since might need to decompress it
+UINT8 *current_background;
 extern const unsigned char *current_map;
 Savegame *sg;
 
@@ -117,7 +119,8 @@ void init_screen() {
 
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
-    load_map(current_level->background);
+    current_background = decompress(current_level->background);
+    load_map(current_background);
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always
@@ -247,6 +250,7 @@ void main() {
         sg->magic = 'V';
     }
     current_level = &level[sg->level_y][sg->level_x];
+    current_background = decompress(current_level->background);
     counter = 0;
     init_screen();
     init_hud();
@@ -254,7 +258,7 @@ void main() {
     init_music(&the_journey_begins);
 
     render_character(&(sg->player));
-    load_map(current_level->background);
+    load_map(current_background);
 
     SHOW_BKG;
     SHOW_WIN;

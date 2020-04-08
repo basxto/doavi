@@ -8,7 +8,7 @@
 #include "strings.c"
 
 // defined in main.c
-extern Level *current_level;
+extern UINT8 *current_background;
 extern const unsigned char *current_map;
 
 void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
@@ -37,7 +37,7 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
     }
 
     UINT8 tile =
-        current_level->background[(sg->player.y * WIDTH) + sg->player.x];
+        current_background[(sg->player.y * WIDTH) + sg->player.x];
 
     // trigger stuff
 
@@ -72,7 +72,7 @@ void interact() {
         x++;
         break;
     }
-    tile = current_level->background[(y * WIDTH) + x];
+    tile = current_background[(y * WIDTH) + x];
     // write_num(8, 1, 3, tile);
     // s
     if (tile == 18) {

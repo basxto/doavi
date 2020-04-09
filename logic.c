@@ -43,12 +43,29 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
 
     //  house entrance
     if (tile == 34 + 10) {
-        teleport_to(0, 5, 5, 6);
+        if(sg->level_y == 1 && sg->level_x == 1)
+            if(sg->player.x > 5)
+                teleport_to(0, 5, 5, 6);
+            else
+                teleport_to(1, 5, 4, 6);
+        if(sg->level_y == 1 && sg->level_x == 0)
+            teleport_to(2, 5, 6, 6);
+        if(sg->level_y == 2 && sg->level_x == 0)
+            teleport_to(3, 5, 3, 6);
     }
 
     // player stepped into the doorway
     if (sg->level_x == 0 && sg->level_y == 5 && sg->player.y == 7) {
         teleport_to(1, 1, 7, 5);
+    }
+    if (sg->level_x == 1 && sg->level_y == 5 && sg->player.y == 7) {
+        teleport_to(1, 1, 2, 6);
+    }
+    if (sg->level_x == 2 && sg->level_y == 5 && sg->player.y == 7) {
+        teleport_to(0, 1, 4, 6);
+    }
+    if (sg->level_x == 3 && sg->level_y == 5 && sg->player.y == 7) {
+        teleport_to(0, 2, 5, 6);
     }
     return 0;
 }

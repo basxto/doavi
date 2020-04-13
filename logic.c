@@ -41,6 +41,17 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
 
     // trigger stuff
 
+    // cave entrance
+    if(tile == 21){
+        if(sg->level_x == 4){
+            sg->player.direction = 0;
+            teleport_to(0, 6, 2, 1);
+        }else{
+            sg->player.direction = 0;
+            teleport_to(1, 6, 7, 1);
+        }
+    }
+
     //  house entrance
     if (tile == 34 + 10) {
         if(sg->level_y == 1 && sg->level_x == 1)
@@ -55,17 +66,27 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
     }
 
     // player stepped into the doorway
-    if (sg->level_x == 0 && sg->level_y == 5 && sg->player.y == 7) {
-        teleport_to(1, 1, 7, 5);
+    if(sg->level_y == 5 && sg->player.y == 7){
+        if (sg->level_x == 0) {
+            teleport_to(1, 1, 7, 5);
+        }
+        if (sg->level_x == 1) {
+            teleport_to(1, 1, 2, 6);
+        }
+        if (sg->level_x == 2) {
+            teleport_to(0, 1, 4, 6);
+        }
+        if (sg->level_x == 3) {
+            teleport_to(0, 2, 5, 6);
+        }
     }
-    if (sg->level_x == 1 && sg->level_y == 5 && sg->player.y == 7) {
-        teleport_to(1, 1, 2, 6);
-    }
-    if (sg->level_x == 2 && sg->level_y == 5 && sg->player.y == 7) {
-        teleport_to(0, 1, 4, 6);
-    }
-    if (sg->level_x == 3 && sg->level_y == 5 && sg->player.y == 7) {
-        teleport_to(0, 2, 5, 6);
+
+    // player stepped onto the stairs
+    if (sg->level_y == 6 && sg->player.y == 0) {
+        if(sg->level_x == 0)
+            teleport_to(4, 2, 5, 3);
+        else
+            teleport_to(5, 2, 5, 3);
     }
     return 0;
 }

@@ -98,6 +98,7 @@ void init_screen() {
     VBK_REG = 1;
     for (int x = 0; x < 22; ++x) {
         set_bkg_tiles(x, 17, 1, 1, tiles);
+        set_bkg_tiles(x, 18, 1, 1, tiles);
         set_bkg_tiles(x, 0, 1, 1, tiles);
     }
     for (int y = 1; y <= 16; ++y) {
@@ -108,6 +109,7 @@ void init_screen() {
     tiles[0] = WIN_START + (' ' - 8);
     for (int x = 0; x < 22; ++x) {
         set_bkg_tiles(x, 17, 1, 1, tiles);
+        set_bkg_tiles(x, 18, 1, 1, tiles);
         set_bkg_tiles(x, 0, 1, 1, tiles);
     }
     for (int y = 1; y <= 16; ++y) {

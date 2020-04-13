@@ -7,6 +7,9 @@
 
 #include "strings.c"
 
+extern const unsigned char overworld_a_gbc_map[];
+extern const unsigned char overworld_b_gbc_map[];
+
 // defined in main.c
 extern UINT8 *current_background;
 extern const unsigned char *current_map;
@@ -59,9 +62,9 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
                 teleport_to(0, 5, 5, 6);
             else
                 teleport_to(1, 5, 4, 6);
-        if(sg->level_y == 1 && sg->level_x == 0)
+        else if(sg->level_y == 1 && sg->level_x == 0)
             teleport_to(2, 5, 6, 6);
-        if(sg->level_y == 2 && sg->level_x == 0)
+        else if(sg->level_y == 2 && sg->level_x == 0)
             teleport_to(3, 5, 3, 6);
     }
 
@@ -70,13 +73,13 @@ UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
         if (sg->level_x == 0) {
             teleport_to(1, 1, 7, 5);
         }
-        if (sg->level_x == 1) {
+        else if (sg->level_x == 1) {
             teleport_to(1, 1, 2, 6);
         }
-        if (sg->level_x == 2) {
+        else if (sg->level_x == 2) {
             teleport_to(0, 1, 4, 6);
         }
-        if (sg->level_x == 3) {
+        else if (sg->level_x == 3) {
             teleport_to(0, 2, 5, 6);
         }
     }
@@ -124,7 +127,7 @@ void interact() {
         draw_hud(sg->lives, sg->tpaper);
     }
     // bottle
-    if (tile == 34) {
+    if (tile == 34 && current_map == overworld_b_gbc_map) {
         if(sg->collectable & 0x2){
             dialog(strlen(text_thisbott), text_thisbott, strlen(text_narrator),
                text_narrator, 0);
@@ -160,7 +163,7 @@ void interact() {
                text_grave, 2);
         draw_hud(sg->lives, sg->tpaper);
     }
-    if (tile == 30) {
+    if (tile == 30 && current_map == overworld_a_gbc_map) {
         dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
                text_flame, 3);
         draw_hud(sg->lives, sg->tpaper);

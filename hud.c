@@ -13,6 +13,7 @@ void init_hud() {
     unsigned char tiles[1];
     UINT8 x;
     UINT8 y;
+    HIDE_WIN;
     VBK_REG = 1;
     tiles[0] = 2;
     for (x = 0; x < 20; ++x) {
@@ -27,6 +28,7 @@ void init_hud() {
             set_win_tiles(x, y, 1, 1, tiles);
         }
     }
+    SHOW_WIN;
 }
 
 // fill area with spaces

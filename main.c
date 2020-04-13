@@ -139,6 +139,20 @@ void render_character(const Character *chrctr) {
     set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
 }
 
+UINT8 is_free(const UINT8 x, const UINT8 y) {
+    if (y >= HEIGHT || x >= WIDTH) {
+        return 0;
+    }
+    UINT8 index = (y) * WIDTH + (x);
+    UINT8 tile = current_background[((y) * WIDTH) + (x)];
+    //write_num(12, 1, 3, tile);
+    if ((current_level->collision[index / 8] & (1 << (index % 8))) == 0 && tile != 16 && tile != 27) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
                      const UINT8 *collision) {
     if (chrctr->x == 0 && x < 0) {
@@ -173,10 +187,8 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         change_level();
         return 0;
     }
-    UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
-    UINT8 tile = current_background[((chrctr->y + y) * WIDTH) + (chrctr->x + x)];
     //write_num(12, 1, 3, tile);
-    if ((collision[index / 8] & (1 << (index % 8))) == 0 && tile != 16 && tile != 27) {
+    if (is_free((chrctr->x + x),(chrctr->y + y)) != 0) {
         for (int i = 0; i < 4; ++i) {
             chrctr->offset_x += x * 4;
             chrctr->offset_y += y * 4;

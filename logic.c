@@ -142,4 +142,17 @@ void interact() {
         incject_map(x, y, 17-2);
         current_background[(y * WIDTH) + x] = current_map[17-2];
     }
+    // move stone
+    if (tile == 27) {
+        if(is_free(x + (x - sg->player.x),y + (y - sg->player.y)) == 1){
+            incject_map_palette(x, y, 0);
+            incject_map(x, y, 0);
+            current_background[(y * WIDTH) + x] = 2;
+            x += (x - sg->player.x);
+            y += (y - sg->player.y);
+            incject_map_palette(x, y, 3);
+            incject_map(x, y, 27-2);
+            current_background[(y * WIDTH) + x] = 27;
+        }
+    }
 }

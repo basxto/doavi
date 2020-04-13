@@ -83,6 +83,13 @@ const unsigned char * decompress(const UINT8 *compressed_map){
 }
 #endif
 
+void incject_map_palette(UINT8 x, UINT8 y, UINT8 index) {
+    unsigned char tiles[4] = {index, index, index, index};
+    VBK_REG = 1;
+    set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
+    VBK_REG = 0;
+}
+
 void incject_map(UINT8 x, UINT8 y, UINT16 index) {
     unsigned char tiles[4];
     index *= 4;

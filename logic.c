@@ -137,4 +137,9 @@ void interact() {
             blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
         }
     }
+    // cut grass
+    if (tile == 16) {
+        incject_map(x, y, 17-2);
+        current_background[(y * WIDTH) + x] = current_map[17-2];
+    }
 }

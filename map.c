@@ -14,10 +14,10 @@
 #include "pix/overworld_b_gbc_pal.c"
 
 const unsigned char *current_map;
-
-#ifdef COMPRESS
 // always the same size
 UINT8 decompressed_background[80];
+
+#ifdef COMPRESS
 
 // 0XXX short notation
 // 10XX XXXX other tiles (long notation)
@@ -70,6 +70,14 @@ const unsigned char * decompress(const UINT8 *compressed_map){
             }
         }
 
+    }
+    return decompressed_background;
+}
+#else
+// make a copy in RAM, so it can be changed later
+const unsigned char * decompress(const UINT8 *compressed_map){
+    for(UINT8 i = 0; i < 80; ++i){
+        decompressed_background[i] = compressed_map[i];
     }
     return decompressed_background;
 }

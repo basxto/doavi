@@ -174,7 +174,9 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
         return 0;
     }
     UINT8 index = (chrctr->y + y) * WIDTH + (chrctr->x + x);
-    if ((collision[index / 8] & (1 << (index % 8))) == 0) {
+    UINT8 tile = current_background[((chrctr->y + y) * WIDTH) + (chrctr->x + x)];
+    //write_num(12, 1, 3, tile);
+    if ((collision[index / 8] & (1 << (index % 8))) == 0 && tile != 16 && tile != 27) {
         for (int i = 0; i < 4; ++i) {
             chrctr->offset_x += x * 4;
             chrctr->offset_y += y * 4;

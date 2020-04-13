@@ -112,7 +112,7 @@ void interact() {
     }
     tile = current_background[(y * WIDTH) + x];
     // write_num(8, 1, 3, tile);
-    // s
+    // sign
     if (tile == 18) {
         if (sg->level_x == 1 && sg->level_y == 1) {
             dialog(strlen(text_welcomet), text_welcomet, strlen(text_sign),
@@ -138,7 +138,24 @@ void interact() {
         draw_hud(sg->lives, sg->tpaper);
     }
     if (tile == 26) {
-        screen_shake();
+        if(x == 5 && y == 2 && (sg->collectable & (1<<2)) == 0){
+            screen_shake();
+            // spawn ghost
+            sg->character[0].x = 4;
+            sg->character[0].y = 2;
+            if(sg->player.x == 4 && sg->player.y == 2){
+                sg->character[0].x = 6;
+                sg->character[0].y = 2;
+            }
+            sg->character[0].sprite = 2;
+            sg->character[0].direction = 0;
+            sg->character[0].palette = 3;
+            sg->character[0].offset_x = 0;
+            sg->character[0].offset_y = 0;
+
+            render_character(&(sg->character[0]));
+            sg->collectable |= (1<<2);
+        }
         dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
                text_grave, 2);
         draw_hud(sg->lives, sg->tpaper);

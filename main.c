@@ -120,23 +120,33 @@ void init_screen() {
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
     current_background = decompress(current_level->background);
+    for(UINT8 i = 0; i < 4; ++i){
+        // disable characters
+        sg->character[i].sprite = 0xFF;
+        render_character(&(sg->character[i]));
+    }
     load_map(current_background);
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const Character *chrctr) {
-    UINT8 base = chrctr->sprite * 4 * 4 + chrctr->direction * 4;
-    set_sprite_tile(chrctr->sprite_index,
-                    CHARACTERS_START + characters_map[base]);
-    move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16 + chrctr->offset_x,
-                16 + (chrctr->y) * 16 + chrctr->offset_y);
-    set_sprite_prop(chrctr->sprite_index, chrctr->palette);
-    set_sprite_tile(chrctr->sprite_index + 1,
-                    CHARACTERS_START + characters_map[base + 2]);
-    move_sprite(chrctr->sprite_index + 1,
-                8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
-                16 + (chrctr->y) * 16 + chrctr->offset_y);
-    set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
+    if(chrctr->sprite == 0xFF){
+        move_sprite(chrctr->sprite_index, 0, 0);
+        move_sprite(chrctr->sprite_index + 1, 0, 0);
+    }else{
+        UINT8 base = chrctr->sprite * 4 * 4 + chrctr->direction * 4;
+        set_sprite_tile(chrctr->sprite_index,
+                        CHARACTERS_START + characters_map[base]);
+        move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16 + chrctr->offset_x,
+                    16 + (chrctr->y) * 16 + chrctr->offset_y);
+        set_sprite_prop(chrctr->sprite_index, chrctr->palette);
+        set_sprite_tile(chrctr->sprite_index + 1,
+                        CHARACTERS_START + characters_map[base + 2]);
+        move_sprite(chrctr->sprite_index + 1,
+                    8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
+                    16 + (chrctr->y) * 16 + chrctr->offset_y);
+        set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
+    }
 }
 
 UINT8 is_free(const UINT8 x, const UINT8 y) {
@@ -147,6 +157,10 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     UINT8 tile = current_background[((y) * WIDTH) + (x)];
     //write_num(12, 1, 3, tile);
     if ((current_level->collision[index / 8] & (1 << (index % 8))) == 0 && tile != 16 && tile != 27) {
+        // check entity collision
+        for(UINT8 i = 0; i < 4; ++i)
+            if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
+                return 0;
         return 1;
     } else {
         return 0;
@@ -256,6 +270,11 @@ void main() {
         sg->player.offset_x = 0;
         sg->player.offset_y = 0;
 
+        sg->character[0].sprite_index = 0;
+        sg->character[1].sprite_index = 2;
+        sg->character[2].sprite_index = 4;
+        sg->character[3].sprite_index = 6;
+
         sg->lives = 5;
         sg->tpaper = 0;
 
@@ -263,8 +282,6 @@ void main() {
 
         sg->magic = 'V';
     }
-    current_level = &level[sg->level_y][sg->level_x];
-    current_background = decompress(current_level->background);
     counter = 0;
     init_screen();
     init_hud();
@@ -272,7 +289,7 @@ void main() {
     init_music(&the_journey_begins);
 
     render_character(&(sg->player));
-    load_map(current_background);
+    change_level();
 
     SHOW_BKG;
     SHOW_WIN;

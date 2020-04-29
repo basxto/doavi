@@ -47,7 +47,7 @@ const unsigned char * decompress(const UINT8 *compressed_map){
             }
             if((hi & 0x8) == 0){
                 // short notation
-                if(hi <= 5){
+                if(hi < 5){
                     decompressed_background[i] = hi+2;
                 }else{
                     decompressed_background[i++] = hi*2;

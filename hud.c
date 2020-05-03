@@ -1,9 +1,12 @@
+#include <string.h>
 #include "hud.h"
 #include "pix/dialog_photos_data.c"
+#include "dev/png2gb/csrc/decompress.h"
 
 // as defined in makefile
 //const unsigned char * win_gbc_data_inrom;// = (0x7FFF-0x1880);
 extern const unsigned char win_gbc_data[];
+extern const UINT8 win_gbc_data_length;
 
 #define buffer_length (16)
 // be cautious with this!
@@ -223,6 +226,19 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
     UINT8 accept = 0;
     UINT8 ret = 0;
 
+    // generate name field data blocks
+    // line at bottom and top
+     for(y = 0; y < namelength; ++y){
+        // we sadly have to decompress tle by tile
+        memcpy(tiles, set_win_data_rle(255, 1, win_gbc_data, name[y]), 16);
+        for(x = 2; x < 14; ++x){
+            tiles[x] = ~tiles[x];
+        }
+        tiles[0] = tiles[1] = 0xFF;
+        tiles[14] = tiles[15] = 0xFF;
+        set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
+    }
+
     //set brown
     VBK_REG = 1;
     tiles[0] = 2;
@@ -231,20 +247,19 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
             set_win_tiles(x, y, 1, 1, tiles);
         }
     }
-    /*tiles[0] = 5;
-    for (x = 0; x < namelength; ++x) {
-        set_win_tiles(1 + x, 0, 1, 1, tiles);
-    }*/
     VBK_REG = 0;
 
-    tiles[0] = 2;
+    //tiles[0] = 2 is already set
     // set portrait
     if(portrait == 0){
+        // this is just a black block
+        tiles[13] = 0xFE;
+        //14 and 15 are still on 0xFF
         for (x = 0; x < PORTRAIT_LENGTH; ++x) {
-            set_win_data(PORTRAIT_START + x, 1, WIN_START + ' ');
+            set_win_data_rle(PORTRAIT_START + x, 1, &tiles[13], 0);
         }
     }else{
-        set_win_data(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data + ((portrait-1)*16*PORTRAIT_LENGTH));
+        set_win_data_rle(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data, (portrait-1)*PORTRAIT_LENGTH);
         if(portrait == 2){
             tiles[0] = 3;
         }
@@ -279,16 +294,6 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
         set_win_tiles(x, 0, 1, 1, tiles);
     }
 
-    // generate name field data blocks
-    // line at bottom and top
-    tiles[0] = tiles[1] = 0xFF;
-    tiles[14] = tiles[15] = 0xFF;
-    for(y = 0; y < namelength; ++y){
-       for(x = 2; x < 14; ++x){
-           tiles[x] = ~win_gbc_data[(name[y])*16 + x];
-       }
-       set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
-    }
     //set_win_data(PORTRAIT_START + PORTRAIT_LENGTH, 1, tiles);
     // write name field
     for(y = 0; y < namelength; ++y){

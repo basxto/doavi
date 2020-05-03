@@ -16,6 +16,8 @@
 #include "pix/overworld_b_gbc_pal.c"
 #include "pix/overworld_cave_pal.c"
 
+#include "dev/png2gb/csrc/decompress.h"
+
 const unsigned char *current_map;
 // always the same size
 UINT8 decompressed_background[80];
@@ -118,26 +120,26 @@ void load_map(const UINT8 background[]) {
     // load spritesheet
     if (sg->level_y == 4) {
         current_map = overworld_b_gbc_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_b_gbc_data) / 16,
-                     overworld_b_gbc_data);
+        set_bkg_data_rle(SHEET_START, overworld_b_gbc_data_length,
+                     overworld_b_gbc_data, 0);
         set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         BGP_REG = 0xE4; // 11100100
     } else if (sg->level_y == 5) {
         current_map = inside_wood_house_map;
-        set_bkg_data(SHEET_START, sizeof(inside_wood_house_data) / 16,
-                     inside_wood_house_data);
+        set_bkg_data_rle(SHEET_START, inside_wood_house_data_length,
+                     inside_wood_house_data, 0);
         set_bkg_palette(0, 6, inside_wood_house_pal[0]);
         BGP_REG = 0xE4; // 11100100
     } else if (sg->level_y > 5) {
         current_map = overworld_cave_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_cave_data) / 16,
-                     overworld_cave_data);
+        set_bkg_data_rle(SHEET_START, overworld_cave_data_length,
+                     overworld_cave_data, 0);
         set_bkg_palette(0, 6, overworld_cave_pal[0]);
         BGP_REG = 0xE4; // 11100100
     } else {
         current_map = overworld_a_gbc_map;
-        set_bkg_data(SHEET_START, sizeof(overworld_a_gbc_data) / 16,
-                     overworld_a_gbc_data);
+        set_bkg_data_rle(SHEET_START, overworld_a_gbc_data_length,
+                     overworld_a_gbc_data, 0);
         set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
         BGP_REG = 0xE1;
     }

@@ -1,7 +1,7 @@
 DEV?=./dev
 BIN=$(DEV)/gbdk-n/bin
 
-LK?=$(BIN)/gbdk-n-link.sh -Wl-m
+LK?=$(BIN)/gbdk-n-link.sh -Wl-m --debug
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
 MKROM?=$(BIN)/gbdk-n-make-rom.sh -yc -yn "DessertOnAVegI" -ya 4 -yt 2 -yo 4
 EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
@@ -12,9 +12,9 @@ tmxconvert=$(DEV)/tmx2c.py
 COMPRESS?=0
 
 ifeq ($(COMPRESS),1)
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l -DCOMPRESS=1
+CC=$(BIN)/gbdk-n-compile.sh -Wa-l -DCOMPRESS=1 --debug
 else
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l
+CC=$(BIN)/gbdk-n-compile.sh -Wa-l --debug
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
@@ -42,7 +42,7 @@ playmusic:
 $(DEV)/gbdk-music/music.rel: $(DEV)/gbdk-music/music.c
 	$(MAKE) -C $(DEV)/gbdk-music music.rel DEV="../" EMU="$(EMU)"
 
-main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel
+main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
 	$(LK) -o $@ $^
 
 %.ihx: %.rel
@@ -54,25 +54,37 @@ main.rel: main.c $(PIX) $(MUSIC) level.c strings.c
 hud.rel: hud.c pix/dialog_photos_data.c
 	$(CC) -o $@ $<
 
+map.rel: map.c $(PIX)
+	$(CC) -o $@ $<
+
 %.rel: %.c
 	$(CC) -o $@ $^
 
+.PHONY: pix
+pix: $(PIX) pix/dialog_photos_data.c
+
 pix/dialog_photos_data.c: pix/dialog_photos.png
-	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@
+	$(pngconvert) --compress-rle=1 --width 4 --height 4 -u yes $^ -o $@
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
-	$(pngconvert) $^
+	$(pngconvert) --compress-rle=1 $^
 
 # define position in rom
 # datrom and palrom have fixed max size
-pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png  pix/bush.png
-	$(pngconvert) --width 2 --height 2 --limit 128 $^
+pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png
+	$(pngconvert) --compress-rle=1 --width 2 --height 2 --limit 128 $^
 
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
-	$(pngconvert) --width 2 --height 2 $^
+	$(pngconvert) --compress-rle=1 --width 2 --height 2 $^
+
+pix/inside_wood_house_data.c: pix/inside_wood_house.png
+	$(pngconvert) --compress-rle=1 --width 2 --height 2 $^
+
+pix/overworld_cave_data.c: pix/overworld_cave.png
+	$(pngconvert) --compress-rle=1 --width 2 --height 2 $^
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
@@ -112,10 +124,11 @@ gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
-	rm -f pix/*_gb.png level.c strings.c
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\)' -delete
+	rm -f pix/*_gb.png level.c strings.c strings.h
+	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
+	$(MAKE) -C $(DEV)/png2gb clean
 
 base64:
 	base64 $(ROM) | xclip -selection clipboard
@@ -165,3 +178,7 @@ bigrom.gb: $(ROM) banking.bank
 
 runbigrom: bigrom.gb
 	$(EMU) $^
+
+.PHONY: spaceleft
+spaceleft: $(ROM)
+	@hexdump -v -e '/1 "%02X\n"' $(ROM) | awk '/FF/ {n += 1} !/FF/ {n = 0} END {print n}'

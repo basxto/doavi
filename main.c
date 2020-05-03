@@ -10,6 +10,8 @@
 #include "logic.h"
 #include "map.h"
 
+#include "dev/png2gb/csrc/decompress.h"
+
 #include "dev/gbdk-music/music.h"
 #include "dev/gbdk-music/music/the_journey_begins.c"
 
@@ -91,7 +93,7 @@ void init_screen() {
     set_sprite_palette(0, 6, characters_pal[0]);
 
     // load tilesets
-    set_win_data(WIN_START, sizeof(win_gbc_data) / 16, win_gbc_data);
+    set_win_data_rle(WIN_START, win_gbc_data_length, win_gbc_data, 0);
     set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
                     characters_data);
 

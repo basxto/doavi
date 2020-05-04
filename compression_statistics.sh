@@ -1,5 +1,7 @@
 #!/bin/sh
 saved=0
+before=0
+after=0
 count(){
     before=0
     after=0
@@ -31,3 +33,4 @@ cd dev/png2gb/
 compressor=$(DEV=../ ./measure_size.sh | tail -1)
 
 echo "$((saved-compressor)) bytes gained if you consider the compressor's size"
+echo "Shrunk to $(((after+compressor)*100/before))%"

@@ -57,6 +57,9 @@ hud.rel: hud.c pix/dialog_photos_data.c
 map.rel: map.c $(PIX)
 	$(CC) -o $@ $<
 
+$(DEV)/png2gb/%: FORCE
+	$(MAKE) DEV=../ -C $(DEV)/png2gb $*
+
 %.rel: %.c
 	$(CC) -o $@ $^
 
@@ -182,3 +185,5 @@ runbigrom: bigrom.gb
 .PHONY: spaceleft
 spaceleft: $(ROM)
 	@hexdump -v -e '/1 "%02X\n"' $(ROM) | awk '/FF/ {n += 1} !/FF/ {n = 0} END {print n}'
+
+FORCE:

@@ -225,17 +225,19 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
     UINT8 y;
     UINT8 accept = 0;
     UINT8 ret = 0;
+    unsigned char* pointer;
 
-    // generate name field data blocks
     // line at bottom and top
-     for(y = 0; y < namelength; ++y){
+    tiles[0] = tiles[1] = 0xFF;
+    tiles[14] = tiles[15] = 0xFF;
+    // generate name field data blocks
+    for(y = 0; y < namelength; ++y){
         // we sadly have to decompress tle by tile
-        memcpy(tiles, set_win_data_rle(255, 1, win_gbc_data, name[y]), 16);
+        pointer = set_win_data_rle(0, 0, win_gbc_data, name[y]);
+        // invert lines
         for(x = 2; x < 14; ++x){
-            tiles[x] = ~tiles[x];
+            tiles[x] = ~pointer[x];
         }
-        tiles[0] = tiles[1] = 0xFF;
-        tiles[14] = tiles[15] = 0xFF;
         set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
     }
 
@@ -255,8 +257,9 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
         // this is just a black block
         tiles[13] = 0xFE;
         //14 and 15 are still on 0xFF
-        for (x = 0; x < PORTRAIT_LENGTH; ++x) {
-            set_win_data_rle(PORTRAIT_START + x, 1, &tiles[13], 0);
+        // x+=4 only works because portrait length is multipe of 4
+        for (x = 0; x < PORTRAIT_LENGTH; x+=4) {
+            set_win_data_rle(PORTRAIT_START + x, 4, &tiles[13], 0);
         }
     }else{
         set_win_data_rle(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data, (portrait-1)*PORTRAIT_LENGTH);

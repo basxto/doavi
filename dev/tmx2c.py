@@ -55,14 +55,14 @@ def transform_value(v, byte, counter, cvalues, bytepart):
     return (value, byte, counter, cvalues)
 
 def compress(values):
-    # 0x0 (half byte) often used
-    # 0x80 (byte) regular tiles
-    # 0xC0 (byte) special tile mapping
+    # 0x0 0XXX (half byte) often used (8)
+    # 0x80 10XX XXXX (byte) regular tiles (64) - allows 256 8x8 tiles
+    # 0xC0 11XX XXXX (byte) special tile mapping (64)
     counter = 0
     byte = -1
     # first (0) or second (1)
     bytepart = 0
-    # comrpessed values
+    # compressed values
     cvalues = ""
     for v in values:
         # convert to interger, since they are all numbers

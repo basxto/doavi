@@ -5,16 +5,16 @@ LK?=$(BIN)/gbdk-n-link.sh -Wl-m
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
 MKROM?=$(BIN)/gbdk-n-make-rom.sh -yc -yn "DessertOnAVegI" -ya 4 -yt 2 -yo 4
 EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
-pngconvert=$(DEV)/png2gb/png2gb.py
+pngconvert?=$(DEV)/png2gb/png2gb.py
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 tmxconvert=$(DEV)/tmx2c.py
 
 COMPRESS?=1
 
 ifeq ($(COMPRESS),1)
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l -DCOMPRESS=1
+CC=$(BIN)/gbdk-n-compile.sh -Wa-l -DCOMPRESS=1 $(CFLAGS)
 else
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l
+CC=$(BIN)/gbdk-n-compile.sh -Wa-l $(CFLAGS)
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)

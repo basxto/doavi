@@ -5,6 +5,7 @@ after=0
 count(){
     before=0
     after=0
+    saved=0
     for i in $(echo "${output}" | grep 'Before' | cut -d' ' -f3); do
         before=$((before + i))
     done
@@ -30,7 +31,8 @@ echo "All images:"
 count
 
 cd dev/png2gb/
-compressor=$(DEV=../ ./measure_size.sh | tail -1)
+compressor=$(DEV=../ ./measure_size.sh 2>&1 | tail -1)
 
+echo "Compressor size: ${compressor}"
 echo "$((saved-compressor)) bytes gained if you consider the compressor's size"
 echo "Shrunk to $(((after+compressor)*100/before))%"

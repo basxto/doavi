@@ -36,10 +36,11 @@ void init_hud() {
 
 // fill area with spaces
 void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height){
-    buffer[0] = WIN_START + ' ';
+    buffer[0] = WIN_START + '  ';
     for(UINT8 tmp_y = 0; tmp_y < height; ++tmp_y){
+        UINT8 tmp = y + tmp_y;
         for(UINT8 tmp_x = 0; tmp_x < width; ++tmp_x){
-            set_win_tiles(x + tmp_x, y + tmp_y, 1, 1, buffer);
+            set_win_tiles(x + tmp_x, tmp, 1, 1, buffer);
         }
     }
 }
@@ -92,9 +93,10 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         }
         if(tmp_y >= y+height){
             // if it reached the width, we overwite the last letter
-            if(str[start-1] != '\n')
+            if(str[start-1] != '\n'){
                 --str;
                 ++length;
+            }
             buffer[0] = WIN_START + 7;
             buffer[buffer_length - 1] = 7;
             write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
@@ -138,11 +140,10 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
 }
 
 void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
-    UINT8 i;
     if(length == 0)
         return;
-    for (i = 0; i != length; i++) {
-        buffer[i] = WIN_START + ' ';
+    UINT8 i;
+    for (i = 0; i < length; ++i) {
         // strings end with a nullbyte
         if (str[i] == '\0') {
             break;
@@ -150,7 +151,7 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
         // we handle lower case in converter script
         buffer[i] = WIN_START + (str[i]);
     }
-    for (; i != buffer_length; i++) {
+    for (; i < length; ++i) {
         buffer[i] = WIN_START + ' ';
     }
     set_win_tiles(x, y, length, 1, buffer);
@@ -161,27 +162,18 @@ const char hex_char[] = {'0', '1', '2', '3', '4', '5', '6', '7',
 
 // maximum length is 2 since maximum UINT8 is FF
 void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
-    buffer[buffer_length - 2] = buffer[buffer_length - 1] = '0';
-    if (length == 0) {
-        return;
-    }
-    if (length > 2) { // >3
+    if (length > 2) {
         length = 2;
     }
     buffer[buffer_length - 1] = hex_char[num % 16];
     num /= 16;
     buffer[buffer_length - 2] = hex_char[num % 16];
-    write_line(x, y, length, buffer + (buffer_length - length));
+    write_line(x, y, length, (buffer + buffer_length) - length);
 }
 
 // maximum length is 3 since maximum UINT8 is 255
 void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
-    buffer[buffer_length - 3] = buffer[buffer_length - 2] =
-        buffer[buffer_length - 1] = '0';
-    if (length == 0) {
-        return;
-    }
-    if (length & (~3)) { // >3
+    if (length > 3) {
         length = 3;
     }
     buffer[buffer_length - 1] = '0' + (num % 10);
@@ -189,7 +181,7 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     buffer[buffer_length - 2] = '0' + (num % 10);
     num /= 10;
     buffer[buffer_length - 3] = '0' + (num % 10);
-    write_line(x, y, length, buffer + (buffer_length - length));
+    write_line(x, y, length, (buffer + buffer_length) - length);
 }
 
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {

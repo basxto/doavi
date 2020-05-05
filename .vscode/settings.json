@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "*.h": "c"
+    },
+    "files.exclude": {
+        "**/*.zip": true,
+        "**/*.rel": true,
+        "**/*.lst": true,
+        "**/*.sym": true,
+        "**/*.ihx": true,
+        "**/*.lk": true,
+        "**/*.noi": true,
+        "**/*.map": true
+    },
+    "files.trimTrailingWhitespace": true,
+    "C_Cpp.clang_format_sortIncludes": false,
+    "C_Cpp.default.intelliSenseMode": "gcc-x64",
+    "shellcheck.useWorkspaceRootAsCwd": true,
+    "C_Cpp.default.systemIncludePath" : [
+        "dev/gbdk-n/include/",
+        "dev/gbdk-n/include/asm/",
+        "/usr/share/sdcc/include/"
+    ]
+
+
+}

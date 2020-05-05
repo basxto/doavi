@@ -24,8 +24,8 @@ void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
     change_level();
 }
 
-UINT8 move_player(const INT8 x, const INT8 y, const UINT8 *collision) {
-    if (move_character(&(sg->player), x, y, collision) == 1) {
+UINT8 move_player(const INT8 x, const INT8 y) {
+    if (move_character(&(sg->player), x, y) == 1) {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }

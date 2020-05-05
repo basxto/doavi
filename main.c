@@ -38,7 +38,7 @@ UINT8 anim_counter;
 
 Level *current_level;
 // since might need to decompress it
-UINT8 *current_background;
+const UINT8 *current_background;
 extern const unsigned char *current_map;
 Savegame *sg;
 
@@ -123,7 +123,7 @@ void init_screen() {
 
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
-    current_background = decompress(current_level->background);
+    current_background = decompress(current_level->background); 
     for(UINT8 i = 0; i < 4; ++i){
         // disable characters
         sg->character[i].sprite = 0xFF;
@@ -171,8 +171,7 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     }
 }
 
-UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
-                     const UINT8 *collision) {
+UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
     if (chrctr->x == 0 && x < 0) {
         sg->level_x--;
         chrctr->x += WIDTH + x;
@@ -227,13 +226,30 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
     }
 }
 
+// index of tile in spritesheet; index of tile in animation sheet
+// 16x16 block indices
+#define replace_tile(index, indexa, counter)                                   \
+    (set_bkg_data(                                                             \
+        SHEET_START + current_map[(index)*4], 4,                               \
+        &overworld_anim_gbc_data                                               \
+            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4] *   \
+             16]))
+
+// for compressed tiles
+#define replace_subtile(index, indexa, counter, offset)                        \
+    (set_bkg_data(                                                             \
+        SHEET_START + current_map[(index)*4 + offset], 1,                      \
+        &overworld_anim_gbc_data                                               \
+            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4 +    \
+                                    offset] *                                  \
+             16]))
+
 inline void tick_animate() {
     if (current_map == overworld_a_gbc_map) {
-        replace_tile(1, 0, anim_counter);
         replace_tile(2, 1, anim_counter);
+        replace_tile(1, 0, anim_counter);
         replace_tile(SHEET_WIDTH * 3 + 4, 2, anim_counter);
-    }
-    if (current_map == overworld_b_gbc_map) {
+    }else if (current_map == overworld_b_gbc_map) {
         replace_tile(SHEET_WIDTH * 3 + 7, 3, anim_counter);
         replace_tile(SHEET_WIDTH * 3 + 3, 4, anim_counter);
         // shore waves
@@ -244,17 +260,16 @@ inline void tick_animate() {
         replace_subtile(SHEET_WIDTH * 3 + 6, 7, anim_counter, 2);
         replace_subtile(SHEET_WIDTH * 3 + 6, 7, anim_counter, 3);
     }
-
-    anim_counter = (anim_counter + 1) % ANIM_WIDTH;
+    ++anim_counter;
+    anim_counter %= ANIM_WIDTH;
 }
 
 void timer_isr() {
     tick_music();
-    if (counter % 8 == 0) {
+    if (counter++ == 0) {
         tick_animate();
     }
-    counter++;
-    counter %= 20;
+    counter %= 8;
 }
 
 void main() {
@@ -312,8 +327,11 @@ void main() {
 
     move_win(7, 0);
     space_area(0, 0, 20, 18);
-    smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
+    // measure time
+    //write_hex(0,0,2,sys_time>>8);
+    //write_hex(2,0,2,sys_time&0xFF);
 
+    smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
     smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);
     waitpad(J_A);
     delay(100);
@@ -330,25 +348,25 @@ void main() {
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
             sg->player.direction = 3;
-            if (move_player(1, 0, current_level->collision) == 1)
+            if (move_player(1, 0) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
             sg->player.direction = 2;
-            if (move_player(-1, 0, current_level->collision) == 1)
+            if (move_player(-1, 0) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
             sg->player.direction = 1;
-            if (move_player(0, -1, current_level->collision) == 1)
+            if (move_player(0, -1) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
             sg->player.direction = 0;
-            if (move_player(0, 1, current_level->collision) == 1)
+            if (move_player(0, 1) == 1)
                 render_character(&(sg->player));
             delay(100);
             break;

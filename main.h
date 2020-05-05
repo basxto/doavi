@@ -53,26 +53,7 @@ void change_level();
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const Character *chrctr);
 UINT8 is_free( const UINT8 x, const UINT8 y);
-UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y,
-                     const UINT8 *collision);
-
-// index of tile in spritesheet; index of tile in animation sheet
-// 16x16 block indices
-#define replace_tile(index, indexa, counter)                                   \
-    (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4], 4,                               \
-        &overworld_anim_gbc_data                                               \
-            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4] *   \
-             16]))
-
-// for compressed tiles
-#define replace_subtile(index, indexa, counter, offset)                        \
-    (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4 + offset], 1,                      \
-        &overworld_anim_gbc_data                                               \
-            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4 +    \
-                                    offset] *                                  \
-             16]))
+UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y);
 
 inline void tick_animate();
 void timer_isr();

@@ -197,10 +197,10 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     UINT8 i;
     unsigned char tiles[2];
-    tiles[0] = WIN_START + 9;
-    set_win_tiles(2, 1, 1, 1, tiles);
     tiles[0] = WIN_START + 8;
     set_win_tiles(3, 1, 1, 1, tiles);
+    tiles[0] = WIN_START + 9;
+    set_win_tiles(2, 1, 1, 1, tiles);
     tiles[0] = WIN_START + 12;
     tiles[1] = WIN_START + 13;
     set_win_tiles(0, 0, 2, 1, tiles);
@@ -208,18 +208,14 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     tiles[1] = WIN_START + 15;
     set_win_tiles(0, 1, 2, 1, tiles);
     for (i = 0; i < 5; ++i) {
-        if (i >= lives) {
-            tiles[0] = WIN_START + 11;
-        } else {
-            tiles[0] = WIN_START + 10;
-        }
+        tiles[0] = (i >= lives ? WIN_START + 11 : WIN_START + 10);
         set_win_tiles(2 + i, 0, 1, 1, tiles);
     }
     write_num(4, 1, 3, toiletpaper);
     move_win(7, 16 * 8);
 }
 
-UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, UINT8 portrait){
+UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* name, const UINT8 portrait){
     unsigned char tiles[16];
     UINT8 x;
     UINT8 y;
@@ -228,14 +224,16 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
     unsigned char* pointer;
 
     // line at bottom and top
-    tiles[0] = tiles[1] = 0xFF;
-    tiles[14] = tiles[15] = 0xFF;
+    for(y = 0; y < 2;++y){
+        tiles[y] = 0xFF;
+        tiles[14+y] = 0xFF;
+    }
     // generate name field data blocks
     for(y = 0; y < namelength; ++y){
         // we sadly have to decompress tle by tile
         pointer = set_win_data_rle(0, 0, win_gbc_data, name[y]);
         // invert lines
-        for(x = 2; x < 14; ++x){
+        for(x = 13; x > 0; --x){
             tiles[x] = ~pointer[x];
         }
         set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
@@ -263,19 +261,17 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
         }
     }else{
         set_win_data_rle(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data, (portrait-1)*PORTRAIT_LENGTH);
-        if(portrait == 2){
-            tiles[0] = 3;
-        }
-        if(portrait == 3){
-            tiles[0] = 4;
+        // 2 or 3
+        if((portrait & 0x3) != 0){
+            tiles[0] = portrait+1;
         }
     }
 
     // set portrait color
     VBK_REG = 1;
-    for (x = 0; x < 4; ++x) {
+    for (x = 20-4; x < 4+20-4; ++x) {
         for (y = 0; y < 4; ++y) {
-            set_win_tiles(20-4+x, y, 1, 1, tiles);
+            set_win_tiles(x, y, 1, 1, tiles);
         }
     }
     VBK_REG = 0;
@@ -284,9 +280,9 @@ UINT8 dialog(UINT8 length, const char *str, UINT8 namelength, const char* name, 
     //#define PORTRAIT_LENGTH (16)
     //#define PORTRAIT_START (300)
     tiles[0] = PORTRAIT_START;
-    for (x = 0; x < 4; ++x) {
+    for (x = 20-4; x < 4+20-4; ++x) {
         for (y = 0; y < 4; ++y) {
-            set_win_tiles(20-4+x, y, 1, 1, tiles);
+            set_win_tiles(x, y, 1, 1, tiles);
             tiles[0]++;
         }
     }

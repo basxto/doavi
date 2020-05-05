@@ -49,7 +49,7 @@ main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/
 	$(LK) -o $@ $^
 
 main.rel: main.c $(PIX) $(MUSIC) level.c strings.c
-	$(CC) -o $@ $< 
+	$(CC) -o $@ $<
 
 hud.rel: hud.c pix/dialog_photos_data.c
 	$(CC) -o $@ $<

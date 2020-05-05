@@ -49,7 +49,7 @@ void menu() {
     // write_num(12, 1, 3, ret);
     switch (ret) {
     case 2:
-        smart_write(0, 0, 20, 18, strlen(text_creditsc), text_creditsc);
+        smart_write(0, 0, 20, 18,strlen(text_creditsc), text_creditsc);
         waitpad(J_A);
         delay(100);
         break;
@@ -123,7 +123,7 @@ void init_screen() {
 
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
-    current_background = decompress(current_level->background); 
+    current_background = decompress(current_level->background);
     for(UINT8 i = 0; i < 4; ++i){
         // disable characters
         sg->character[i].sprite = 0xFF;
@@ -139,16 +139,13 @@ void render_character(const Character *chrctr) {
         move_sprite(chrctr->sprite_index + 1, 0, 0);
     }else{
         UINT8 base = chrctr->sprite * 4 * 4 + chrctr->direction * 4;
-        set_sprite_tile(chrctr->sprite_index,
-                        CHARACTERS_START + characters_map[base]);
-        move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16 + chrctr->offset_x,
-                    16 + (chrctr->y) * 16 + chrctr->offset_y);
+        set_sprite_tile(chrctr->sprite_index, CHARACTERS_START + characters_map[base]);
+        move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16 + chrctr->offset_x, ((chrctr->y) + 1) * 16 + chrctr->offset_y);
         set_sprite_prop(chrctr->sprite_index, chrctr->palette);
-        set_sprite_tile(chrctr->sprite_index + 1,
-                        CHARACTERS_START + characters_map[base + 2]);
+        set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[base + 2]);
         move_sprite(chrctr->sprite_index + 1,
                     8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
-                    16 + (chrctr->y) * 16 + chrctr->offset_y);
+                    ((chrctr->y) + 1) * 16 + chrctr->offset_y);
         set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
     }
 }
@@ -158,7 +155,7 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
         return 0;
     }
     UINT8 index = (y) * WIDTH + (x);
-    UINT8 tile = current_background[((y) * WIDTH) + (x)];
+    UINT8 tile = current_background[index];
     //write_num(12, 1, 3, tile);
     if ((current_level->collision[index / 8] & (1 << (index % 8))) == 0 && tile != 16 && tile != 27) {
         // check entity collision
@@ -166,9 +163,8 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
             if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
                 return 0;
         return 1;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {

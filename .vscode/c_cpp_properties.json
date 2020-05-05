@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "name": "sdcc",
+            "compileCommands": "${default}",
+            "intelliSenseMode": "${default}",
+            "cStandard": "${default}",
+            "cppStandard": "${default}",
+            "compilerPath": "${default}"
+        }
+    ],
+    "version": 4
+}

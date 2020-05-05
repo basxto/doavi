@@ -104,7 +104,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
             tmp_y = y;
             space_area(x, y, width, height);
         }
-        
+
     }
     // let user select
     if(choices != 0){
@@ -171,7 +171,6 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     buffer[buffer_length - 1] = hex_char[num % 16];
     num /= 16;
     buffer[buffer_length - 2] = hex_char[num % 16];
-    num /= 16;
     write_line(x, y, length, buffer + (buffer_length - length));
 }
 
@@ -190,7 +189,6 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     buffer[buffer_length - 2] = '0' + (num % 10);
     num /= 10;
     buffer[buffer_length - 3] = '0' + (num % 10);
-    num /= 10;
     write_line(x, y, length, buffer + (buffer_length - length));
 }
 
@@ -255,7 +253,7 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
         // this is just a black block
         tiles[13] = 0xFE;
         //14 and 15 are still on 0xFF
-        // x+=4 only works because portrait length is multipe of 4
+        // x+=4 only works because portrait length is multiple of 4
         for (x = 0; x < PORTRAIT_LENGTH; x+=4) {
             set_win_data_rle(PORTRAIT_START + x, 4, &tiles[13], 0);
         }

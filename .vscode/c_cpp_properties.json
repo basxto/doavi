@@ -6,7 +6,8 @@
             "intelliSenseMode": "${default}",
             "cStandard": "${default}",
             "cppStandard": "${default}",
-            "compilerPath": "${default}"
+            "compilerPath": "${default}",
+            "defines": ["__SDCC", "__SDCC_VERSION_MAJOR=0"]
         }
     ],
     "version": 4

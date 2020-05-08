@@ -39,8 +39,8 @@ run: $(ROM)
 playmusic:
 	$(MAKE) -C $(DEV)/gbdk-music playmusic DEV="../" EMU="$(EMU)"
 
-$(DEV)/gbdk-music/music.rel: $(DEV)/gbdk-music/music.c
-	$(MAKE) -C $(DEV)/gbdk-music music.rel DEV="../" EMU="$(EMU)"
+$(DEV)/gbdk-music/%: FORCE
+	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
 
 main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
 	$(LK) -o $@ $^

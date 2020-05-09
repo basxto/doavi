@@ -12,8 +12,12 @@
 *.ihx
 *.bi4
 *_data.c
+*.1bpp
+*.2bpp
 *_map.c
+*.tilemap
 *_pal.c
+*.pal
 *_tmap.c
 level.c
 strings.c

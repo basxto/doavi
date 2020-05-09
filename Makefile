@@ -5,9 +5,14 @@ LK?=$(BIN)/gbdk-n-link.sh -Wl-m
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
 MKROM?=$(BIN)/gbdk-n-make-rom.sh -yc -yn "DessertOnAVegI" -ya 4 -yt 2 -yo 4
 EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
-pngconvert?=$(DEV)/png2gb/png2gb.py
+pngconvert?=$(DEV)/png2gb/png2gb.py -ci
+compress?=$(DEV)/png2gb/compress2bpp.py -ci
 loadgpl=$(DEV)/loadgpl/loadgpl.py
+gbc2gb?=$(DEV)/gbc2gb.py
+rgbgfx?=rgbgfx
+xxd?=xxd
 tmxconvert=$(DEV)/tmx2c.py
+bin2c=$(DEV)/bin2c.sh
 
 COMPRESS?=1
 
@@ -67,39 +72,41 @@ $(DEV)/png2gb/%: FORCE
 pix: $(PIX) pix/dialog_photos_data.c
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
-	$(pngconvert) --compress-rle=1 --width 4 --height 4 -u yes $^ -o $@
+	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
 
 pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
 pix/win_gbc_data.c: pix/win_gbc.png
-	$(pngconvert) --compress-rle=1 $^
+	$(pngconvert) $^ -bin | $(compress) - -o$@
 
 # define position in rom
 # datrom and palrom have fixed max size
 pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png
-	$(pngconvert) --compress-rle=1 --width 2 --height 2 --limit 128 $^
+	$(pngconvert) --width 2 --height 2 --limit 128 $^ -bin | $(compress) - -o$@
 
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
-	$(pngconvert) --compress-rle=1 --width 2 --height 2 $^
+	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
 pix/inside_wood_house_data.c: pix/inside_wood_house.png
-	$(pngconvert) --compress-rle=1 --width 2 --height 2 $^
+	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
 pix/overworld_cave_data.c: pix/overworld_cave.png
-	$(pngconvert) --compress-rle=1 --width 2 --height 2 $^
+	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
 
-%_data.c: %.png
-	$(pngconvert) --width 2 --height 2 $^
+#$(shell printf '0x%X' $$(($(1))))
+#$((`stat --printf="%s"  pix/overworld_a.2bpp`/16))
+%_data.c: %.2bpp
+	$(bin2c) $^ $@ "rgbds and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_rle//g'))/16))
 
-%_map.c: %.png
-	$(pngconvert) --width 2 --height 2 $^
+%_map.c: %.tilemap
+	$(bin2c) $^ $@ "rgbds and xxd"
 
-%_pal.c: %.png
-	$(pngconvert) --width 2 --height 2 $^
+%_pal.c: %.pal
+	$(bin2c) $^ $@ "gbc2gb.py and xxd"
 
 %_tmap.c: %.tmx
 	$(tmxconvert) $^
@@ -115,21 +122,32 @@ endif
 strings.c: strings.txt
 	$(DEV)/txt2c.sh $^ $@
 
-pix/overworld%gb.png: pix/overworld%gbc.png
-	$(loadgpl) $^ pix/overworld_gb.gpl $@
-	convert $@ $@
+%_rle.2bpp: %.2bpp
+	dev/png2gb/compress2bpp.py $^ -o $@
+
+%.2bpp %.tilemap: %_gb.png
+	$(rgbgfx) -u -o $@ -t $*.tilemap $<
+
+%.pal: %_gbc.png
+	$(gbc2gb) $^
+
+%.pal: %.png
+	$(gbc2gb) $^
 
 %_gb.png: %_gbc.png
-	$(loadgpl) $^ pix/gb.gpl $@
-	#convert $@ $@
+	$(gbc2gb) $^
+
+%_gb.png: %.png
+	$(gbc2gb) $^
 
 gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
 	rm -f pix/*_gb.png level.c strings.c strings.h
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\)' -delete
+	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|tilemap\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
+	find . -maxdepth 2 -type f -regex '.*_gb\.png' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
 	$(MAKE) -C $(DEV)/png2gb clean
 

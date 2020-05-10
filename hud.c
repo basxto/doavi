@@ -157,17 +157,18 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
     set_win_tiles(x, y, length, 1, buffer);
 }
 
-const char hex_char[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                         '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
 // maximum length is 2 since maximum UINT8 is FF
 void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     if (length > 2) {
         length = 2;
     }
-    buffer[buffer_length - 1] = hex_char[num % 16];
-    num /= 16;
-    buffer[buffer_length - 2] = hex_char[num % 16];
+    //put two numbers into buffer (right to left)
+    for(UINT8 i = buffer_length-1; i > buffer_length-4; --i){
+        UINT8 tmp = (num % (UINT8)16);
+        //for >9 shift from character : to A
+        buffer[i] = '0' + (tmp < 10 ? tmp : ('A'-':')+tmp);
+        num /= (UINT8)16;
+    }
     write_line(x, y, length, (buffer + buffer_length) - length);
 }
 
@@ -176,11 +177,11 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     if (length > 3) {
         length = 3;
     }
-    buffer[buffer_length - 1] = '0' + (num % 10);
-    num /= 10;
-    buffer[buffer_length - 2] = '0' + (num % 10);
-    num /= 10;
-    buffer[buffer_length - 3] = '0' + (num % 10);
+    //put three numbers into buffer (right to left)
+    for(UINT8 i = buffer_length-1; i > buffer_length-5; --i){
+        buffer[i] = '0' + (num % (UINT8)10);
+        num /= (UINT8)10;
+    }
     write_line(x, y, length, (buffer + buffer_length) - length);
 }
 

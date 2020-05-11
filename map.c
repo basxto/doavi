@@ -18,6 +18,9 @@
 #include "pix/overworld_b_gbc_pal.c"
 #include "pix/overworld_cave_pal.c"
 
+#include "dev/gbdk-music/music/the_journey_begins.c"
+#include "music/cosmicgem_voadi.c"
+
 #include "dev/png2gb/csrc/decompress.h"
 
 const unsigned char *current_map;
@@ -120,6 +123,7 @@ void load_map(const UINT8 background[]) {
     // load spritesheet
     if (sg->level_y == 4) {//0b0100
         if(current_map != overworld_b_gbc_map){
+            init_music(&cosmicgem_voadi);
             current_map = overworld_b_gbc_map;
             loaded_map = overworld_b_gbc_map;
             set_bkg_data_rle(SHEET_START, overworld_b_gbc_data_length,
@@ -147,6 +151,8 @@ void load_map(const UINT8 background[]) {
         }
     } else {
         if(current_map != overworld_a_gbc_map){
+            if(current_map == overworld_b_gbc_map)
+                init_music(&the_journey_begins);
             current_map = overworld_a_gbc_map;
             loaded_map = overworld_a_gbc_map;
             set_bkg_data_rle(SHEET_START, overworld_a_gbc_data_length,

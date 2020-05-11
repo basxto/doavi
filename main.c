@@ -13,7 +13,7 @@
 #include "dev/png2gb/csrc/decompress.h"
 
 #include "dev/gbdk-music/music.h"
-#include "dev/gbdk-music/music/the_journey_begins.c"
+#include "dev/gbdk-music/sound.h"
 
 #include "pix/characters_data.c"
 #include "pix/overworld_anim_gbc_data.c"
@@ -301,7 +301,8 @@ void main() {
     init_screen();
     init_hud();
 
-    init_music(&the_journey_begins);
+    //init_music(&the_journey_begins);
+    //init_music(&cosmicgem_voadi);
 
     render_character(&(sg->player));
     change_level();
@@ -326,6 +327,8 @@ void main() {
     // measure time
     //write_hex(0,0,2,sys_time>>8);
     //write_hex(2,0,2,sys_time&0xFF);
+    write_hex(0,0,2,0x2E);
+    write_num(0,1,3,242);
 
     smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
     smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);

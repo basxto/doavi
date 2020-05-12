@@ -179,10 +179,15 @@ void load_map(const UINT8 background[]) {
                 // last row has two palletes
                 palette = 4;
             }
-            // houses extension
-            if (current_map == overworld_a_gbc_map && palette > 3) {
-                palette = 2;
-            }
+            if(palette > 3)
+                if (current_map == overworld_a_gbc_map) {
+                    // houses extension
+                    palette = 2;
+                }
+                else if (current_map == overworld_b_gbc_map) {
+                    // bottle
+                    palette = 1;
+                }
             // inside house
             if (current_map == inside_wood_house_map) {
                 palette = 2;

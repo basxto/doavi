@@ -13,6 +13,7 @@ rgbgfx?=rgbgfx
 xxd?=xxd
 tmxconvert=$(DEV)/tmx2c.py
 bin2c=$(DEV)/bin2c.sh
+convert?=convert
 
 COMPRESS?=1
 
@@ -53,7 +54,7 @@ main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/
 %.ihx: %.rel
 	$(LK) -o $@ $^
 
-main.rel: main.c $(PIX) $(MUSIC) level.c strings.c
+main.rel: main.c pix/hud_pal.c $(PIX) $(MUSIC) level.c strings.c
 	$(CC) -o $@ $<
 
 hud.rel: hud.c pix/dialog_photos_data.c
@@ -74,11 +75,18 @@ pix: $(PIX) pix/dialog_photos_data.c
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
 
-pix/characters_data.c: pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
+pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
-pix/win_gbc_data.c: pix/win_gbc.png
-	$(pngconvert) $^ -bin | $(compress) - -o$@
+pix/win_gbc_data.c: pix/win_gbc_rle.xbpp pix/squont8ng.1bpp pix/win_gbc.2bpp
+	size=$$(stat --printf="%s" $<);\
+	tiles=$$(stat --printf="%s" pix/squont8ng.1bpp);\
+	tiles=$$((tiles*2 + $$(stat --printf="%s"  pix/win_gbc.2bpp)));\
+	tiles=$$((tiles/16));\
+	dev/bin2c.sh $< $@ "imagemagick, rgbgfx and png2gb" $$tiles $$size
+
+pix/win_gbc_rle.xbpp: pix/win_gbc_rle.2bpp pix/squont8ng_rle.1bpp
+	cat $^ > $@
 
 # define position in rom
 # datrom and palrom have fixed max size
@@ -96,6 +104,9 @@ pix/overworld_cave_data.c: pix/overworld_cave.png
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
+
+pix/hud_pal.c: pix/win_gbc.png
+	$(pngconvert) $^ -o$@
 
 #$(shell printf '0x%X' $$(($(1))))
 #$((`stat --printf="%s"  pix/overworld_a.2bpp`/16))
@@ -125,8 +136,11 @@ strings.c: strings.txt
 %_rle.2bpp: %.2bpp
 	dev/png2gb/compress2bpp.py $^ -o $@
 
-%.2bpp %.tilemap: %_gb.png
-	$(rgbgfx) -u -o $@ -t $*.tilemap $<
+%_rle.1bpp: %.1bpp
+	dev/png2gb/compress2bpp.py -mono $^ -o $@
+
+%.2bpp %.tilemap: %.png
+	$(pngconvert) -cno $< -o $@
 
 %.pal: %_gbc.png
 	$(gbc2gb) $^
@@ -140,6 +154,12 @@ strings.c: strings.txt
 %_gb.png: %.png
 	$(gbc2gb) $^
 
+%.1bpp: %_mono.png
+	$(rgbgfx) -d1 $^ -o$@
+
+%_mono.png: %.png
+	$(convert) $^ -monochrome $@
+
 gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
@@ -147,7 +167,7 @@ clean:
 	rm -f pix/*_gb.png level.c strings.c strings.h
 	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|tilemap\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
-	find . -maxdepth 2 -type f -regex '.*_gb\.png' -delete
+	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
 	$(MAKE) -C $(DEV)/png2gb clean
 

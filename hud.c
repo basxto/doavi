@@ -148,12 +148,13 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
         if (str[i] == '\0') {
             break;
         }
-        // we handle lower case in converter script
-        buffer[i] = (WIN_START - (' '/2)) + (str[i]);
-        if(buffer[i] >= (WIN_START - (' '/2)) + '{')
+        // lower case is treated as special characters
+        buffer[i] =  (str[i]);
+        if(buffer[i] >= '{')
             buffer[i] -= 2;
-        if(buffer[i] > (WIN_START - (' '/2)) + 'o')
+        if(buffer[i] > 'o')
             buffer[i] -= (' '/2);
+        buffer[i] += WIN_START - (' '/2);
     }
     for (; i < length; ++i) {
         buffer[i] = (WIN_START - (' '/2)) + ' ';

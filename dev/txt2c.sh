@@ -2,8 +2,11 @@
 set -e
 IFS='
 '
-value=($(grep -o '^[^#]*' "$1" | tr '[:lower:]' '[:upper:]' | sed 's/\\N/\\n/g' | sed 's/\\X/\\x/g'))
+value=($(grep -o '^[^#]*' "$1"))
 name=($(grep -o '^[^#]*' "$1" | sed 's/\\n//g' | sed 's/[^a-z0-9A-Z]//g' | tr '[:upper:]' '[:lower:]'))
+
+# TODO: find most use words and reference them
+# grep -o '^[^#]*' strings.txt | tr '[:lower:]' '[:upper:]' | sed 's/\\N/\\n/g' | sed 's/\\X/\\x/g' | sed 's/\\n//g' | tr -c '[:alnum:]' '[\n*]' | grep -E '^.{2,}$' | sort | uniq -c | sort -rk1
 
 address=-1
 if [ $# -eq 3 ]; then

@@ -25,7 +25,7 @@ void init_hud() {
         }
     }
     VBK_REG = 0;
-    tiles[0] = WIN_START + (' '-8);
+    tiles[0] = WIN_START + 6;
     for (x = 0; x < 20; ++x) {
         for (y = 0; y < 20; ++y) {
             set_win_tiles(x, y, 1, 1, tiles);
@@ -36,7 +36,7 @@ void init_hud() {
 
 // fill area with spaces
 void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height){
-    buffer[0] = WIN_START + '  ';
+    buffer[0] = (WIN_START - (' '/2)) + '  ';
     for(UINT8 tmp_y = 0; tmp_y < height; ++tmp_y){
         UINT8 tmp = y + tmp_y;
         for(UINT8 tmp_x = 0; tmp_x < width; ++tmp_x){
@@ -97,8 +97,8 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
                 --str;
                 ++length;
             }
-            buffer[0] = WIN_START + 7;
-            buffer[buffer_length - 1] = 7;
+            buffer[0] = 'v';
+            buffer[buffer_length - 1] = 'v';
             write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
             delay(100);
             waitpad(J_A);
@@ -113,7 +113,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         tmp_y = firstchoice;
         run = 1;
         //write arrow
-        buffer[buffer_length - 1] = 6;
+        buffer[buffer_length - 1] = 'w';
         write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
         while(run){
             delay(100);
@@ -132,7 +132,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
                     return (tmp_y - firstchoice) + 1;
                     break;
             }
-            buffer[buffer_length - 1] = 6;
+            buffer[buffer_length - 1] = 'w';
             write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
         }
     }
@@ -149,10 +149,14 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
             break;
         }
         // we handle lower case in converter script
-        buffer[i] = WIN_START + (str[i]);
+        buffer[i] = (WIN_START - (' '/2)) + (str[i]);
+        if(buffer[i] >= (WIN_START - (' '/2)) + '{')
+            buffer[i] -= 2;
+        if(buffer[i] > (WIN_START - (' '/2)) + 'o')
+            buffer[i] -= (' '/2);
     }
     for (; i < length; ++i) {
-        buffer[i] = WIN_START + ' ';
+        buffer[i] = (WIN_START - (' '/2)) + ' ';
     }
     set_win_tiles(x, y, length, 1, buffer);
 }
@@ -190,7 +194,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     unsigned char tiles[2];
     tiles[0] = WIN_START + 8;
     set_win_tiles(3, 1, 1, 1, tiles);
-    tiles[0] = WIN_START + 9;
+    tiles[0] = WIN_START + 7;
     set_win_tiles(2, 1, 1, 1, tiles);
     tiles[0] = WIN_START + 12;
     tiles[1] = WIN_START + 13;
@@ -199,7 +203,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     tiles[1] = WIN_START + 15;
     set_win_tiles(0, 1, 2, 1, tiles);
     for (i = 0; i < 5; ++i) {
-        tiles[0] = (i >= lives ? WIN_START + 11 : WIN_START + 10);
+        tiles[0] = (i >= lives ? WIN_START + 11 : WIN_START + 9);
         set_win_tiles(2 + i, 0, 1, 1, tiles);
     }
     write_num(4, 1, 3, toiletpaper);
@@ -214,18 +218,12 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
     UINT8 ret = 0;
     unsigned char* pointer;
 
-    // line at bottom and top
-    for(y = 0; y < 2;++y){
-        tiles[y] = 0xFF;
-        tiles[14+y] = 0xFF;
-    }
     // generate name field data blocks
     for(y = 0; y < namelength; ++y){
-        // we sadly have to decompress tle by tile
-        pointer = set_win_data_rle(0, 0, win_gbc_data, name[y]);
+        get_bkg_data((WIN_START - (' '/2)) + name[y], 1, tiles);
         // invert lines
-        for(x = 13; x > 0; --x){
-            tiles[x] = ~pointer[x];
+        for(x = 0; x < 16; ++x){
+            tiles[x] = ~tiles[x];
         }
         set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
     }

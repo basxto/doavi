@@ -18,40 +18,40 @@ extern const unsigned char *current_map;
 void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
     sg->level_x = lx;
     sg->level_y = ly;
-    sg->player.x = px;
-    sg->player.y = py;
+    sg->character[0].x = px;
+    sg->character[0].y = py;
     wait_vbl_done();
-    render_character(&(sg->player));
+    render_character(0);
     change_level();
 }
 
 UINT8 move_player(const INT8 x, const INT8 y) {
-    if (move_character(&(sg->player), x, y) == 1) {
+    if (move_character(0, x, y) == 1) {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }
 
     // leaving the beach if bottle is not collected
-    if((sg->collectable & 0x2) == 0 && sg->level_y == 4 && sg->player.y == 0){
+    if((sg->collectable & 0x2) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
         dialog(strlen(text_youdontw), text_youdontw, strlen(text_narrator),
                text_narrator, 0);
-        sg->player.direction = 0;
-        sg->player.y++;
+        sg->character[0].direction = 0;
+        sg->character[0].y++;
         return 1;
     }
 
     UINT8 tile =
-        current_background[(sg->player.y * WIDTH) + sg->player.x];
+        current_background[(sg->character[0].y * WIDTH) + sg->character[0].x];
 
     // trigger stuff
 
     // cave entrance
     if(tile == 21){
         if(sg->level_x == 4){
-            sg->player.direction = 0;
+            sg->character[0].direction = 0;
             teleport_to(0, 6, 2, 1);
         }else{
-            sg->player.direction = 0;
+            sg->character[0].direction = 0;
             teleport_to(1, 6, 7, 1);
         }
     }
@@ -59,7 +59,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     //  house entrance
     if (tile == $(34 + 10)) {
         if(sg->level_y == 1 && sg->level_x == 1)
-            if(sg->player.x > $(5))
+            if(sg->character[0].x > $(5))
                 teleport_to(0, 5, 5, 6);
             else
                 teleport_to(1, 5, 4, 6);
@@ -70,7 +70,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     // player stepped into the doorway
-    if(sg->level_y == 5 && sg->player.y == 7){
+    if(sg->level_y == 5 && sg->character[0].y == 7){
         if (sg->level_x == 0) {
             teleport_to(1, 1, 7, 5);
         }
@@ -86,7 +86,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     // player stepped onto the stairs
-    if (sg->level_y == 6 && sg->player.y == 0) {
+    if (sg->level_y == 6 && sg->character[0].y == 0) {
         if(sg->level_x == 0)
             teleport_to(4, 2, 5, 3);
         else
@@ -97,10 +97,10 @@ UINT8 move_player(const INT8 x, const INT8 y) {
 
 
 void interact() {
-    UINT8 x = sg->player.x;
-    UINT8 y = sg->player.y;
+    UINT8 x = sg->character[0].x;
+    UINT8 y = sg->character[0].y;
     UINT8 tile;
-    switch (sg->player.direction) {
+    switch (sg->character[0].direction) {
     case 0:
         y++;
         break;
@@ -145,19 +145,19 @@ void interact() {
         if(x == 5 && y == 2 && (sg->collectable & (1<<$(2))) == 0){
             screen_shake();
             // spawn ghost
-            sg->character[0].x = 4;
-            sg->character[0].y = 2;
-            if(sg->player.x == 4 && sg->player.y == 2){
-                sg->character[0].x = 6;
-                sg->character[0].y = 2;
+            sg->character[1].x = 4;
+            sg->character[1].y = 2;
+            if(sg->character[0].x == 4 && sg->character[0].y == 2){
+                sg->character[1].x = 6;
+                sg->character[1].y = 2;
             }
-            sg->character[0].sprite = 2;
-            sg->character[0].direction = 0;
-            sg->character[0].palette = 3;
-            sg->character[0].offset_x = 0;
-            sg->character[0].offset_y = 0;
+            sg->character[1].sprite = 2;
+            sg->character[1].direction = 0;
+            sg->character[1].palette = 3;
+            sg->character[1].offset_x = 0;
+            sg->character[1].offset_y = 0;
 
-            render_character(&(sg->character[0]));
+            render_character(1);
             sg->collectable |= (1<<$(2));
         }
         dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
@@ -186,12 +186,12 @@ void interact() {
     }
     // move stone
     if (tile == 27) {
-        if(is_free(x + (x - sg->player.x),y + (y - sg->player.y)) == 1){
+        if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
             incject_map_palette(x, y, 0);
             incject_map(x, y, 0);
             current_background[(y * WIDTH) + x] = 2;
-            x += (x - sg->player.x);
-            y += (y - sg->player.y);
+            x += (x - sg->character[0].x);
+            y += (y - sg->character[0].y);
             incject_map_palette(x, y, 3);
             incject_map(x, y, 27-2);
             current_background[(y * WIDTH) + x] = 27;

@@ -127,16 +127,17 @@ void init_screen() {
 void change_level() {
     current_level = &level[sg->level_y][sg->level_x];
     current_background = decompress(current_level->background);
-    for(UINT8 i = 0; i < 4; ++i){
+    for(UINT8 i = 1; i < 5; ++i){
         // disable characters
         sg->character[i].sprite = 0xFF;
-        render_character(&(sg->character[i]));
+        render_character(i);
     }
     load_map(current_background);
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always
-void render_character(const Character *chrctr) {
+void render_character(const UINT8 index) {
+    Character *chrctr = &sg->character[index];
     if(chrctr->sprite == 0xFF){
         move_sprite(chrctr->sprite_index, 0, 0);
         move_sprite(chrctr->sprite_index + 1, 0, 0);
@@ -162,7 +163,7 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     //write_num(12, 1, 3, tile);
     if ((current_level->collision[index / $(8)] & (1 << (index % $(8)))) == 0 && tile != 16 && tile != 27) {
         // check entity collision
-        for(UINT8 i = 0; i < 4; ++i)
+        for(UINT8 i = 1; i < 5; ++i)
             if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
                 return 0;
         return 1;
@@ -170,12 +171,13 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     return 0;
 }
 
-UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
+UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
+    Character *chrctr = &sg->character[index];
     if (chrctr->x == 0 && x < 0) {
         sg->level_x--;
         chrctr->x += WIDTH + x;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(index);
         change_level();
         return 0;
     }
@@ -183,7 +185,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
         sg->level_x++;
         chrctr->x += -WIDTH + x;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(index);
         change_level();
         return 0;
     }
@@ -191,7 +193,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
         sg->level_y--;
         chrctr->y += HEIGHT + y;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(index);
         change_level();
         return 0;
     }
@@ -199,7 +201,7 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
         sg->level_y++;
         chrctr->y += -HEIGHT + y;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(index);
         change_level();
         return 0;
     }
@@ -210,14 +212,14 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
             chrctr->offset_y += y * $(4);
             // a little jump in the walk
             wait_vbl_done();
-            render_character(chrctr);
+            render_character(index);
         }
         chrctr->offset_x = 0;
         chrctr->offset_y = 0;
         chrctr->x += x;
         chrctr->y += y;
         wait_vbl_done();
-        render_character(chrctr);
+        render_character(index);
         return 0;
     } else {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
@@ -279,19 +281,18 @@ void main() {
         sg->level_x = 1;
         sg->level_y = 4;
 
-        sg->player.x = 4;
-        sg->player.y = 4;
-        sg->player.sprite = 1;
-        sg->player.direction = 0;
-        sg->player.palette = 2;
-        sg->player.sprite_index = 38;
-        sg->player.offset_x = 0;
-        sg->player.offset_y = 0;
+        sg->character[0].x = 4;
+        sg->character[0].y = 4;
+        sg->character[0].sprite = 1;
+        sg->character[0].direction = 0;
+        sg->character[0].palette = 2;
+        sg->character[0].sprite_index = 38;
+        sg->character[0].offset_x = 0;
+        sg->character[0].offset_y = 0;
 
-        sg->character[0].sprite_index = 0;
-        sg->character[1].sprite_index = 2;
-        sg->character[2].sprite_index = 4;
-        sg->character[3].sprite_index = 6;
+        for(UINT8 i = 0; i < 4; ++i){
+            sg->character[i+1].sprite_index = i*2;
+        }
 
         sg->lives = 5;
         sg->tpaper = 0;
@@ -307,7 +308,7 @@ void main() {
     //init_music(&the_journey_begins);
     //init_music(&cosmicgem_voadi);
 
-    render_character(&(sg->player));
+    render_character(0);
     change_level();
 
     SHOW_BKG;
@@ -348,27 +349,27 @@ void main() {
 
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
-            sg->player.direction = 3;
+            sg->character[0].direction = 3;
             if (move_player(1, 0) == 1)
-                render_character(&(sg->player));
+                render_character(0);
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
-            sg->player.direction = 2;
+            sg->character[0].direction = 2;
             if (move_player(-1, 0) == 1)
-                render_character(&(sg->player));
+                render_character(0);
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
-            sg->player.direction = 1;
+            sg->character[0].direction = 1;
             if (move_player(0, -1) == 1)
-                render_character(&(sg->player));
+                render_character(0);
             delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
-            sg->player.direction = 0;
+            sg->character[0].direction = 0;
             if (move_player(0, 1) == 1)
-                render_character(&(sg->player));
+                render_character(0);
             delay(100);
             break;
         case J_A: // If joypad() is equal to DOWN

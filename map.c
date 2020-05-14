@@ -217,14 +217,14 @@ void load_map(const UINT8 background[]) {
 
     if((sg->collectable & (1<<2)) && sg->level_x == 0 && sg->level_y == 0){
         // spawn ghost
-        sg->character[0].x = 4;
-        sg->character[0].y = 2;
-        sg->character[0].sprite = 2;
-        sg->character[0].palette = 3;
-        sg->character[0].direction = 0;
-        sg->character[0].offset_x = 0;
-        sg->character[0].offset_y = 0;
+        sg->character[1].x = 4;
+        sg->character[1].y = 2;
+        sg->character[1].sprite = 2;
+        sg->character[1].palette = 3;
+        sg->character[1].direction = 0;
+        sg->character[1].offset_x = 0;
+        sg->character[1].offset_y = 0;
 
-        render_character(&(sg->character[0]));
+        render_character(1);
     }
 }

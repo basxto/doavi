@@ -38,8 +38,8 @@ typedef struct {
     UINT8 tpaper;
     // each bit for one
     UINT8 collectable;
-    Character player;
-    Character character[4];
+    //Character player;// becomes character[0]
+    Character character[5];
     // allow player to have 8 items
     UINT8 items[8];
     UINT8 selected_item;
@@ -53,9 +53,9 @@ void init_screen();
 void change_level();
 // we not allow so many characters, maybe just give id?
 // character spritesheet must be 4 16x16 blocks wide ... always
-void render_character(const Character *chrctr);
+void render_character(const UINT8 index);
 UINT8 is_free( const UINT8 x, const UINT8 y);
-UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y);
+UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y);
 
 inline void tick_animate();
 void timer_isr();

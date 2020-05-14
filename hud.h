@@ -3,9 +3,9 @@
 #define HUD_H
 
 #include <gb/gb.h>
-#define WIN_START (0)
-#define PORTRAIT_START (96)
-#define PORTRAIT_LENGTH (16)
+#define WIN_START $(0)
+#define PORTRAIT_START $(96)
+#define PORTRAIT_LENGTH $(16)
 
 void init_hud();
 // fill area with spaces

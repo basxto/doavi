@@ -4,6 +4,7 @@
 #include "level.h"
 #include "dev/gbdk-music/music.h"
 #include "dev/gbdk-music/sound.h"
+#include "utils.h"
 
 #include "strings.c"
 
@@ -56,9 +57,9 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     //  house entrance
-    if (tile == 34 + 10) {
+    if (tile == $(34 + 10)) {
         if(sg->level_y == 1 && sg->level_x == 1)
-            if(sg->player.x > 5)
+            if(sg->player.x > $(5))
                 teleport_to(0, 5, 5, 6);
             else
                 teleport_to(1, 5, 4, 6);
@@ -141,7 +142,7 @@ void interact() {
         draw_hud(sg->lives, sg->tpaper);
     }
     if (tile == 26) {
-        if(x == 5 && y == 2 && (sg->collectable & (1<<2)) == 0){
+        if(x == 5 && y == 2 && (sg->collectable & (1<<$(2))) == 0){
             screen_shake();
             // spawn ghost
             sg->character[0].x = 4;
@@ -157,7 +158,7 @@ void interact() {
             sg->character[0].offset_y = 0;
 
             render_character(&(sg->character[0]));
-            sg->collectable |= (1<<2);
+            sg->collectable |= (1<<$(2));
         }
         dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
                text_grave, 2);
@@ -173,7 +174,7 @@ void interact() {
         if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
             incject_map(2, 2, 30);
             sg->collectable |= 0x1;
-            sg->tpaper++;
+            ++sg->tpaper;
             draw_hud(sg->lives, sg->tpaper);
             blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
         }

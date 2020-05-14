@@ -2,6 +2,7 @@
 #include "hud.h"
 #include "pix/dialog_photos_data.c"
 #include "dev/png2gb/csrc/decompress.h"
+#include "utils.h"
 
 // as defined in makefile
 //const unsigned char * win_gbc_data_inrom;// = (0x7FFF-0x1880);
@@ -169,10 +170,10 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     }
     //put two numbers into buffer (right to left)
     for(UINT8 i = buffer_length-1; i > buffer_length-4; --i){
-        UINT8 tmp = (num % (UINT8)16);
+        UINT8 tmp = (num % $(16));
         //for >9 shift from character : to A
         buffer[i] = '0' + (tmp < 10 ? tmp : ('A'-':')+tmp);
-        num /= (UINT8)16;
+        num /= $(16);
     }
     write_line(x, y, length, (buffer + buffer_length) - length);
 }
@@ -184,8 +185,8 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     }
     //put three numbers into buffer (right to left)
     for(UINT8 i = buffer_length-1; i > buffer_length-5; --i){
-        buffer[i] = '0' + (num % (UINT8)10);
-        num /= (UINT8)10;
+        buffer[i] = '0' + (num % $(10));
+        num /= $(10);
     }
     write_line(x, y, length, (buffer + buffer_length) - length);
 }
@@ -204,7 +205,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     tiles[1] = WIN_START + 15;
     set_win_tiles(0, 1, 2, 1, tiles);
     for (i = 0; i < 5; ++i) {
-        tiles[0] = (i >= lives ? WIN_START + 11 : WIN_START + 9);
+        tiles[0] = (i >= lives ? WIN_START + $(11) : WIN_START + $(9));
         set_win_tiles(2 + i, 0, 1, 1, tiles);
     }
     write_num(4, 1, 3, toiletpaper);
@@ -243,16 +244,19 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
     // set portrait
     if(portrait == 0){
         // this is just a black block
-        tiles[13] = 0xFE;
+        tiles[2] = 0xFF;
+        tiles[3] = 0xFF;
+        tiles[4] = 0xFF;
+        tiles[0] = 1;
         //14 and 15 are still on 0xFF
         // x+=4 only works because portrait length is multiple of 4
         for (x = 0; x < PORTRAIT_LENGTH; x+=4) {
-            set_win_data_rle(PORTRAIT_START + x, 4, &tiles[13], 0);
+            set_win_data_rle(PORTRAIT_START + x, 4, &tiles[2], 0);
         }
     }else{
         set_win_data_rle(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data, (portrait-1)*PORTRAIT_LENGTH);
         // 2 or 3
-        if((portrait & 0x3) != 0){
+        if($(portrait & 0x3) != 0){
             tiles[0] = portrait+1;
         }
     }

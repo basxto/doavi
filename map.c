@@ -39,19 +39,17 @@ const unsigned char * decompress(const UINT8 *compressed_map){
     UINT8 bytepart = 0;
     UINT8 byte = 0;
     UINT8 counter = 0;
-    UINT8 hi = 0;
-    UINT8 lo = 0;
     for(UINT8 i = 0; i < 80; ++i){
         if(counter != 0){
             decompressed_background[i] = byte;
             --counter;
         }else{
-            lo = compressed_map[c] & 0xF;
-            hi = compressed_map[c] & 0xF;
+            UINT8 lo = compressed_map[c] & 0xF;
+            UINT8 hi = compressed_map[c] & 0xF;
             if(bytepart == 0){
-                hi = (compressed_map[c] >> 4) & 0xF;
+                hi = (compressed_map[c] >> 4);
             }else{
-                lo = (compressed_map[c+1] >> 4) & 0xF;
+                lo = (compressed_map[c+1] >> 4);
             }
             if((hi & 0x8) == 0){
                 // short notation
@@ -62,12 +60,12 @@ const unsigned char * decompress(const UINT8 *compressed_map){
                     decompressed_background[i++] = hi;
                     decompressed_background[i] = hi + 1;
                 }
-                bytepart = (bytepart + 1) % 2;
+                bytepart = $(bytepart + 1) % $(2);
                 if(bytepart == 0)
                     ++c;
             }else if((hi & 0x4) == 0){
                 //other tiles
-                decompressed_background[i] = (hi & 0x3)<<4 | lo;
+                decompressed_background[i] = $(hi & 0x3)<<4 | lo;
                 ++c;
             }else{
                 //special
@@ -95,18 +93,22 @@ const unsigned char * decompress(const UINT8 *compressed_map){
 void incject_map_palette(const UINT8 x, const UINT8 y, const UINT8 index) {
     unsigned char tiles[4] = {index, index, index, index};
     VBK_REG = 1;
-    set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
+    set_bkg_tiles(x * $(2) + 1, y * $(2) + 1, 2, 2, tiles);
     VBK_REG = 0;
 }
 
 void incject_map(UINT8 x, UINT8 y, UINT16 index) {
     unsigned char tiles[4];
     index *= 4;
-    tiles[0] = SHEET_START + current_map[index];
-    tiles[1] = SHEET_START + current_map[index + 2];
-    tiles[2] = SHEET_START + current_map[index + 1];
-    tiles[3] = SHEET_START + current_map[index + 3];
-    set_bkg_tiles(x * 2 + 1, y * 2 + 1, 2, 2, tiles);
+    UINT8 j = 0;// goes 0 2 1 3
+    for(UINT8 i = 0; i < 4; ++i){
+        tiles[i] = SHEET_START + current_map[index + j];
+        if(j==2)
+            --j;
+        else
+            j+=2;
+    }
+    set_bkg_tiles(x * $(2) + 1, y * $(2) + 1, 2, 2, tiles);
 }
 
 void load_map(const UINT8 background[]) {
@@ -120,6 +122,7 @@ void load_map(const UINT8 background[]) {
     unsigned char tiles[4];
 
     DISPLAY_OFF;
+    BGP_REG = 0xE4; // 11100100
     // load spritesheet
     if (sg->level_y == 4) {//0b0100
         if(current_map != overworld_b_gbc_map){
@@ -129,7 +132,6 @@ void load_map(const UINT8 background[]) {
             set_bkg_data_rle(SHEET_START, overworld_b_gbc_data_length,
                         overworld_b_gbc_data, 0);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
-            BGP_REG = 0xE4; // 11100100
         }
     } else if (sg->level_y == 5) {//0b0101
         if(current_map != inside_wood_house_map){
@@ -138,7 +140,6 @@ void load_map(const UINT8 background[]) {
             set_bkg_data_rle(SHEET_START, inside_wood_house_data_length,
                         inside_wood_house_data, 0);
             set_bkg_palette(0, 6, inside_wood_house_pal[0]);
-            BGP_REG = 0xE4; // 11100100
         }
     } else if (sg->level_y > 5) {
         if(current_map != overworld_cave_map){
@@ -147,7 +148,6 @@ void load_map(const UINT8 background[]) {
             set_bkg_data_rle(SHEET_START, overworld_cave_data_length,
                         overworld_cave_data, 0);
             set_bkg_palette(0, 6, overworld_cave_pal[0]);
-            BGP_REG = 0xE4; // 11100100
         }
     } else {
         if(current_map != overworld_a_gbc_map){
@@ -158,15 +158,15 @@ void load_map(const UINT8 background[]) {
             set_bkg_data_rle(SHEET_START, overworld_a_gbc_data_length,
                         overworld_a_gbc_data, 0);
             set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
-            BGP_REG = 0xE1;
         }
+        BGP_REG = 0xE1;
     }
 
     for (y = 0; y < HEIGHT; ++y) {
         UINT8 tmp1 = y * WIDTH;
         UINT8 tmp2 = y * 2 + 1;
         for (x = 0; x < WIDTH; ++x) {
-            UINT8 tmpx = x * 2 + 1;
+            UINT8 tmpx = x * $(2) + $(1);
             // load background
             tile = background[tmp1 + x] - 2;
             index = tile * 4;
@@ -196,10 +196,15 @@ void load_map(const UINT8 background[]) {
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
             VBK_REG = 0;
             // set tiles
-            tiles[0] = SHEET_START + current_map[index];
-            tiles[1] = SHEET_START + current_map[index + 2];
-            tiles[2] = SHEET_START + current_map[index + 1];
-            tiles[3] = SHEET_START + current_map[index + 3];
+            UINT8 j = 0;// goes 0 2 1 3
+            for(UINT8 i = 0; i < 4; ++i){
+                //tiles[0] = SHEET_START + current_map[index + j];
+                tiles[i] = SHEET_START + current_map[index + j];
+                if(j==2)
+                    --j;
+                else
+                    j+=2;
+            }
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
         }
     }
@@ -215,8 +220,8 @@ void load_map(const UINT8 background[]) {
         sg->character[0].x = 4;
         sg->character[0].y = 2;
         sg->character[0].sprite = 2;
-        sg->character[0].direction = 0;
         sg->character[0].palette = 3;
+        sg->character[0].direction = 0;
         sg->character[0].offset_x = 0;
         sg->character[0].offset_y = 0;
 

@@ -2,19 +2,20 @@
 #define MAIN_H
 
 #include <gb/gb.h>
+#include "utils.h"
 
 // all maps are 10 tiles (16x16) wide and 9 tiles high
-#define HEIGHT (8)
-#define WIDTH (10)
+#define HEIGHT $(8)
+#define WIDTH $(10)
 // tile (8x8) width of our sprite
-#define SPRITEWIDTH (16)
+#define SPRITEWIDTH $(16)
 #define TRANSPARENT (RGB(12, 25, 0))
 
-#define CHARACTERS_START (0)
-#define SHEET_START (128)
+#define CHARACTERS_START $(0)
+#define SHEET_START $(128)
 // width in 16x16 blocks
-#define SHEET_WIDTH (8)
-#define ANIM_WIDTH (4)
+#define SHEET_WIDTH $(8)
+#define ANIM_WIDTH $(4)
 
 typedef struct {
     UINT8 x; // position
@@ -50,6 +51,7 @@ void menu();
 void screen_shake();
 void init_screen();
 void change_level();
+// we not allow so many characters, maybe just give id?
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const Character *chrctr);
 UINT8 is_free( const UINT8 x, const UINT8 y);

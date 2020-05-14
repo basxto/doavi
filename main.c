@@ -24,6 +24,8 @@
 
 #include "pix/characters_pal.c"
 
+#include "pix/hud_pal.c"
+
 #include "strings.h"
 
 
@@ -91,6 +93,7 @@ void init_screen() {
 
     //set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
     set_sprite_palette(0, 6, characters_pal[0]);
+    set_bkg_palette(7, 1, hud_pal[0]);
 
     // load tilesets
     set_win_data_rle(WIN_START, win_gbc_data_length, win_gbc_data, 0);
@@ -108,7 +111,7 @@ void init_screen() {
         set_bkg_tiles(0, y, 1, 1, tiles);
     }
     VBK_REG = 0;
-    tiles[0] = WIN_START + (' ' - 8);
+    tiles[0] = WIN_START + 6;
     for (int x = 0; x < 22; ++x) {
         set_bkg_tiles(x, 17, 1, 1, tiles);
         set_bkg_tiles(x, 18, 1, 1, tiles);
@@ -138,11 +141,11 @@ void render_character(const Character *chrctr) {
         move_sprite(chrctr->sprite_index, 0, 0);
         move_sprite(chrctr->sprite_index + 1, 0, 0);
     }else{
-        UINT8 base = chrctr->sprite * 4 * 4 + chrctr->direction * 4;
+        UINT8 base = chrctr->sprite * $(4) * $(4) + chrctr->direction * $(4);
         set_sprite_tile(chrctr->sprite_index, CHARACTERS_START + characters_map[base]);
-        move_sprite(chrctr->sprite_index, 8 + (chrctr->x) * 16 + chrctr->offset_x, ((chrctr->y) + 1) * 16 + chrctr->offset_y);
+        move_sprite(chrctr->sprite_index, $(8) + (chrctr->x) * $(16) + chrctr->offset_x, ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y);
         set_sprite_prop(chrctr->sprite_index, chrctr->palette);
-        set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[base + 2]);
+        set_sprite_tile(chrctr->sprite_index + 1, CHARACTERS_START + characters_map[base + $(2)]);
         move_sprite(chrctr->sprite_index + 1,
                     8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
                     ((chrctr->y) + 1) * 16 + chrctr->offset_y);
@@ -157,7 +160,7 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     UINT8 index = (y) * WIDTH + (x);
     UINT8 tile = current_background[index];
     //write_num(12, 1, 3, tile);
-    if ((current_level->collision[index / 8] & (1 << (index % 8))) == 0 && tile != 16 && tile != 27) {
+    if ((current_level->collision[index / $(8)] & (1 << (index % $(8)))) == 0 && tile != 16 && tile != 27) {
         // check entity collision
         for(UINT8 i = 0; i < 4; ++i)
             if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
@@ -202,9 +205,9 @@ UINT8 move_character(Character *chrctr, const INT8 x, const INT8 y) {
     }
     //write_num(12, 1, 3, tile);
     if (is_free((chrctr->x + x),(chrctr->y + y)) != 0) {
-        for (int i = 0; i < 4; ++i) {
-            chrctr->offset_x += x * 4;
-            chrctr->offset_y += y * 4;
+        for (int i = 4; i != 0; --i) {
+            chrctr->offset_x += x * $(4);
+            chrctr->offset_y += y * $(4);
             // a little jump in the walk
             wait_vbl_done();
             render_character(chrctr);
@@ -265,7 +268,7 @@ void timer_isr() {
     if (counter++ == 0) {
         tick_animate();
     }
-    counter %= 8;
+    counter %= $(64);
 }
 
 void main() {
@@ -312,7 +315,8 @@ void main() {
     DISPLAY_ON;
 
     // configure interrupt
-    TIMA_REG = TMA_REG = 0x1A;
+    // triggers interrupt when it reaches 0xFF
+    TIMA_REG = TMA_REG = 0xE3;
     TAC_REG = 0x4 | 0x0; // 4096 Hz
     // enable timer interrupt
     disable_interrupts();
@@ -327,8 +331,6 @@ void main() {
     // measure time
     //write_hex(0,0,2,sys_time>>8);
     //write_hex(2,0,2,sys_time&0xFF);
-    write_hex(0,0,2,0x2E);
-    write_num(0,1,3,242);
 
     smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
     smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);
@@ -380,5 +382,6 @@ void main() {
         default:
             break;
         }
+        wait_vbl_done();
     }
 }

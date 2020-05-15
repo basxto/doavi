@@ -105,7 +105,10 @@ const Instrument cosmicgem_voadi_instruments[] = {
     {0x00 |5,   30, 0xC0, 0x20 | 0x04 | 0x03}
 };
 
-const Song cosmicgem_voadi={16,1,40,
+const Song cosmicgem_voadi={
+    (sizeof(cosmicgem_voadi_pattern[0])/sizeof(Pattern_frame)),
+    (sizeof(cosmicgem_voadi_arrangement)/sizeof(Song_frame)),
+    40,
     &(cosmicgem_voadi_pattern[0][0]),
     &(cosmicgem_voadi_arrangement[0]),
     &(cosmicgem_voadi_instruments[0])

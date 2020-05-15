@@ -105,8 +105,8 @@ const Instrument cosmicgem_voadi_instruments[] = {
     {0x00 |5,   30, 0xC0, 0x20 | 0x04 | 0x03}
 };
 
-Song cosmicgem_voadi={16,1,40,
-    cosmicgem_voadi_pattern[0],
-    cosmicgem_voadi_arrangement,
-    cosmicgem_voadi_instruments
+const Song cosmicgem_voadi={16,1,40,
+    &(cosmicgem_voadi_pattern[0][0]),
+    &(cosmicgem_voadi_arrangement[0]),
+    &(cosmicgem_voadi_instruments[0])
 };

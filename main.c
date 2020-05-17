@@ -38,7 +38,7 @@ extern const unsigned char overworld_b_gbc_map[];
 UINT8 counter;
 UINT8 anim_counter;
 
-Level *current_level;
+const Level *current_level;
 // since might need to decompress it
 const UINT8 *current_background;
 extern const unsigned char *current_map;

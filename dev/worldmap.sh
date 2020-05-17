@@ -19,7 +19,7 @@ for l in lvl_*.tmx; do
     echo "#include \"level/lvl_${x}_${y}_tmap.c\"" >> ../level.c
 done
 
-echo "Level level[][$((max_x + 1))] = {" >> ../level.c
+echo "const Level level[][$((max_x + 1))] = {" >> ../level.c
 for y in $(seq 0 "${max_y}"); do
     printf "\t{\n" >> ../level.c
     for x in $(seq 0 "${max_x}"); do

@@ -43,6 +43,7 @@ const Level *current_level;
 const UINT8 *current_background;
 extern const unsigned char *current_map;
 Savegame *sg;
+Savegame sgemu;
 
 void menu() {
     move_win(7, 0);
@@ -274,9 +275,10 @@ void timer_isr() {
 }
 
 void main() {
-    sg = (Savegame *)0xa000;
+    //sg = (Savegame *)0xa000;
+    sg = &sgemu;
     // load savegame
-    ENABLE_RAM_MBC1;
+    //ENABLE_RAM_MBC1;
     if (sg->magic != 'V') {
         sg->level_x = 1;
         sg->level_y = 4;

@@ -157,7 +157,7 @@ strings.c: strings.txt
 %.1bpp: %_mono.png
 	$(rgbgfx) -d1 $^ -o$@
 
-%_mono.png: %.png
+%_mono.png: %_gbc.png
 	$(convert) $^ -monochrome $@
 
 gbdk-n:

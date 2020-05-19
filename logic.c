@@ -104,10 +104,10 @@ void interact() {
     case 0:
         y++;
         break;
-    case 1:
+    case 2:
         y--;
         break;
-    case 2:
+    case 1:
         x--;
         break;
     case 3:

@@ -218,7 +218,6 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
     UINT8 y;
     UINT8 accept = 0;
     UINT8 ret = 0;
-    unsigned char* pointer;
 
     // generate name field data blocks
     for(y = 0; y < namelength; ++y){

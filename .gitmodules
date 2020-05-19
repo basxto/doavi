@@ -10,3 +10,6 @@
 [submodule "dev/loadgpl"]
 	path = dev/loadgpl
 	url = https://github.com/basxto/loadgpl
+[submodule "dev/gbz80-ph"]
+	path = dev/gbz80-ph
+	url = https://github.com/basxto/gbz80-ph

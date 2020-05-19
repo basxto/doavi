@@ -26,7 +26,7 @@ endif
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
 MUSIC=dev/gbdk-music/music/the_journey_begins.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc characters))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))
@@ -74,6 +74,9 @@ pix: $(PIX) pix/dialog_photos_data.c
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
+
+pix/modular_characters_data.c : pix/body_gbc.png pix/head_candy_gbc.png pix/head_man0_gbc.png
+	$(pngconvert) -flip $^ -o $@
 
 pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@

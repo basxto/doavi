@@ -16,10 +16,12 @@
 #include "dev/gbdk-music/sound.h"
 
 #include "pix/characters_data.c"
+#include "pix/modular_characters_data.c"
 #include "pix/overworld_anim_gbc_data.c"
 #include "pix/win_gbc_data.c"
 
 #include "pix/characters_map.c"
+#include "pix/modular_characters_map.c"
 #include "pix/overworld_anim_gbc_map.c"
 
 #include "pix/characters_pal.c"
@@ -86,7 +88,7 @@ void init_screen() {
     HIDE_SPRITES;
     DISPLAY_OFF;
     cgb_compatibility();
-    SPRITES_8x16;
+    //SPRITES_8x16;
     anim_counter = 0;
 
     BGP_REG = 0xE1; // 11100001
@@ -100,6 +102,9 @@ void init_screen() {
     set_win_data_rle(WIN_START, win_gbc_data_length, win_gbc_data, 0);
     set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
                     characters_data);
+    // Test for modular characters
+    set_sprite_data(0x30, sizeof(modular_characters_data) / 16,
+                    modular_characters_data);
 
     VBK_REG = 1;
     for (int x = 0; x < 22; ++x) {
@@ -152,6 +157,28 @@ void render_character(const UINT8 index) {
                     8 + (chrctr->x) * 16 + chrctr->offset_x + 8,
                     ((chrctr->y) + 1) * 16 + chrctr->offset_y);
         set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
+    }
+    if(index == 0){
+        UINT8 head = 1;
+        head = (9*8) + (head*19) + (chrctr->direction*4);
+        UINT8 x = $(8) + (chrctr->x) * $(16) + chrctr->offset_x;
+        UINT8 y = ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y;
+        UINT8 mapping = modular_characters_map[head];
+        set_sprite_tile(chrctr->sprite_index, 0x30+(mapping&0x7F));
+        move_sprite(chrctr->sprite_index, x, y);
+        set_sprite_prop(chrctr->sprite_index, chrctr->palette | (mapping&0x80?0x20:0x0));
+        mapping = modular_characters_map[head+2];
+        set_sprite_tile(chrctr->sprite_index+1, 0x30+(mapping&0x7F));
+        move_sprite(chrctr->sprite_index+1, x+8, y);
+        set_sprite_prop(chrctr->sprite_index+1, chrctr->palette | (mapping&0x80?0x20:0x0));
+        mapping = modular_characters_map[(8*2) + (2*chrctr->direction) + 0];
+        set_sprite_tile(chrctr->sprite_index+2, 0x30+(mapping&0x7F));
+        move_sprite(chrctr->sprite_index+2, x, y+8);
+        set_sprite_prop(chrctr->sprite_index+2, chrctr->palette | (mapping&0x80?0x20:0x0));
+        mapping = modular_characters_map[(8*2) + (2*chrctr->direction) + 1];
+        set_sprite_tile(chrctr->sprite_index+3, 0x30+(mapping&0x7F));
+        move_sprite(chrctr->sprite_index+3, x+8, y+8);
+        set_sprite_prop(chrctr->sprite_index+3, chrctr->palette | (mapping&0x80?0x20:0x0));
     }
 }
 
@@ -288,7 +315,7 @@ void main() {
         sg->character[0].sprite = 1;
         sg->character[0].direction = 0;
         sg->character[0].palette = 2;
-        sg->character[0].sprite_index = 38;
+        sg->character[0].sprite_index = 36;
         sg->character[0].offset_x = 0;
         sg->character[0].offset_y = 0;
 
@@ -357,13 +384,13 @@ void main() {
             delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
-            sg->character[0].direction = 2;
+            sg->character[0].direction = 1;
             if (move_player(-1, 0) == 1)
                 render_character(0);
             delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
-            sg->character[0].direction = 1;
+            sg->character[0].direction = 2;
             if (move_player(0, -1) == 1)
                 render_character(0);
             delay(100);

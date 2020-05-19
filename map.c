@@ -220,8 +220,8 @@ void load_map(const UINT8 background[]) {
         sg->character[1].x = 4;
         sg->character[1].y = 2;
         sg->character[1].sprite = 2;
-        sg->character[1].palette = 3;
-        sg->character[1].direction = 0;
+        sg->character[1].direction = 7<<2;
+        sg->character[1].palette = 3<<4 | 3;
         sg->character[1].offset_x = 0;
         sg->character[1].offset_y = 0;
 

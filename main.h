@@ -21,11 +21,13 @@ typedef struct {
     UINT8 x; // position
     UINT8 y;
     // 0 down 1 left 2 up 3 right
+    // 0xFC selects body sprites
     UINT8 direction;
     // upper nibble for head and lower for body
     UINT8 palette;
     // 0xFF disables this character
-    UINT8 sprite; // sprite character section
+    // selects head sprite
+    UINT8 sprite;
     // < 39 (always uses 2 sprites)
     UINT8 sprite_index;
     INT8 offset_x;

@@ -15,6 +15,8 @@ tmxconvert=$(DEV)/tmx2c.py
 bin2c=$(DEV)/bin2c.sh
 convert?=convert
 
+CFLAGS += --peep-file $(abspath $(DEV))/png2gb/csrc/peep-rules.txt
+
 COMPRESS?=1
 
 ifeq ($(COMPRESS),1)

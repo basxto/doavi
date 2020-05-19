@@ -159,26 +159,31 @@ void render_character(const UINT8 index) {
         set_sprite_prop(chrctr->sprite_index + 1, chrctr->palette);
     }
     if(index == 0){
-        UINT8 head = 1;
-        head = (9*8) + (head*19) + (chrctr->direction*4);
+        UINT8 index = chrctr->sprite_index-1;
         UINT8 x = $(8) + (chrctr->x) * $(16) + chrctr->offset_x;
         UINT8 y = ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y;
-        UINT8 mapping = modular_characters_map[head];
-        set_sprite_tile(chrctr->sprite_index, 0x30+(mapping&0x7F));
-        move_sprite(chrctr->sprite_index, x, y);
-        set_sprite_prop(chrctr->sprite_index, chrctr->palette | (mapping&0x80?0x20:0x0));
-        mapping = modular_characters_map[head+2];
-        set_sprite_tile(chrctr->sprite_index+1, 0x30+(mapping&0x7F));
-        move_sprite(chrctr->sprite_index+1, x+8, y);
-        set_sprite_prop(chrctr->sprite_index+1, chrctr->palette | (mapping&0x80?0x20:0x0));
-        mapping = modular_characters_map[(8*2) + (2*chrctr->direction) + 0];
-        set_sprite_tile(chrctr->sprite_index+2, 0x30+(mapping&0x7F));
-        move_sprite(chrctr->sprite_index+2, x, y+8);
-        set_sprite_prop(chrctr->sprite_index+2, chrctr->palette | (mapping&0x80?0x20:0x0));
-        mapping = modular_characters_map[(8*2) + (2*chrctr->direction) + 1];
-        set_sprite_tile(chrctr->sprite_index+3, 0x30+(mapping&0x7F));
-        move_sprite(chrctr->sprite_index+3, x+8, y+8);
-        set_sprite_prop(chrctr->sprite_index+3, chrctr->palette | (mapping&0x80?0x20:0x0));
+        UINT8 mapping;
+
+        UINT8 head = 1;
+        head = (9*8) + (head*19) + (chrctr->direction*4);
+        for(UINT8 i = 0; i < 2; ++i){
+            mapping = modular_characters_map[head];
+            set_sprite_tile(++index, 0x30+(mapping&0x7F));
+            move_sprite(index, x, y);
+            set_sprite_prop(index, (chrctr->palette&0x0F) | (mapping&0x80?0x20:0x0));
+            head+=2;
+            x+=8;
+        }
+        x-=16;
+        y+=8;
+        UINT8 body = (8*2) + (2*chrctr->direction);
+        for(UINT8 j = 0; j < 2; ++j){
+            mapping = modular_characters_map[body++];
+            set_sprite_tile(++index, 0x30+(mapping&0x7F));
+            move_sprite(index, x, y);
+            set_sprite_prop(index, (chrctr->palette>>4) | (mapping&0x80?0x20:0x0));
+            x+=8;
+        }
     }
 }
 
@@ -314,7 +319,7 @@ void main() {
         sg->character[0].y = 4;
         sg->character[0].sprite = 1;
         sg->character[0].direction = 0;
-        sg->character[0].palette = 2;
+        sg->character[0].palette = (2<<4)|1;
         sg->character[0].sprite_index = 36;
         sg->character[0].offset_x = 0;
         sg->character[0].offset_y = 0;

@@ -77,7 +77,7 @@ pix: $(PIX) pix/dialog_photos_data.c
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
 
-pix/modular_characters_data.c : pix/body_gbc.png  pix/body_ghost_gbc.png pix/head_candy_gbc.png pix/head_man0_gbc.png pix/head_ghost_gbc.png
+pix/modular_characters_data.c : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2))
 	$(pngconvert) -flip $^ -o $@
 
 pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png

@@ -4,9 +4,11 @@ BIN=$(DEV)/gbdk-n/bin
 LK?=$(BIN)/gbdk-n-link.sh -Wl-m
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
 MKROM?=$(BIN)/gbdk-n-make-rom.sh -yc -yn "DessertOnAVegI" -ya 4 -yt 2 -yo 4
+CA=$(BIN)/gbdk-n-assemble.sh
 EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
 pngconvert?=$(DEV)/png2gb/png2gb.py -ci
 compress?=$(DEV)/png2gb/compress2bpp.py -ci
+pb16?=$(DEV)/pb16.py
 loadgpl=$(DEV)/loadgpl/loadgpl.py
 gbc2gb?=$(DEV)/gbc2gb.py
 rgbgfx?=rgbgfx
@@ -70,6 +72,9 @@ $(DEV)/png2gb/%: FORCE
 
 %.rel: %.c
 	$(CC) -o $@ $^
+
+%.rel: %.s
+	$(CA) -o $@ $^
 
 .PHONY: pix
 pix: $(PIX) pix/dialog_photos_data.c
@@ -146,6 +151,9 @@ strings.c: strings.txt
 
 %.2bpp %.tilemap: %.png
 	$(pngconvert) -cno $< -o $@
+
+%_pb16.2bpp: %.2bpp
+	$(pb16) $^ $@
 
 %.pal: %_gbc.png
 	$(gbc2gb) $^

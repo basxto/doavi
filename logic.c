@@ -149,13 +149,10 @@ void interact() {
             sg->character[1].y = 2;
             if(sg->character[0].x == 4 && sg->character[0].y == 2){
                 sg->character[1].x = 6;
-                sg->character[1].y = 2;
             }
             sg->character[1].sprite = 2;
-            sg->character[1].direction = 7<<2;
+            sg->character[1].direction = 7<<2;//ghost bottom
             sg->character[1].palette = 3<<4 | 3;
-            sg->character[1].offset_x = 0;
-            sg->character[1].offset_y = 0;
 
             render_character(1);
             sg->collectable |= (1<<$(2));

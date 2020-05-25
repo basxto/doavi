@@ -136,6 +136,9 @@ void change_level() {
     for(UINT8 i = 1; i < 5; ++i){
         // disable characters
         sg->character[i].sprite = 0xFF;
+        sg->character[i].offset_x = 0;
+        sg->character[i].offset_y = 0;
+        sg->character[i].direction = 0;
         render_character(i);
     }
     load_map(current_background);
@@ -145,8 +148,9 @@ void change_level() {
 void render_character(const UINT8 index) {
     Character *chrctr = &sg->character[index];
     if(chrctr->sprite == 0xFF){
-        move_sprite(chrctr->sprite_index, 0, 0);
-        move_sprite(chrctr->sprite_index + 1, 0, 0);
+        // move all four sprites outside of the view
+        for(UINT8 i = 0; i < 4; ++i)
+            move_sprite(chrctr->sprite_index+i, 0, 0);
     }else{
         UINT8 index = chrctr->sprite_index-1;
         UINT8 x = $(8) + (chrctr->x) * $(16) + chrctr->offset_x;
@@ -315,7 +319,7 @@ void main() {
         sg->character[0].offset_y = 0;
 
         for(UINT8 i = 0; i < 4; ++i){
-            sg->character[i+1].sprite_index = i*2;
+            sg->character[i+1].sprite_index = (i*4);
         }
 
         sg->lives = 5;

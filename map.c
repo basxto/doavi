@@ -224,22 +224,32 @@ void load_map(const UINT8 background[]) {
         sg->character[1].x = 4;
         sg->character[1].y = 2;
         sg->character[1].sprite = 2;
-        sg->character[1].direction = 7<<2;
+        sg->character[1].direction = 7<<2;//ghost bottom
         sg->character[1].palette = 3<<4 | 3;
-        sg->character[1].offset_x = 0;
-        sg->character[1].offset_y = 0;
 
         render_character(1);
+    }
+    else if(sg->level_x == 4 && sg->level_y == 0){
+        // spawn timetravel robot
+        sg->character[1].x = 4;
+        sg->character[1].y = 2;
+        sg->character[1].sprite = 4;
+        sg->character[1].palette = 1<<4 | 1;
+        // spawn broken timetravel robot
+        sg->character[2].x = 8;
+        sg->character[2].y = 6;
+        sg->character[2].sprite = 3;
+        sg->character[2].palette = 1<<4 | 1;
+
+        render_character(1);
+        render_character(2);
     }
     else if(sg->level_x == 4 && sg->level_y == 5){
         // spawn rachel
         sg->character[1].x = 4;
         sg->character[1].y = 3;
         sg->character[1].sprite = 7;
-        sg->character[1].direction = 0;
         sg->character[1].palette = 1<<4 | 1;
-        sg->character[1].offset_x = 0;
-        sg->character[1].offset_y = 0;
 
         render_character(1);
     }

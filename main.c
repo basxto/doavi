@@ -294,10 +294,13 @@ inline void tick_animate() {
 
 void timer_isr() {
     tick_music();
+}
+
+void vblank_isr(){
     if (counter++ == 0) {
         tick_animate();
     }
-    counter %= $(64);
+    counter %= $(32);
 }
 
 void main() {
@@ -345,11 +348,13 @@ void main() {
 
     // configure interrupt
     // triggers interrupt when it reaches 0xFF
-    TIMA_REG = TMA_REG = 0xE3;
+    TMA_REG = TIMA_REG = 0xE3;
     TAC_REG = 0x4 | 0x0; // 4096 Hz
     // enable timer interrupt
     disable_interrupts();
     add_TIM(timer_isr);
+    add_VBL(vblank_isr);
+    //add_
     enable_interrupts();
     // gbdk needs VBL iflag
     set_interrupts(VBL_IFLAG | TIM_IFLAG);

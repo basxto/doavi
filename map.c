@@ -191,6 +191,10 @@ void load_map(const UINT8 background[]) {
             // inside house
             if (current_map == inside_wood_house_map) {
                 palette = 2;
+                if(tile >= 5 && tile <= 7)
+                    palette = 4;//carpet and flame
+                if(tile == 14)
+                    palette = 1;//plant
             }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
@@ -222,6 +226,18 @@ void load_map(const UINT8 background[]) {
         sg->character[1].sprite = 2;
         sg->character[1].direction = 7<<2;
         sg->character[1].palette = 3<<4 | 3;
+        sg->character[1].offset_x = 0;
+        sg->character[1].offset_y = 0;
+
+        render_character(1);
+    }
+    else if(sg->level_x == 4 && sg->level_y == 5){
+        // spawn rachel
+        sg->character[1].x = 4;
+        sg->character[1].y = 3;
+        sg->character[1].sprite = 7;
+        sg->character[1].direction = 0;
+        sg->character[1].palette = 1<<4 | 1;
         sg->character[1].offset_x = 0;
         sg->character[1].offset_y = 0;
 

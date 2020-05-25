@@ -22,4 +22,8 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper);
 
 UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* name, const UINT8 portrait);
 
+// like waitpad but looks for any of the given keys
+// does not keep cpu busy
+void waitpad_any(UINT8 mask);
+
 #endif

@@ -13,6 +13,12 @@ extern const UINT8 win_gbc_data_length;
 // be cautious with this!
 UINT8 buffer[buffer_length];
 
+void waitpad_any(UINT8 mask){
+    while ((joypad() & mask) == 0) {
+        wait_vbl_done();
+    }
+}
+
 void init_hud() {
     unsigned char tiles[1];
     UINT8 x;
@@ -102,7 +108,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
             buffer[buffer_length - 1] = 'v';
             write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
             delay(100);
-            waitpad(J_A);
+            waitpad_any(J_A);
             delay(100);
             tmp_y = y;
             space_area(x, y, width, height);
@@ -316,7 +322,7 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
     delay(100);
     // only wait for A if this isn't a selection
     if(ret == 0){
-        waitpad(J_A);
+        waitpad_any(J_A);
         delay(100);
     }
     init_hud();

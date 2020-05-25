@@ -55,7 +55,7 @@ void menu() {
     switch (ret) {
     case 2:
         smart_write(0, 0, 20, 18,strlen(text_creditsc), text_creditsc);
-        waitpad(J_A);
+        waitpad_any(J_A);
         delay(100);
         break;
     }
@@ -314,12 +314,11 @@ void main() {
         sg->character[0].sprite = 0;
         sg->character[0].direction = 0;
         sg->character[0].palette = (2<<4)|2;
-        sg->character[0].sprite_index = 36;
         sg->character[0].offset_x = 0;
         sg->character[0].offset_y = 0;
 
-        for(UINT8 i = 0; i < 4; ++i){
-            sg->character[i+1].sprite_index = (i*4);
+        for(UINT8 i = 0; i < 5; ++i){
+            sg->character[i].sprite_index = (i*4);
         }
 
         sg->lives = 5;
@@ -365,10 +364,10 @@ void main() {
 
     smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
     smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);
-    waitpad(J_A);
+    waitpad_any(J_A);
     delay(100);
     smart_write(0, 0, 20, 18, strlen(text_youaream), text_youaream);
-    waitpad(J_A);
+    waitpad_any(J_A);
     delay(100);
     init_hud();
     draw_hud(sg->lives, sg->tpaper);

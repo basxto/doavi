@@ -256,40 +256,19 @@ UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
 
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
-#define replace_tile(index, indexa, counter)                                   \
-    (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4], 4,                               \
-        &overworld_anim_gbc_data                                               \
-            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4] *   \
-             16]))
+void replace_tile(UINT8 index, UINT8 indexa){
+    UINT8 first = SHEET_START + current_map[(index)*4];
+    UINT8 amount = 4;
+    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (anim_counter)) * 4] * 16];
+    set_bkg_data(first, amount,data);
+}
 
-// for compressed tiles
-#define replace_subtile(index, indexa, counter, offset)                        \
-    (set_bkg_data(                                                             \
-        SHEET_START + current_map[(index)*4 + offset], 1,                      \
-        &overworld_anim_gbc_data                                               \
-            [overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (counter)) * 4 +    \
-                                    offset] *                                  \
-             16]))
-
-inline void tick_animate() {
-    if (current_map == overworld_a_gbc_map) {
-        replace_tile(2, 1, anim_counter);
-        replace_tile(1, 0, anim_counter);
-        replace_tile(SHEET_WIDTH * 3 + 4, 2, anim_counter);
-    }else if (current_map == overworld_b_gbc_map) {
-        replace_tile(SHEET_WIDTH * 3 + 7, 3, anim_counter);
-        replace_tile(SHEET_WIDTH * 3 + 3, 4, anim_counter);
-        // shore waves
-        replace_subtile(SHEET_WIDTH * 3 + 4, 5, anim_counter, 0);
-        replace_subtile(SHEET_WIDTH * 3 + 4, 5, anim_counter, 2);
-        replace_subtile(SHEET_WIDTH * 3 + 5, 6, anim_counter, 0);
-        replace_subtile(SHEET_WIDTH * 3 + 5, 6, anim_counter, 1);
-        replace_subtile(SHEET_WIDTH * 3 + 6, 7, anim_counter, 2);
-        replace_subtile(SHEET_WIDTH * 3 + 6, 7, anim_counter, 3);
-    }
-    ++anim_counter;
-    anim_counter %= ANIM_WIDTH;
+// for deduplicated tiles
+void replace_subtile(UINT8 index, UINT8 indexa, UINT8 offset){
+    UINT8 first = SHEET_START + current_map[(index)*4 + offset];
+    UINT8 amount = 1;
+    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (anim_counter)) * 4 + offset] * 16];
+    set_bkg_data(first, amount,data);
 }
 
 void timer_isr() {
@@ -298,7 +277,25 @@ void timer_isr() {
 
 void vblank_isr(){
     if (counter++ == 0) {
-        tick_animate();
+        if (current_map == overworld_a_gbc_map) {
+            replace_tile(2, 1);
+            replace_tile(1, 0);
+            replace_tile(SHEET_WIDTH * 3 + 4, 2);
+        }else if (current_map == overworld_b_gbc_map) {
+            UINT8 indexa = 3;
+            UINT8 index = SHEET_WIDTH * 3 + 3;
+            replace_tile(SHEET_WIDTH * 3 + 7, indexa);
+            replace_tile(index, ++indexa);
+            // shore waves
+            replace_subtile(++index, ++indexa, 0);
+            replace_subtile(index, indexa, 2);
+            replace_subtile(++index, ++indexa, 0);
+            replace_subtile(index, indexa, 1);
+            replace_subtile(++index, ++indexa, 2);
+            replace_subtile(index, indexa, 3);
+        }
+        ++anim_counter;
+        anim_counter %= ANIM_WIDTH;
     }
     counter %= $(32);
 }

@@ -364,10 +364,10 @@ void main() {
 
     smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
     smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);
-    waitpad_any(J_A);
+    waitpad_any(J_A | J_START);
     delay(100);
     smart_write(0, 0, 20, 18, strlen(text_youaream), text_youaream);
-    waitpad_any(J_A);
+    waitpad_any(J_A | J_START);
     delay(100);
     init_hud();
     draw_hud(sg->lives, sg->tpaper);

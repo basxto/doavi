@@ -179,11 +179,27 @@ void interact() {
         draw_hud(sg->lives, sg->tpaper);
         // reset();
     }
-    if (tile == 32) {
-        if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
-            incject_map(2, 2, 30);
-            sg->chest |= 0x1;
+    if (tile == 32 || tile == 20) {
+        // we don't have to check the status
+        // since chests would be a different tile  otherwise
+        _Bool update = 0;
+        if(sg->level_x == 1 && sg->level_y == 0)
+            if (!(sg->chest & 0x1) && y == 2) {
+                sg->chest |= 0x1;
+                ++sg->tpaper;
+                update = 1;
+            }else if(!(sg->chest & 1<<1)){
+                sg->chest |= 1<<1;
+                ++sg->tpaper;
+                update = 1;
+            }
+        if(!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0){
+            sg->chest |= 1<<2;
             ++sg->tpaper;
+            update = 1;
+        }
+        if(update){
+            incject_map(x, y, tile-2);
             draw_hud(sg->lives, sg->tpaper);
             blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
         }

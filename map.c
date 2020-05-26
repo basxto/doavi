@@ -218,6 +218,12 @@ void load_map(const UINT8 background[]) {
     if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
         incject_map(2, 2, 29);
     }
+    if (!(sg->chest & 1<<1) && sg->level_x == 1 && sg->level_y == 0) {
+        incject_map(1, 6, 29);
+    }
+    if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
+        incject_map(3, 4, 17);
+    }
     DISPLAY_ON;
 
     if(((sg->progress[0] & PRGRS_GHOST)==0x10) && sg->level_x == 0 && sg->level_y == 0){

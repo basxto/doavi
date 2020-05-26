@@ -13,10 +13,8 @@
 #include "pix/overworld_b_gbc_map.c"
 #include "pix/overworld_cave_map.c"
 
-//#include "pix/inside_wood_house_pal.c"
 #include "pix/overworld_a_gbc_pal.c"
 #include "pix/overworld_b_gbc_pal.c"
-//#include "pix/overworld_cave_pal.c"
 
 #include "dev/gbdk-music/music/the_journey_begins.c"
 #include "music/cosmicgem_voadi.c"

@@ -84,6 +84,15 @@ UINT8 move_player(const INT8 x, const INT8 y) {
             teleport_to(0, 2, 5, 6);
         }
     }
+    // player goes through the back door
+    if(sg->level_y == 5 && sg->character[0].y == 2){
+        teleport_to(1, 0, 7, 6);
+    }
+
+    // player goes back into the house
+    if(sg->level_x == 1 && sg->level_y == 0 && sg->character[0].y == 7){
+        teleport_to(0, 5, 7, 3);
+    }
 
     // player stepped onto the stairs
     if (sg->level_y == 6 && sg->character[0].y == 0) {
@@ -92,6 +101,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
         else
             teleport_to(5, 2, 5, 3);
     }
+
     return 0;
 }
 

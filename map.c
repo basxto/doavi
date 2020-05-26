@@ -215,12 +215,12 @@ void load_map(const UINT8 background[]) {
     }
 
     // map scripting
-    if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+    if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
         incject_map(2, 2, 29);
     }
     DISPLAY_ON;
 
-    if((sg->collectable & (1<<2)) && sg->level_x == 0 && sg->level_y == 0){
+    if(((sg->progress[0] & PRGRS_GHOST)==0x10) && sg->level_x == 0 && sg->level_y == 0){
         // spawn ghost
         sg->character[1].x = 4;
         sg->character[1].y = 2;

@@ -32,7 +32,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     // leaving the beach if bottle is not collected
-    if((sg->collectable & 0x2) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
+    if((sg->progress[1] & PRGRS_BTL) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
         dialog(strlen(text_youdontw), text_youdontw, strlen(text_narrator),
                text_narrator, 0);
         sg->character[0].direction = 0;
@@ -139,7 +139,7 @@ void interact() {
     }
     // bottle
     if (tile == 34 && current_map == overworld_b_gbc_map) {
-        if(sg->collectable & 0x2){
+        if(sg->progress[1] & PRGRS_BTL){
             dialog(strlen(text_thisbott), text_thisbott, strlen(text_narrator),
                text_narrator, 0);
         }else{
@@ -147,12 +147,12 @@ void interact() {
                text_narrator, 0);
             dialog(strlen(text_pleasefi), text_pleasefi, strlen(text_letter),
                 text_letter, 4);
-            sg->collectable |= 0x2;
+            sg->progress[1] |= PRGRS_BTL;
         }
         draw_hud(sg->lives, sg->tpaper);
     }
     if (tile == 26) {
-        if(x == 5 && y == 2 && (sg->collectable & (1<<$(2))) == 0){
+        if(x == 5 && y == 2 && (sg->progress[0] & PRGRS_GHOST) == 0){
             screen_shake();
             // spawn ghost
             sg->character[1].x = 4;
@@ -165,7 +165,9 @@ void interact() {
             sg->character[1].palette = 3<<4 | 3;
 
             render_character(1);
-            sg->collectable |= (1<<$(2));
+            // ghost visible
+            SET_PRGRS_GHOST(0x1);
+            //sg->progress[0] & (0x1<<4));
         }
         dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
                text_grave, 2);
@@ -178,9 +180,9 @@ void interact() {
         // reset();
     }
     if (tile == 32) {
-        if (!(sg->collectable & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+        if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
             incject_map(2, 2, 30);
-            sg->collectable |= 0x1;
+            sg->chest |= 0x1;
             ++sg->tpaper;
             draw_hud(sg->lives, sg->tpaper);
             blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);

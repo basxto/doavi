@@ -324,7 +324,9 @@ void main() {
         sg->lives = 5;
         sg->tpaper = 0;
 
-        sg->collectable = 0;
+        sg->chest = 0;
+        sg->flame = 0;
+        sg->progress[0] = sg->progress[1] = 0;
 
         sg->magic = 'V';
     }

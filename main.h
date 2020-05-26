@@ -34,19 +34,40 @@ typedef struct {
     INT8 offset_y;
 } Character;
 
+#define PRGRS_BTL (1<<0) // bottle message read
+#define PRGRS_T1 (1<<1) // cleared access to T-1
+#define PRGRS_T0 (1<<2) // destroyed T0
+#define PRGRS_LVR (1<<3) // lever activated
+
+// ghost status
+#define PRGRS_GHOST (0x3<<4)
+#define SET_PRGRS_GHOST(x) (sg->progress[0] |= (x)<<4)
+// time status
+#define PRGRS_TIME (0x3<<6)
+#define SET_PRGRS_TIME(x) (sg->progress[0] |= (x)<<6)
+
 typedef struct {
     char magic;
+    char name[10];
     UINT8 level_x;
     UINT8 level_y;
     UINT8 lives;
     UINT8 tpaper;
-    // each bit for one
-    UINT8 collectable;
-    //Character player;// becomes character[0]
+    //0 is player; rest are NPCs
     Character character[5];
     // allow player to have 8 items
     UINT8 items[8];
     UINT8 selected_item;
+    UINT8 chest; // 7
+    UINT8 flame; // 8
+    // from right to left, top to bottom
+    //4 barrels
+    //ghost (2bit) 0: not there; 1: appearance; 2: disappearance
+    //time zone (2bits) 0: normal; 1: past; 2: desert island
+
+    //rest through PRGGS_ defines
+
+    UINT8 progress[2];
 } Savegame;
 
 extern Savegame *sg;

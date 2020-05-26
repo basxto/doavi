@@ -106,7 +106,7 @@ pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
-pix/inside_wood_house_data.c: pix/inside_wood_house.png
+pix/inside_wood_house_data.c: pix/inside_wood_house.png pix/carpet_gbc.png
 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
 pix/overworld_cave_data.c: pix/overworld_cave.png

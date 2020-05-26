@@ -13,10 +13,10 @@
 #include "pix/overworld_b_gbc_map.c"
 #include "pix/overworld_cave_map.c"
 
-#include "pix/inside_wood_house_pal.c"
+//#include "pix/inside_wood_house_pal.c"
 #include "pix/overworld_a_gbc_pal.c"
 #include "pix/overworld_b_gbc_pal.c"
-#include "pix/overworld_cave_pal.c"
+//#include "pix/overworld_cave_pal.c"
 
 #include "dev/gbdk-music/music/the_journey_begins.c"
 #include "music/cosmicgem_voadi.c"
@@ -139,7 +139,7 @@ void load_map(const UINT8 background[]) {
             loaded_map = inside_wood_house_map;
             set_bkg_data_rle(SHEET_START, inside_wood_house_data_length,
                         inside_wood_house_data, 0);
-            set_bkg_palette(0, 6, inside_wood_house_pal[0]);
+            set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else if (sg->level_y > 5) {
         if(current_map != overworld_cave_map){
@@ -147,7 +147,7 @@ void load_map(const UINT8 background[]) {
             loaded_map = overworld_cave_map;
             set_bkg_data_rle(SHEET_START, overworld_cave_data_length,
                         overworld_cave_data, 0);
-            set_bkg_palette(0, 6, overworld_cave_pal[0]);
+            set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else {
         if(current_map != overworld_a_gbc_map){
@@ -191,10 +191,13 @@ void load_map(const UINT8 background[]) {
             // inside house
             if (current_map == inside_wood_house_map) {
                 palette = 2;
-                if(tile >= 5 && tile <= 7)
+                if(tile == 7 || tile >= 32)
                     palette = 4;//carpet and flame
                 if(tile == 14)
                     palette = 1;//plant
+            }
+            if (current_map == overworld_cave_map) {
+                palette = 2;
             }
             tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);

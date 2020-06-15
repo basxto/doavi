@@ -1,11 +1,13 @@
 DEV?=./dev
 BIN=$(DEV)/gbdk-n/bin
 
+# globally installed
+LCC?=lcc -Wa-l -Wl-m -Wl-j
 LK?=$(BIN)/gbdk-n-link.sh -Wl-m
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
-MKROM?=$(BIN)/gbdk-n-make-rom.sh -yc -yn "DessertOnAVegI" -ya 4 -yt 2 -yo 4
-CA=$(BIN)/gbdk-n-assemble.sh
-EMU?=retroarch -L /usr/lib/libretro/gambatte_libretro.so
+MKROM?=$(LCC)
+CA=$(LCC) -c
+EMU?=sameboy
 pngconvert?=$(DEV)/png2gb/png2gb.py -ci
 compress?=$(DEV)/png2gb/compress2bpp.py -ci
 pb16?=$(DEV)/pb16.py
@@ -22,9 +24,9 @@ CFLAGS += --peep-file $(abspath $(DEV))/gbz80-ph/peep-rules.txt
 COMPRESS?=1
 
 ifeq ($(COMPRESS),1)
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l -DCOMPRESS=1 $(CFLAGS)
+CC=$(LCC) -c -DCOMPRESS=1 $(CFLAGS)
 else
-CC=$(BIN)/gbdk-n-compile.sh -Wa-l $(CFLAGS)
+CC=$(LCC) -c $(CFLAGS)
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
@@ -40,8 +42,8 @@ ROM=doavi.gb
 
 build: $(ROM)
 
-$(ROM): main.ihx
-	$(MKROM) $< $@
+$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
+	$(MKROM) -o $@ $^
 
 run: $(ROM)
 	$(EMU) $^
@@ -51,12 +53,6 @@ playmusic:
 
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
-
-main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
-	$(LK) -o $@ $^
-
-%.ihx: %.rel
-	$(LK) -o $@ $^
 
 main.rel: main.c pix/hud_pal.c $(PIX) $(MUSIC) level.c strings.c
 	$(CC) -o $@ $<

@@ -3,7 +3,6 @@ BIN=$(DEV)/gbdk-n/bin
 
 # globally installed
 LCC?=lcc -Wa-l -Wl-m -Wl-j
-LK?=$(BIN)/gbdk-n-link.sh -Wl-m
 #ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
 MKROM?=$(LCC)
 CA=$(LCC) -c
@@ -219,9 +218,6 @@ banking.gb: banking.ihx
 
 banking.bank: banking.gb
 	dd skip=`printf "%d" 0x3FFF` count=`printf "%d" 0x4000` if=$^ of=$@ bs=1
-
-banking.ihx: nomain.rel pix/overworld_a_test_gbc_data.rel pix/overworld_b_test_gbc_data.rel
-	$(LK) -o $@ $^
 
 bigrom.gb: $(ROM) banking.bank
 	cat $^ > $@

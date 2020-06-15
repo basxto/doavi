@@ -43,6 +43,7 @@ build: $(ROM)
 
 $(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
 	$(MKROM) -o $@ $^
+	rgbfix -c -j -t DessertOnAVegI $@
 
 run: $(ROM)
 	$(EMU) $^

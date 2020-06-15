@@ -3,8 +3,8 @@ BIN=$(DEV)/gbdk-n/bin
 
 # globally installed
 LCC?=lcc -Wa-l -Wl-m -Wl-j
-#ROM+MBC1+RAM 4 ROM banks and 4 RAM banks
-MKROM?=$(LCC)
+# 0x0143 is gameboy mode
+MKROM?=$(LCC) -Wl-yp0x0143=0x80
 CA=$(LCC) -c
 EMU?=sameboy
 pngconvert?=$(DEV)/png2gb/png2gb.py -ci
@@ -43,7 +43,6 @@ build: $(ROM)
 
 $(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
 	$(MKROM) -o $@ $^
-	rgbfix -c -j -t DessertOnAVegI $@
 
 run: $(ROM)
 	$(EMU) $^

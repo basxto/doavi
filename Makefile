@@ -187,7 +187,7 @@ gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
-	rm -f pix/*_gb.png level.c strings.c strings.h
+	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
 	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|tilemap\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete

@@ -83,11 +83,12 @@ $(DEV)/png2gb/%: FORCE
 pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c
 	$(CC) -o $@ $<
 
-pix/pix.h: pix/pix.c
+pix/pix.h: pix/pix.c pix/pix.rel
 	$(c2h) $< > $@
 
-music/songs.h: music/songs.c
-	$(c2h) $< > $@
+music/songs.h: music/songs.c music/songs.rel
+	grep "music.h" music/cosmicgem_voadi.c > $@
+	$(c2h) $< >> $@
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@

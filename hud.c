@@ -1,6 +1,6 @@
 #include <string.h>
 #include "hud.h"
-#include "pix/dialog_photos_data.c"
+#include "pix/pix.h"
 #include "dev/png2gb/csrc/decompress.h"
 #include "utils.h"
 
@@ -227,7 +227,7 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
 
     // generate name field data blocks
     for(y = 0; y < namelength; ++y){
-        get_bkg_data((WIN_START - (' '/2)) + name[y], 1, tiles);
+        //get_bkg_data((WIN_START - (' '/2)) + name[y], 1, tiles);
         // invert lines
         for(x = 0; x < 16; ++x){
             tiles[x] = ~tiles[x];

@@ -15,6 +15,7 @@ rgbgfx?=rgbgfx
 xxd?=xxd
 tmxconvert=$(DEV)/tmx2c.py
 bin2c=$(DEV)/bin2c.sh
+c2h=$(DEV)/c2h.sh
 convert?=convert
 
 CFLAGS += --peep-file $(abspath $(DEV))/gbz80-ph/peep-rules.txt
@@ -29,8 +30,8 @@ endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
-MUSIC=dev/gbdk-music/music/the_journey_begins.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters))
+MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters dialog_photos))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))
@@ -52,19 +53,22 @@ playmusic:
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
 
-main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel level.rel strings.rel music/songs.rel
+main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel level.rel strings.rel music/songs.rel pix/pix.rel
 	$(LK) -o $@ $^
 
 %.ihx: %.rel
 	$(LK) -o $@ $^
 
-main.rel: main.c pix/hud_pal.c $(PIX) $(MUSIC) level.c strings.c
+main.rel: main.c pix/pix.h strings.h
 	$(CC) -o $@ $<
 
-hud.rel: hud.c pix/dialog_photos_data.c
+logic.rel: logic.c level.h strings.h
 	$(CC) -o $@ $<
 
-map.rel: map.c $(PIX)
+hud.rel: hud.c pix/pix.h
+	$(CC) -o $@ $<
+
+map.rel: map.c pix/pix.h music/songs.h
 	$(CC) -o $@ $<
 
 $(DEV)/png2gb/%: FORCE
@@ -76,8 +80,14 @@ $(DEV)/png2gb/%: FORCE
 %.rel: %.s
 	$(CA) -o $@ $^
 
-.PHONY: pix
-pix: $(PIX) pix/dialog_photos_data.c
+pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c
+	$(CC) -o $@ $<
+
+pix/pix.h: pix/pix.c
+	$(c2h) $< > $@
+
+music/songs.h: music/songs.c
+	$(c2h) $< > $@
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
@@ -140,7 +150,7 @@ else
 endif
 	$(DEV)/worldmap.sh
 
-strings.c: strings.txt
+strings.c strings.h: strings.txt
 	$(DEV)/txt2c.sh $^ $@
 
 %_rle.2bpp: %.2bpp

@@ -1,0 +1,30 @@
+#include <gb/gb.h>
+#include <gb/cgb.h>
+
+#include "inside_wood_house_data.c"
+#include "overworld_a_gbc_data.c"
+#include "overworld_b_gbc_data.c"
+#include "overworld_cave_data.c"
+
+#include "inside_wood_house_map.c"
+#include "overworld_a_gbc_map.c"
+#include "overworld_b_gbc_map.c"
+#include "overworld_cave_map.c"
+
+#include "overworld_a_gbc_pal.c"
+#include "overworld_b_gbc_pal.c"
+
+#include "dialog_photos_data.c"
+
+#include "characters_data.c"
+#include "modular_characters_data.c"
+#include "overworld_anim_gbc_data.c"
+#include "win_gbc_data.c"
+
+#include "characters_map.c"
+#include "modular_characters_map.c"
+#include "overworld_anim_gbc_map.c"
+
+#include "characters_pal.c"
+
+#include "hud_pal.c"

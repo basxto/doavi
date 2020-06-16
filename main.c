@@ -31,7 +31,8 @@
 #include "strings.h"
 
 
-#include "level.c"
+#include "level.h"
+extern const Level level[][7];
 
 extern const unsigned char overworld_a_gbc_map[];
 extern const unsigned char overworld_b_gbc_map[];

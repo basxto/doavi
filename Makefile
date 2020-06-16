@@ -52,7 +52,7 @@ playmusic:
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
 
-main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
+main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel level.rel strings.rel music/songs.rel
 	$(LK) -o $@ $^
 
 %.ihx: %.rel

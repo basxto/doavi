@@ -16,6 +16,7 @@ rgbgfx?=rgbgfx
 xxd?=xxd
 tmxconvert=$(DEV)/tmx2c.py
 bin2c=$(DEV)/bin2c.sh
+c2h=$(DEV)/c2h.sh
 convert?=convert
 
 CFLAGS += --peep-file $(abspath $(DEV))/gbz80-ph/peep-rules.txt
@@ -30,8 +31,8 @@ endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
-MUSIC=dev/gbdk-music/music/the_journey_begins.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters))
+MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters dialog_photos))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))
@@ -41,7 +42,7 @@ ROM=doavi.gb
 
 build: $(ROM)
 
-$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel
+$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(MKROM) -o $@ $^
 
 run: $(ROM)
@@ -53,13 +54,16 @@ playmusic:
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
 
-main.rel: main.c pix/hud_pal.c $(PIX) $(MUSIC) level.c strings.c
+main.rel: main.c pix/pix.h strings.h
 	$(CC) -o $@ $<
 
-hud.rel: hud.c pix/dialog_photos_data.c
+logic.rel: logic.c level.h strings.h
 	$(CC) -o $@ $<
 
-map.rel: map.c $(PIX)
+hud.rel: hud.c pix/pix.h
+	$(CC) -o $@ $<
+
+map.rel: map.c pix/pix.h music/songs.h
 	$(CC) -o $@ $<
 
 $(DEV)/png2gb/%: FORCE
@@ -71,8 +75,15 @@ $(DEV)/png2gb/%: FORCE
 %.rel: %.s
 	$(CA) -o $@ $^
 
-.PHONY: pix
-pix: $(PIX) pix/dialog_photos_data.c
+pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c
+	$(CC) -o $@ $<
+
+pix/pix.h: pix/pix.c pix/pix.rel
+	$(c2h) $< > $@
+
+music/songs.h: music/songs.c music/songs.rel
+	grep "music.h" music/cosmicgem_voadi.c > $@
+	$(c2h) $< >> $@
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
@@ -135,7 +146,7 @@ else
 endif
 	$(DEV)/worldmap.sh
 
-strings.c: strings.txt
+strings.c strings.h: strings.txt
 	$(DEV)/txt2c.sh $^ $@
 
 %_rle.2bpp: %.2bpp
@@ -172,8 +183,8 @@ gbdk-n:
 	$(MAKE) -C $(DEV)/gbdk-n
 
 clean:
-	rm -f pix/*_gb.png level.c strings.c strings.h
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|tilemap\)' -delete
+	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
+	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean

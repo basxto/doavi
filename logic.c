@@ -6,7 +6,7 @@
 #include "dev/gbdk-music/sound.h"
 #include "utils.h"
 
-#include "strings.c"
+#include "strings.h"
 
 extern const unsigned char overworld_a_gbc_map[];
 extern const unsigned char overworld_b_gbc_map[];

@@ -22,5 +22,7 @@
 level.c
 strings.c
 strings.h
+pix/pix.h
+music/songs.h
 *.zip
 *.bank

@@ -15,23 +15,13 @@
 #include "dev/gbdk-music/music.h"
 #include "dev/gbdk-music/sound.h"
 
-#include "pix/characters_data.c"
-#include "pix/modular_characters_data.c"
-#include "pix/overworld_anim_gbc_data.c"
-#include "pix/win_gbc_data.c"
-
-#include "pix/characters_map.c"
-#include "pix/modular_characters_map.c"
-#include "pix/overworld_anim_gbc_map.c"
-
-#include "pix/characters_pal.c"
-
-#include "pix/hud_pal.c"
+#include "pix/pix.h"
 
 #include "strings.h"
 
 
-#include "level.c"
+#include "level.h"
+extern const Level level[][7];
 
 extern const unsigned char overworld_a_gbc_map[];
 extern const unsigned char overworld_b_gbc_map[];
@@ -103,7 +93,7 @@ void init_screen() {
     //set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
      //               characters_data);
     // Test for modular characters
-    set_sprite_data(CHARACTERS_START, sizeof(modular_characters_data) / 16,
+    set_sprite_data(CHARACTERS_START, modular_characters_data_length,
                     modular_characters_data);
 
     VBK_REG = 1;

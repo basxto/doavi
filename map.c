@@ -3,21 +3,9 @@
 #include "map.h"
 #include "main.h"
 
-#include "pix/inside_wood_house_data.c"
-#include "pix/overworld_a_gbc_data.c"
-#include "pix/overworld_b_gbc_data.c"
-#include "pix/overworld_cave_data.c"
+#include "pix/pix.h"
 
-#include "pix/inside_wood_house_map.c"
-#include "pix/overworld_a_gbc_map.c"
-#include "pix/overworld_b_gbc_map.c"
-#include "pix/overworld_cave_map.c"
-
-#include "pix/overworld_a_gbc_pal.c"
-#include "pix/overworld_b_gbc_pal.c"
-
-#include "dev/gbdk-music/music/the_journey_begins.c"
-#include "music/cosmicgem_voadi.c"
+#include "music/songs.h"
 
 #include "dev/png2gb/csrc/decompress.h"
 

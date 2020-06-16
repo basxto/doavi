@@ -53,7 +53,7 @@ playmusic:
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
 
-main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel level.rel strings.rel music/songs.rel pix/pix.rel
+main.ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(LK) -o $@ $^
 
 %.ihx: %.rel
@@ -189,7 +189,7 @@ gbdk-n:
 
 clean:
 	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|tilemap\)' -delete
+	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean

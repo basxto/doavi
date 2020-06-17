@@ -96,10 +96,6 @@ void init_screen() {
     // Test for modular characters
     set_sprite_data(CHARACTERS_START, modular_characters_data_length,
                     modular_characters_data);
-    unsigned char decbuffer[16*16];
-    pb16_unpack_block(16, win_gbc_pb16_data, decbuffer);
-    set_sprite_data(0x60, 16,
-                    decbuffer);
 
     VBK_REG = 1;
     for (int x = 0; x < 22; ++x) {

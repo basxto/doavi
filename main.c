@@ -27,6 +27,9 @@ extern const Level level[][7];
 extern const unsigned char overworld_a_gbc_map[];
 extern const unsigned char overworld_b_gbc_map[];
 
+//TODO: pretty much a hack
+extern UINT8 decompressed_tileset[166*16];
+
 
 UINT8 counter;
 UINT8 anim_counter;
@@ -94,8 +97,9 @@ void init_screen() {
     //set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
      //               characters_data);
     // Test for modular characters
-    set_sprite_data(CHARACTERS_START, modular_characters_data_length,
-                    modular_characters_data);
+    pb16_unpack_block(modular_characters_pb16_data_length, modular_characters_pb16_data, decompressed_tileset);
+    set_sprite_data(CHARACTERS_START, modular_characters_pb16_data_length,
+                    decompressed_tileset);
 
     VBK_REG = 1;
     for (int x = 0; x < 22; ++x) {

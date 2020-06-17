@@ -5,7 +5,7 @@
 #include "overworld_a_gbc_pb16_data.c"
 #include "overworld_b_gbc_pb16_data.c"
 #include "overworld_cave_pb16_data.c"
-#include "modular_characters_data.c"
+#include "modular_characters_pb16_data.c"
 #include "overworld_anim_gbc_data.c"
 #include "dialog_photos_data.c"
 #include "win_gbc_data.c"

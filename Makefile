@@ -93,7 +93,7 @@ music/songs.rel: music/songs.c
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c $(PIX) pix/hud_pal.c
+pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c $(PIX) pix/hud_pal.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
@@ -108,6 +108,9 @@ pix/dialog_photos_data.c: pix/dialog_photos.png
 
 pix/modular_characters_data.c : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
 	$(pngconvert) -flip $^ -o $@
+
+pix/modular_characters.2bpp : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
+	$(pngconvert) -cno -flip $^ -o $@
 
 pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@

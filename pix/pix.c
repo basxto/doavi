@@ -21,3 +21,5 @@
 #include "overworld_b_gbc_pal.c"
 #include "characters_pal.c"
 #include "hud_pal.c"
+
+#include "win_gbc_pb16_data.c"

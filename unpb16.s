@@ -26,6 +26,7 @@
 ; - making it gbdk compatible
 
 	.area	_BSS
+	; TODO: place it so it can be accessed with ldh
 .pb16_byte0:
 	.ds	1
 
@@ -49,12 +50,12 @@
 .byteloop:
 	; If the bit from the control byte is clear, plane 0 is is literal
 	jr nc,.p0_is_literal
-	ldh a,(.pb16_byte0)
+	ld a,(.pb16_byte0)
 	jr .have_p0
 .p0_is_literal:
 	ld a,(de)
 	inc de
-	ldh (.pb16_byte0),a
+	ld (.pb16_byte0),a
 .have_p0:
 	ld (hl+),a
 
@@ -81,7 +82,7 @@
 .pb16_unpack_block::
 	; Prefill with zeroes
 	xor a
-	ldh (.pb16_byte0),a
+	ld (.pb16_byte0),a
 	ld c,a
 .packetloop:
 	push bc
@@ -95,7 +96,6 @@
 	ret
 
 _pb16_unpack_block::
-	; ld b, b
 	; skip over return address
 	ldhl	sp,#(2)
 	ld	a, (hl+)

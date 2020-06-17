@@ -50,7 +50,7 @@ ROM=doavi.gb
 
 build: $(ROM)
 
-$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel strings.rel level.rel music/songs.rel pix/pix.rel
+$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(MKROM) -o $@ $^
 
 run: $(ROM)
@@ -87,10 +87,13 @@ music/songs.rel: music/songs.c
 %.rel: %.c
 	$(CC) -o $@ $^
 
+%.s: %.c
+	$(CC) -S -o $@ $^
+
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c
+pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c pix/win_gbc_pb16_data.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
@@ -142,7 +145,7 @@ pix/hud_pal.c: pix/win_gbc.png
 #$(shell printf '0x%X' $$(($(1))))
 #$((`stat --printf="%s"  pix/overworld_a.2bpp`/16))
 %_data.c: %.2bpp
-	$(bin2c) $^ $@ "rgbds and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_rle//g'))/16))
+	$(bin2c) $^ $@ "rgbds and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_\(rle|pb16\)//g'))/8))
 
 %_map.c: %.tilemap
 	$(bin2c) $^ $@ "rgbds and xxd"

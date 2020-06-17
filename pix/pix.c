@@ -2,7 +2,7 @@
 #include <gb/cgb.h>
 
 #include "inside_wood_house_data.c"
-#include "overworld_a_gbc_data.c"
+#include "overworld_a_gbc_pb16_data.c"
 #include "overworld_b_gbc_data.c"
 #include "overworld_cave_data.c"
 #include "modular_characters_data.c"

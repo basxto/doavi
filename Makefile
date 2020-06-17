@@ -93,7 +93,7 @@ music/songs.rel: music/songs.c
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c pix/win_gbc_pb16_data.c
+pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c $(PIX) pix/hud_pal.c pix/win_gbc_pb16_data.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
@@ -172,6 +172,9 @@ strings.c strings.h: strings.txt
 
 %_rle.1bpp: %.1bpp
 	dev/png2gb/compress2bpp.py -mono $^ -o $@
+
+pix/overworld_a_gbc.2bpp: pix/overworld_a_gbc.png pix/house_wood_round.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
 %.2bpp %.tilemap: %.png
 	$(pngconvert) -cno $< -o $@

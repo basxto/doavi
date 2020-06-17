@@ -8,11 +8,14 @@
 #include "music/songs.h"
 
 #include "dev/png2gb/csrc/decompress.h"
+#include "unpb16.h"
 
 const unsigned char *current_map;
 const unsigned char *loaded_map;
 // always the same size
 UINT8 decompressed_background[80];
+//TODO: calculation of tileset length is wrong
+UINT8 decompressed_tileset[166*16];
 
 #ifdef COMPRESS
 
@@ -141,8 +144,9 @@ void load_map(const UINT8 background[]) {
                 init_music(&the_journey_begins);
             current_map = overworld_a_gbc_map;
             loaded_map = overworld_a_gbc_map;
-            set_bkg_data_rle(SHEET_START, overworld_a_gbc_data_length,
-                        overworld_a_gbc_data, 0);
+            pb16_unpack_block(overworld_a_gbc_pb16_data_length, overworld_a_gbc_pb16_data, decompressed_tileset);
+            set_bkg_data(SHEET_START, overworld_a_gbc_pb16_data_length,
+                        decompressed_tileset);
             set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
         }
         BGP_REG = 0xE1;

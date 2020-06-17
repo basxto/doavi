@@ -4,7 +4,7 @@ BIN=$(DEV)/gbdk-n/bin
 # globally installed
 LCC?=lcc -Wa-l -Wl-m -Wl-j
 # 0x0143 is gameboy mode
-MKROM?=$(LCC) -Wl-yp0x0143=0x80
+MKROM?=$(LCC) -Wl-yp0x0143=0x80 -Wl'-yn="DESSERTONAVEGI"'
 CA=$(LCC) -c
 EMU?=sameboy
 pngconvert?=$(DEV)/png2gb/png2gb.py -ci
@@ -22,11 +22,19 @@ convert?=convert
 CFLAGS += --peep-file $(abspath $(DEV))/gbz80-ph/peep-rules.txt
 
 COMPRESS?=1
+ROMDEBUG?=0
 
 ifeq ($(COMPRESS),1)
 CC=$(LCC) -c -DCOMPRESS=1 $(CFLAGS)
 else
 CC=$(LCC) -c $(CFLAGS)
+endif
+
+ifeq ($(ROMDEBUG), 0)
+BANK=
+else
+BANK= -Wf-bo$(ROMDEBUG)
+MKROM+= -Wl-yt0x1 -Wl-yo4
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
@@ -69,6 +77,13 @@ map.rel: map.c pix/pix.h music/songs.h
 $(DEV)/png2gb/%: FORCE
 	$(MAKE) DEV=../ -C $(DEV)/png2gb $*
 
+strings.rel: strings.c
+	$(CC) $(BANK) -o $@ $^
+level.rel: level.c
+	$(CC) $(BANK) -o $@ $^
+music/songs.rel: music/songs.c
+	$(CC) $(BANK) -o $@ $^
+
 %.rel: %.c
 	$(CC) -o $@ $^
 
@@ -76,7 +91,7 @@ $(DEV)/png2gb/%: FORCE
 	$(CA) -o $@ $^
 
 pix/pix.rel: pix/pix.c $(PIX) pix/hud_pal.c
-	$(CC) -o $@ $<
+	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
 	$(c2h) $< > $@

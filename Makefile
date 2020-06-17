@@ -93,7 +93,7 @@ music/songs.rel: music/songs.c
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c $(PIX) pix/hud_pal.c pix/win_gbc_pb16_data.c
+pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c $(PIX) pix/hud_pal.c pix/win_gbc_pb16_data.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
@@ -127,14 +127,26 @@ pix/win_gbc_rle.xbpp: pix/win_gbc_rle.2bpp pix/squont8ng_rle.1bpp
 pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png
 	$(pngconvert) --width 2 --height 2 --limit 128 $^ -bin | $(compress) - -o$@
 
+pix/overworld_a_gbc.2bpp: pix/overworld_a_gbc.png pix/house_wood_round.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
+
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
+
+pix/overworld_b_gbc.2bpp: pix/overworld_b_gbc.png pix/sand_bottle.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
 pix/inside_wood_house_data.c: pix/inside_wood_house.png pix/carpet_gbc.png
 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
+pix/inside_wood_house.2bpp: pix/inside_wood_house.png pix/carpet_gbc.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
+
 pix/overworld_cave_data.c: pix/overworld_cave.png
 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
+
+pix/overworld_cave.2bpp: pix/overworld_cave.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
 %_anim_gbc_data.c: %_anim_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^
@@ -172,9 +184,6 @@ strings.c strings.h: strings.txt
 
 %_rle.1bpp: %.1bpp
 	dev/png2gb/compress2bpp.py -mono $^ -o $@
-
-pix/overworld_a_gbc.2bpp: pix/overworld_a_gbc.png pix/house_wood_round.png
-	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
 %.2bpp %.tilemap: %.png
 	$(pngconvert) -cno $< -o $@

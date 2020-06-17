@@ -118,24 +118,27 @@ void load_map(const UINT8 background[]) {
             init_music(&cosmicgem_voadi);
             current_map = overworld_b_gbc_map;
             loaded_map = overworld_b_gbc_map;
-            set_bkg_data_rle(SHEET_START, overworld_b_gbc_data_length,
-                        overworld_b_gbc_data, 0);
+            pb16_unpack_block(overworld_b_gbc_pb16_data_length, overworld_b_gbc_pb16_data, decompressed_tileset);
+            set_bkg_data(SHEET_START, overworld_b_gbc_pb16_data_length,
+                        decompressed_tileset);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else if (sg->level_y == 5) {//0b0101
         if(current_map != inside_wood_house_map){
             current_map = inside_wood_house_map;
             loaded_map = inside_wood_house_map;
-            set_bkg_data_rle(SHEET_START, inside_wood_house_data_length,
-                        inside_wood_house_data, 0);
+            pb16_unpack_block(inside_wood_house_pb16_data_length, inside_wood_house_pb16_data, decompressed_tileset);
+            set_bkg_data(SHEET_START, inside_wood_house_pb16_data_length,
+                        decompressed_tileset);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else if (sg->level_y > 5) {
         if(current_map != overworld_cave_map){
             current_map = overworld_cave_map;
             loaded_map = overworld_cave_map;
-            set_bkg_data_rle(SHEET_START, overworld_cave_data_length,
-                        overworld_cave_data, 0);
+            pb16_unpack_block(overworld_cave_pb16_data_length, overworld_cave_pb16_data, decompressed_tileset);
+            set_bkg_data(SHEET_START, overworld_cave_pb16_data_length,
+                        decompressed_tileset);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else {

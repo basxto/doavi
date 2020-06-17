@@ -3,7 +3,7 @@
 ; Copyright 2018 Damian Yerrick
 ; 
 ; This software is provided 'as-is', without any express or implied
-; warranty.  In no event will the authors be held liable for any damages
+; warranty.	In no event will the authors be held liable for any damages
 ; arising from the use of this software.
 ; 
 ; Permission is granted to anyone to use this software for any purpose,
@@ -25,10 +25,11 @@
 ; This software has been modified by Sebastian 'basxto' Riedel
 ; - making it gbdk compatible
 
+	.area	_BSS
 .pb16_byte0:
 	.ds	1
 
-	.area	_BASE
+	.area	_CODE
 
 ; The PB16 format is a starting point toward efficient RLE image
 ; codecs on Game Boy and Super NES.
@@ -37,68 +38,73 @@
 ; 1: Repeat from 2 bytes ago
 
 .pb16_unpack_packet:
-  ; Read first bit of control byte.  Treat B as a ring counter with
-  ; a 1 bit as the sentinel.  Once the 1 bit reaches carry, B will
-  ; become 0, meaning the 8-byte packet is complete.
-  ld a,(de)
-  inc de
-  scf
-  rla
-  ld b,a
+	; Read first bit of control byte. Treat B as a ring counter with
+	; a 1 bit as the sentinel. Once the 1 bit reaches carry, B will
+	; become 0, meaning the 8-byte packet is complete.
+	ld a,(de)
+	inc de
+	scf
+	rla
+	ld b,a
 .byteloop:
-  ; If the bit from the control byte is clear, plane 0 is is literal
-  jr nc,.p0_is_literal
-  ldh a,(.pb16_byte0)
-  jr .have_p0
+	; If the bit from the control byte is clear, plane 0 is is literal
+	jr nc,.p0_is_literal
+	ldh a,(.pb16_byte0)
+	jr .have_p0
 .p0_is_literal:
-  ld a,(de)
-  inc de
-  ldh (.pb16_byte0),a
+	ld a,(de)
+	inc de
+	ldh (.pb16_byte0),a
 .have_p0:
-  ld (hl+),a
+	ld (hl+),a
 
-  ; Read next bit.  If it's clear, plane 1 is is literal.
-  ld a,c
-  sla b
-  jr c,.have_p1
+	; Read next bit. If it's clear, plane 1 is is literal.
+	ld a,c
+	sla b
+	jr c,.have_p1
 .p1_is_copy:
-  ld a,(de)
-  inc de
-  ld c,a
+	ld a,(de)
+	inc de
+	ld c,a
 .have_p1:
-  ld (hl+),a
+	ld (hl+),a
 
-  ; Read next bit of control byte
-  sla b
-  jr nz,.byteloop
-  ret
+	; Read next bit of control byte
+	sla b
+	jr nz,.byteloop
+	ret
 
 ;;
 ; Unpacks 2*B packets from DE to HL, producing 8 bytes per packet.
 ; About 127 cycles (2 scanlines) per 8-byte packet; filling CHR RAM
 ; thus takes (6144/8)*127 = about 97536 cycles or 93 ms
 .pb16_unpack_block::
-  ; Prefill with zeroes
-  xor a
-  ldh (.pb16_byte0),a
-  ld c,a
+	; Prefill with zeroes
+	xor a
+	ldh (.pb16_byte0),a
+	ld c,a
 .packetloop:
-  push bc
-  call .pb16_unpack_packet
-  call .pb16_unpack_packet
-  ld a,c
-  pop bc
-  ld c,a
-  dec b
-  jr nz,.packetloop
-  ret
+	push bc
+	call .pb16_unpack_packet
+	call .pb16_unpack_packet
+	ld a,c
+	pop bc
+	ld c,a
+	dec b
+	jr nz,.packetloop
+	ret
 
 _pb16_unpack_block::
-  pop bc ; return address
-  pop af ; a=packets
-  dec sp ; it's actually just 8bit
-  pop de ; src
-  pop hl ; dest
-  push bc
-  ld b, a
-  jr .pb16_unpack_block
+	; ld b, b
+	; skip over return address
+	ldhl	sp,#(2)
+	ld	a, (hl+)
+	ld	b, a
+	ld	a, (hl+)
+	ld	e, a
+	ld	a, (hl+)
+	ld	d, a
+	ld	a, (hl+)
+	ld	h, (hl)
+	ld	l, a
+	jr .pb16_unpack_block

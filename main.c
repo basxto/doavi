@@ -94,13 +94,7 @@ void init_screen() {
 
     // load tilesets
     set_win_data_rle(WIN_START, win_gbc_data_length, win_gbc_data, 0);
-    //set_sprite_data(CHARACTERS_START, sizeof(characters_data) / 16,
-     //               characters_data);
-    // Test for modular characters
-    /*pb16_unpack_block(modular_characters_pb16_data_length, decompressed_tileset, modular_characters_pb16_data);
-    set_sprite_data(CHARACTERS_START, modular_characters_pb16_data_length,
-                    decompressed_tileset);*/
-    pb16_unpack_sprite_data(CHARACTERS_START, modular_characters_pb16_data_length, decompressed_tileset, modular_characters_pb16_data);
+    pb16_unpack_sprite_data(CHARACTERS_START, modular_characters_data_length, decompressed_tileset, modular_characters_data);
 
     VBK_REG = 1;
     for (int x = 0; x < 22; ++x) {

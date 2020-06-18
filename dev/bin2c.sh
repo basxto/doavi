@@ -2,7 +2,7 @@
 FROM="$1"
 TO="$2"
 MADEWITH="$3"
-NAME=$(basename $(echo "${TO}" | sed "s/\(\.c\|_rle\)$//g" | sed "s/(\.\|_rle)/_/g"))
+NAME=$(basename $(echo "${TO}" | sed "s/\(\.c\|_rle\|_pb16\|_pb8\)$//g" | sed "s/\./_/g" | sed "s/_\(rle\|pb16\|pb8\)//g"))
 echo "// Generated with ${MADEWITH}" >  ${TO}
 if [ "${FROM}" != "$(echo ${FROM}|sed 's/_rle//g')" ]; then
     echo "// Compressed with compress2bpp.py" >>  ${TO};

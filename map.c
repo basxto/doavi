@@ -118,27 +118,21 @@ void load_map(const UINT8 background[]) {
             init_music(&cosmicgem_voadi);
             current_map = overworld_b_gbc_map;
             loaded_map = overworld_b_gbc_map;
-            pb16_unpack_block(overworld_b_gbc_pb16_data_length, overworld_b_gbc_pb16_data, decompressed_tileset);
-            set_bkg_data(SHEET_START, overworld_b_gbc_pb16_data_length,
-                        decompressed_tileset);
+            pb16_unpack_bkg_data(SHEET_START, overworld_b_gbc_pb16_data_length, decompressed_tileset, overworld_b_gbc_pb16_data);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else if (sg->level_y == 5) {//0b0101
         if(current_map != inside_wood_house_map){
             current_map = inside_wood_house_map;
             loaded_map = inside_wood_house_map;
-            pb16_unpack_block(inside_wood_house_pb16_data_length, inside_wood_house_pb16_data, decompressed_tileset);
-            set_bkg_data(SHEET_START, inside_wood_house_pb16_data_length,
-                        decompressed_tileset);
+            pb16_unpack_bkg_data(SHEET_START, inside_wood_house_pb16_data_length, decompressed_tileset, inside_wood_house_pb16_data);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else if (sg->level_y > 5) {
         if(current_map != overworld_cave_map){
             current_map = overworld_cave_map;
             loaded_map = overworld_cave_map;
-            pb16_unpack_block(overworld_cave_pb16_data_length, overworld_cave_pb16_data, decompressed_tileset);
-            set_bkg_data(SHEET_START, overworld_cave_pb16_data_length,
-                        decompressed_tileset);
+            pb16_unpack_bkg_data(SHEET_START, overworld_cave_pb16_data_length, decompressed_tileset, overworld_cave_pb16_data);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
     } else {
@@ -147,9 +141,7 @@ void load_map(const UINT8 background[]) {
                 init_music(&the_journey_begins);
             current_map = overworld_a_gbc_map;
             loaded_map = overworld_a_gbc_map;
-            pb16_unpack_block(overworld_a_gbc_pb16_data_length, overworld_a_gbc_pb16_data, decompressed_tileset);
-            set_bkg_data(SHEET_START, overworld_a_gbc_pb16_data_length,
-                        decompressed_tileset);
+            pb16_unpack_bkg_data(SHEET_START, overworld_a_gbc_pb16_data_length, decompressed_tileset, overworld_a_gbc_pb16_data);
             set_bkg_palette(0, 6, overworld_a_gbc_pal[0]);
         }
         BGP_REG = 0xE1;

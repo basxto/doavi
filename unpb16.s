@@ -95,16 +95,38 @@
 	jr nz,.packetloop
 	ret
 
+_pb16_unpack_sprite_data::
+	ld	bc, #_set_sprite_data
+	jr .pb16_unpack_data
+
+_pb16_unpack_win_data::
+_pb16_unpack_bkg_data::
+	; set new return address for .pb16_unpack_block
+	ld	bc, #_set_bkg_data
+.pb16_unpack_data:
+	push	bc
+
+	ldhl	sp,#(5)
+	jr	.pb16_unpack_block_data
+
 _pb16_unpack_block::
 	; skip over return address
 	ldhl	sp,#(2)
+	; packets
+.pb16_unpack_block_data:
 	ld	a, (hl+)
 	ld	b, a
+	; dst
 	ld	a, (hl+)
-	ld	e, a
+	ld	c, a
 	ld	a, (hl+)
 	ld	d, a
+	; src
 	ld	a, (hl+)
-	ld	h, (hl)
-	ld	l, a
+	ld	e, a
+	ld	a, (hl)
+	; swap back
+	ld	l, c
+	ld	h, d
+	ld	d, a
 	jr .pb16_unpack_block

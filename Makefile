@@ -194,6 +194,9 @@ strings.c strings.h: strings.txt
 %_pb16.2bpp: %.2bpp
 	$(pb16) $^ $@
 
+%_pb16.1bpp: %.1bpp
+	$(pb16) $^ $@
+
 %.pal: %_gbc.png
 	$(gbc2gb) $^
 

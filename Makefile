@@ -160,13 +160,13 @@ pix/hud_pal.c: pix/win_gbc.png
 #$(shell printf '0x%X' $$(($(1))))
 #$((`stat --printf="%s"  pix/overworld_a.2bpp`/16))
 %_data.c: %.2bpp
-	$(bin2c) $^ $@ "rgbds and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_\(rle|pb16\)//g'))/8))
+	$(bin2c) $^ $@ "png2gb.py and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_\(rle\|pb16\|pb8\)//g'))/16))
 
 %_map.c: %.tilemap
-	$(bin2c) $^ $@ "rgbds and xxd"
+	$(bin2c) $^ $@ "png2gb.py and xxd"
 
 %_pal.c: %.pal
-	$(bin2c) $^ $@ "gbc2gb.py and xxd"
+	$(bin2c) $^ $@ "png2gb.py and xxd"
 
 %_tmap.c: %.tmx
 	$(tmxconvert) $^

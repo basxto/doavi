@@ -15,7 +15,7 @@ const unsigned char *loaded_map;
 // always the same size
 UINT8 decompressed_background[80];
 //TODO: calculation of tileset length is wrong
-UINT8 decompressed_tileset[166*16];
+UINT8 decompressed_tileset[128*16];
 
 #ifdef COMPRESS
 

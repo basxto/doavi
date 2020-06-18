@@ -7,6 +7,12 @@ echo "// Generated with ${MADEWITH}" >  ${TO}
 if [ "${FROM}" != "$(echo ${FROM}|sed 's/_rle//g')" ]; then
     echo "// Compressed with compress2bpp.py" >>  ${TO};
 fi
+if [ "${FROM}" != "$(echo ${FROM}|sed 's/_pb16//g')" ]; then
+    echo "// Compressed with pb16.py" >>  ${TO};
+fi
+if [ "${FROM}" != "$(echo ${FROM}|sed 's/_pb8//g')" ]; then
+    echo "// Compressed with pb8.py" >>  ${TO};
+fi
 if [ "$#" -ge "5" ]; then
     printf "// %X bytes\n" $5 >> ${TO}
 fi

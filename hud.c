@@ -234,8 +234,9 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
 
         for(x = 0; x < 16; ++x){
             // invert white to brown and not black
-            if((x%2)!=0)
-                tiles[x] = ~tiles[x];
+            if((x%2)!=0){
+                tiles[x] = ~(tiles[x] | (tiles[x]>>1));
+            }
         }
         set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
     }

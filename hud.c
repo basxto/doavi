@@ -227,10 +227,15 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
 
     // generate name field data blocks
     for(y = 0; y < namelength; ++y){
-        //get_bkg_data((WIN_START - (' '/2)) + name[y], 1, tiles);
-        // invert lines
+        get_bkg_data((WIN_START - (' '/2)) + name[y], 1, tiles);
+        // lines at top and bottom
+        tiles[0] = 0xFF;
+        tiles[14] = 0xFF;
+
         for(x = 0; x < 16; ++x){
-            tiles[x] = ~tiles[x];
+            // invert white to brown and not black
+            if((x%2)!=0)
+                tiles[x] = ~tiles[x];
         }
         set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
     }

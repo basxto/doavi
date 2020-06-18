@@ -19,7 +19,7 @@ bin2c=$(DEV)/bin2c.sh
 c2h=$(DEV)/c2h.sh
 convert?=convert
 
-CFLAGS += --peep-file $(abspath $(DEV))/gbz80-ph/peep-rules.txt
+CFLAGS += -Wf"--peep-file$(abspath $(DEV))/gbz80-ph/peep-rules.txt"
 
 COMPRESS?=1
 ROMDEBUG?=0
@@ -88,7 +88,7 @@ music/songs.rel: music/songs.c
 	$(CC) -o $@ $^
 
 %.s: %.c
-	$(CC) -S -o $@ $^
+	$(CC) -Wf--fverbose-asm -S -o $@ $^
 
 %.rel: %.s
 	$(CA) -o $@ $^

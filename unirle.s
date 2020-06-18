@@ -6,29 +6,34 @@
 ;
 ; by basxto and ISSOtm
 
+
 ; Format:
-; 0000 0000 terminate
-; CCCC CCC0 AAAA AAAC write A++ C times
-; AAAA AAA1 write A
+; AAAA AAA0 1111 1111 write A and terminate
+; AAAA AAA0 CCCC CCCC write A++ C+2 times
+; AAAA AAA1 write A once
 ; @param de Data stream being Encoded as above
 ; @param hl Destination buffer
 .irle_unpack::
 	ld c, #0
 .irle_cmd:
+	; load literal
 	ld a, (de)
 	inc de
-	inc c
+	; shift command bit to C
 	srl a
-	jr C, .irle_write
-	; C is 0
-	ret Z
-	; a was upper 7 bits of counter
-	ld c, a
+	jr C, .irle_pp
+	ld b, a
+	; load literal
 	ld a, (de)
+	inc a
+	; 0xFF+1 == 0x00
+	jr Z, .irle_end
+	ld c, a
 	inc de
-	; move last bit of a to c
-	rra
-	rl c
+	; restore literal
+	ld a, b
+.irle_pp:
+	inc c
 .irle_write:
 	ld (hl+), a
 	inc a
@@ -36,6 +41,9 @@
 	jr NZ, .irle_write
 	; c is 0
 	jr .irle_cmd
+.irle_end:
+	ld (hl), b
+	ret
 
 
 

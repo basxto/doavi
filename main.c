@@ -187,32 +187,24 @@ UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
     if (chrctr->x == 0 && x < 0) {
         sg->level_x--;
         chrctr->x += WIDTH + x;
-        wait_vbl_done();
-        render_character(index);
         change_level();
         return 0;
     }
     if (chrctr->x == WIDTH - 1 && x > 0) {
         sg->level_x++;
         chrctr->x += -WIDTH + x;
-        wait_vbl_done();
-        render_character(index);
         change_level();
         return 0;
     }
     if (chrctr->y == 0 && y < 0) {
         sg->level_y--;
         chrctr->y += HEIGHT + y;
-        wait_vbl_done();
-        render_character(index);
         change_level();
         return 0;
     }
     if (chrctr->y == HEIGHT - 1 && y > 0) {
         sg->level_y++;
         chrctr->y += -HEIGHT + y;
-        wait_vbl_done();
-        render_character(index);
         change_level();
         return 0;
     }
@@ -321,7 +313,6 @@ void main() {
     //init_music(&the_journey_begins);
     //init_music(&cosmicgem_voadi);
 
-    render_character(0);
     change_level();
 
     SHOW_BKG;

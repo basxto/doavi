@@ -282,5 +282,7 @@ void load_map(const UINT8 background[]) {
         set_bkg_tiles(x, y+1, 1, 1, tiles);
         set_bkg_tiles(x, (y+15)%32, 1, 1, tiles);
     }
+    // finally move character
+    render_character(0);
     DISPLAY_ON;
 }

@@ -20,8 +20,6 @@ void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
     sg->level_y = ly;
     sg->character[0].x = px;
     sg->character[0].y = py;
-    wait_vbl_done();
-    render_character(0);
     change_level();
 }
 

@@ -3,6 +3,7 @@
  <tileset firstgid="1" source="collision.tsx"/>
  <tileset firstgid="2" source="overworld_gb.tsx"/>
  <tileset firstgid="34" source="house.tsx"/>
+ <tileset firstgid="66" source="path.tsx"/>
  <layer id="1" name="background" width="10" height="8">
   <data encoding="csv">
 15,14,15,14,15,34,35,35,35,37,
@@ -10,9 +11,9 @@
 38,39,39,39,41,42,43,43,43,45,
 42,43,43,43,45,46,47,40,48,49,
 46,47,40,48,49,50,51,44,52,53,
-50,51,44,52,53,2,2,29,2,2,
-29,29,29,5,29,29,29,29,18,2,
-4,2,29,29,29,6,2,3,6,2
+50,51,44,52,53,2,2,23,2,2,
+24,24,78,5,66,24,24,75,18,2,
+4,2,74,24,75,6,2,3,6,2
 </data>
  </layer>
  <layer id="2" name="sprites" width="10" height="8">

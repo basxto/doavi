@@ -10,11 +10,15 @@
 #include "dev/png2gb/csrc/decompress.h"
 #include "unpb16.h"
 
+#define WIN_START 0
+
 const unsigned char *current_map;
 const unsigned char *loaded_map;
 // always the same size
 UINT8 decompressed_background[80];
 UINT8 decompressed_tileset[128*16];
+// draw next map to a different part of screen
+static _Bool background_shifted;
 
 #ifdef COMPRESS
 
@@ -81,7 +85,7 @@ const unsigned char * decompress(const UINT8 *compressed_map){
 void incject_map_palette(const UINT8 x, const UINT8 y, const UINT8 index) {
     unsigned char tiles[4] = {index, index, index, index};
     VBK_REG = 1;
-    set_bkg_tiles(x * $(2) + 1, y * $(2) + 1, 2, 2, tiles);
+    set_bkg_tiles(x * $(2) + 1, y * $(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
     VBK_REG = 0;
 }
 
@@ -96,10 +100,11 @@ void incject_map(UINT8 x, UINT8 y, UINT16 index) {
         else
             j+=2;
     }
-    set_bkg_tiles(x * $(2) + 1, y * $(2) + 1, 2, 2, tiles);
+    set_bkg_tiles(x * $(2) + 1, y * $(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
 }
 
 void load_map(const UINT8 background[]) {
+    unsigned char *next_map;
     UINT8 y;
     UINT8 x;
     UINT16 index;
@@ -108,6 +113,82 @@ void load_map(const UINT8 background[]) {
     // loaded spritesheet
     UINT8 palette;
     unsigned char tiles[4];
+
+    background_shifted = !background_shifted;
+    if (sg->level_y == 4) {//0b0100
+        next_map = overworld_b_gbc_map;
+    } else if (sg->level_y == 5) {//0b0101
+        next_map = inside_wood_house_map;
+    } else if (sg->level_y > 5) {
+        next_map = overworld_cave_map;
+    } else {
+        next_map = overworld_a_gbc_map;
+    }
+
+    for (y = 0; y < HEIGHT; ++y) {
+        UINT8 tmp1 = y * WIDTH;
+        UINT8 tmp2 = y * 2 + (background_shifted ? 0 : 0x10);
+        for (x = 0; x < WIDTH; ++x) {
+            UINT8 tmpx = x * $(2) + $(1);
+            // load background
+            tile = background[tmp1 + x] - 2;
+            index = tile * 4;
+            // set color (GBC only)
+            VBK_REG = 1;
+            // each row has own palette
+            palette = tile / (SPRITEWIDTH / 2);
+            if (next_map == overworld_a_gbc_map && palette == 3 &&
+                (tile % (SPRITEWIDTH / 2)) >= 4) {
+                // last row has two palletes
+                palette = 4;
+            }
+            if(palette > 3)
+                if (next_map == overworld_a_gbc_map) {
+                    // houses extension
+                    palette = 2;
+                }
+                else if (next_map == overworld_b_gbc_map) {
+                    // bottle
+                    palette = 1;
+                }
+            // inside house
+            if (next_map == inside_wood_house_map) {
+                palette = 2;
+                if(tile == 7 || tile >= 32)
+                    palette = 4;//carpet and flame
+                if(tile == 14)
+                    palette = 1;//plant
+            }
+            if (next_map == overworld_cave_map) {
+                palette = 2;
+            }
+            tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
+            set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
+            VBK_REG = 0;
+            // set tiles
+            UINT8 j = 0;// goes 0 2 1 3
+            for(UINT8 i = 0; i < 4; ++i){
+                //tiles[0] = SHEET_START + current_map[index + j];
+                tiles[i] = SHEET_START + next_map[index + j];
+                if(j==2)
+                    --j;
+                else
+                    j+=2;
+            }
+            set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
+        }
+    }
+
+    // map scripting
+    if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+        incject_map(2, 2, 29);
+    }
+    if (!(sg->chest & 1<<1) && sg->level_x == 1 && sg->level_y == 0) {
+        incject_map(1, 6, 29);
+    }
+    if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
+        incject_map(3, 4, 17);
+    }
 
     DISPLAY_OFF;
     BGP_REG = 0xE4; // 11100100
@@ -145,73 +226,6 @@ void load_map(const UINT8 background[]) {
         }
         BGP_REG = 0xE1;
     }
-
-    for (y = 0; y < HEIGHT; ++y) {
-        UINT8 tmp1 = y * WIDTH;
-        UINT8 tmp2 = y * 2 + 1;
-        for (x = 0; x < WIDTH; ++x) {
-            UINT8 tmpx = x * $(2) + $(1);
-            // load background
-            tile = background[tmp1 + x] - 2;
-            index = tile * 4;
-            // set color (GBC only)
-            VBK_REG = 1;
-            // each row has own palette
-            palette = tile / (SPRITEWIDTH / 2);
-            if (current_map == overworld_a_gbc_map && palette == 3 &&
-                (tile % (SPRITEWIDTH / 2)) >= 4) {
-                // last row has two palletes
-                palette = 4;
-            }
-            if(palette > 3)
-                if (current_map == overworld_a_gbc_map) {
-                    // houses extension
-                    palette = 2;
-                }
-                else if (current_map == overworld_b_gbc_map) {
-                    // bottle
-                    palette = 1;
-                }
-            // inside house
-            if (current_map == inside_wood_house_map) {
-                palette = 2;
-                if(tile == 7 || tile >= 32)
-                    palette = 4;//carpet and flame
-                if(tile == 14)
-                    palette = 1;//plant
-            }
-            if (current_map == overworld_cave_map) {
-                palette = 2;
-            }
-            tiles[0] = tiles[1] = tiles[2] = tiles[3] = palette;
-            set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
-            VBK_REG = 0;
-            // set tiles
-            UINT8 j = 0;// goes 0 2 1 3
-            for(UINT8 i = 0; i < 4; ++i){
-                //tiles[0] = SHEET_START + current_map[index + j];
-                tiles[i] = SHEET_START + current_map[index + j];
-                if(j==2)
-                    --j;
-                else
-                    j+=2;
-            }
-            set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
-        }
-    }
-
-    // map scripting
-    if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
-        incject_map(2, 2, 29);
-    }
-    if (!(sg->chest & 1<<1) && sg->level_x == 1 && sg->level_y == 0) {
-        incject_map(1, 6, 29);
-    }
-    if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
-        incject_map(3, 4, 17);
-    }
-    DISPLAY_ON;
-
     if(((sg->progress[0] & PRGRS_GHOST)==0x10) && sg->level_x == 0 && sg->level_y == 0){
         // spawn ghost
         sg->character[1].x = 4;
@@ -246,4 +260,27 @@ void load_map(const UINT8 background[]) {
 
         render_character(1);
     }
+
+    if(background_shifted == 0){
+        move_bkg(8, 0x10*8);
+    }else{
+        move_bkg(8, 0);
+    }
+    VBK_REG = 1;
+    tiles[0] = 1;
+    y = (background_shifted ? 16 : 0);
+    // make it all black
+    for (x = 1; x <= 20; ++x) {
+        set_bkg_tiles(x, y+0, 1, 1, tiles);
+        set_bkg_tiles(x, y+1, 1, 1, tiles);
+        set_bkg_tiles(x, (y+15)%32, 1, 1, tiles);
+    }
+    VBK_REG = 0;
+    tiles[0] = WIN_START + 6;
+    for (x = 1; x <= 20; ++x) {
+        set_bkg_tiles(x, y+0, 1, 1, tiles);
+        set_bkg_tiles(x, y+1, 1, 1, tiles);
+        set_bkg_tiles(x, (y+15)%32, 1, 1, tiles);
+    }
+    DISPLAY_ON;
 }

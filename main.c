@@ -22,6 +22,7 @@
 #include "unpb16.h"
 
 #include "level.h"
+
 extern const Level level[][7];
 
 extern const unsigned char overworld_a_gbc_map[];
@@ -97,27 +98,20 @@ void init_screen() {
     pb16_unpack_sprite_data(CHARACTERS_START, modular_characters_data_length, decompressed_tileset, modular_characters_data);
 
     VBK_REG = 1;
-    for (int x = 0; x < 22; ++x) {
-        set_bkg_tiles(x, 17, 1, 1, tiles);
-        set_bkg_tiles(x, 18, 1, 1, tiles);
-        set_bkg_tiles(x, 0, 1, 1, tiles);
-    }
-    for (int y = 1; y <= 16; ++y) {
-        set_bkg_tiles(21, y, 1, 1, tiles);
-        set_bkg_tiles(0, y, 1, 1, tiles);
+    // make it all black
+    for (int x = 0; x < 0x20; ++x) {
+        for (int y = 0; y <= 0x1F; ++y) {
+            set_bkg_tiles(x, y, 1, 1, tiles);
+        }
     }
     VBK_REG = 0;
     tiles[0] = WIN_START + 6;
-    for (int x = 0; x < 22; ++x) {
-        set_bkg_tiles(x, 17, 1, 1, tiles);
-        set_bkg_tiles(x, 18, 1, 1, tiles);
-        set_bkg_tiles(x, 0, 1, 1, tiles);
+    for (int x = 0; x < 0x20; ++x) {
+        for (int y = 0; y <= 0x1F; ++y) {
+            set_bkg_tiles(x, y, 1, 1, tiles);
+        }
     }
-    for (int y = 1; y <= 16; ++y) {
-        set_bkg_tiles(21, y, 1, 1, tiles);
-        set_bkg_tiles(0, y, 1, 1, tiles);
-    }
-    move_bkg(8, 8);
+    move_bkg(8, 0);
 }
 
 void change_level() {

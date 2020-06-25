@@ -3,6 +3,7 @@
 // gameboy color
 #include <gb/cgb.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "main.h"
 
@@ -35,9 +36,10 @@ extern UINT8 decompressed_tileset[128*16];
 UINT8 counter;
 UINT8 anim_counter;
 
-const Level *current_level;
 // since might need to decompress it
 const UINT8 *current_background;
+// since we want to modify it
+UINT8 current_collision[10];
 extern const unsigned char *current_map;
 Savegame *sg;
 Savegame sgemu;
@@ -115,8 +117,8 @@ void init_screen() {
 }
 
 void change_level() {
-    current_level = &level[sg->level_y][sg->level_x];
-    current_background = decompress(current_level->background);
+    memcpy(current_collision, level[sg->level_y][sg->level_x].collision, 10);
+    current_background = decompress(level[sg->level_y][sg->level_x].background);
     for(UINT8 i = 1; i < 5; ++i){
         // disable characters
         sg->character[i].sprite = 0xFF;
@@ -170,9 +172,8 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
         return 0;
     }
     UINT8 index = (y) * WIDTH + (x);
-    UINT8 tile = current_background[index];
     //write_num(12, 1, 3, tile);
-    if ((current_level->collision[index / $(8)] & (1 << (index % $(8)))) == 0 && tile != 16 && tile != 27) {
+    if ((current_collision[index / $(8)] & (1 << (index % $(8)))) == 0) {
         // check entity collision
         for(UINT8 i = 1; i < 5; ++i)
             if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)

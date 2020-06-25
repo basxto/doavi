@@ -205,18 +205,22 @@ void interact() {
     // cut grass
     if (tile == 16) {
         incject_map(x, y, 17-2);
+        incject_collision(x, y, FALSE);
         current_background[(y * WIDTH) + x] = current_map[17-2];
     }
+    // (current_collision[index / $(8)] & (1 << (index % $(8)))) == 0
     // move stone
     if (tile == 27) {
         if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
             incject_map_palette(x, y, 2);
             incject_map(x, y, 20);
+            incject_collision(x, y, FALSE);
             current_background[(y * WIDTH) + x] = 2;
             x += (x - sg->character[0].x);
             y += (y - sg->character[0].y);
             incject_map_palette(x, y, 3);
             incject_map(x, y, 27-2);
+            incject_collision(x, y, TRUE);
             current_background[(y * WIDTH) + x] = 27;
         }
     }

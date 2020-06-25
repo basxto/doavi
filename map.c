@@ -20,6 +20,9 @@ UINT8 decompressed_tileset[128*16];
 // draw next map to a different part of screen
 static _Bool background_shifted;
 
+// from main.c
+extern UINT8 current_collision[10];
+
 #ifdef COMPRESS
 
 // 0XXX short notation
@@ -101,6 +104,14 @@ void incject_map(UINT8 x, UINT8 y, UINT16 index) {
             j+=2;
     }
     set_bkg_tiles(x * $(2) + 1, y * $(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
+}
+
+void incject_collision(UINT8 x, UINT8 y, _Bool enable) {
+    UINT8 index = (y) * WIDTH + (x);
+    if(enable)
+        current_collision[index / $(8)] |= (1 << (index % $(8)));
+    else
+        current_collision[index / $(8)] &= ~(1 << (index % $(8)));
 }
 
 void load_map(const UINT8 background[]) {

@@ -178,18 +178,6 @@ void load_map(const UINT8 background[]) {
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
         }
     }
-
-    // map scripting
-    if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
-        incject_map(2, 2, 29);
-    }
-    if (!(sg->chest & 1<<1) && sg->level_x == 1 && sg->level_y == 0) {
-        incject_map(1, 6, 29);
-    }
-    if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
-        incject_map(3, 4, 17);
-    }
-
     DISPLAY_OFF;
     BGP_REG = 0xE4; // 11100100
     // load spritesheet
@@ -226,6 +214,19 @@ void load_map(const UINT8 background[]) {
         }
         BGP_REG = 0xE1;
     }
+
+    // map scripting
+    // must be done when maps are loaded
+    if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+        incject_map(2, 2, 29);
+    }
+    if (!(sg->chest & 1<<1) && sg->level_x == 1 && sg->level_y == 0) {
+        incject_map(1, 6, 29);
+    }
+    if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
+        incject_map(3, 4, 17);
+    }
+
     if(((sg->progress[0] & PRGRS_GHOST)==0x10) && sg->level_x == 0 && sg->level_y == 0){
         // spawn ghost
         sg->character[1].x = 4;

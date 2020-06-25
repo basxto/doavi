@@ -2,6 +2,7 @@ DEV?=./dev
 BIN=$(DEV)/gbdk-n/bin
 
 # globally installed
+# use --sdccbin= for a custom sdcc
 LCC?=lcc -Wa-l -Wl-m -Wl-j
 # 0x0143 is gameboy mode
 MKROM?=$(LCC) -Wl-yp0x0143=0x80 -Wl'-yn="DESSERTONAVEGI"'

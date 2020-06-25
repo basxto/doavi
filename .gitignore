@@ -4,6 +4,7 @@
 *.o
 *.sym
 *.asm
+*.s
 *.cdb
 *.adb
 *.lk
@@ -14,6 +15,7 @@
 *_data.c
 *.1bpp
 *.2bpp
+*.xbpp
 *_map.c
 *.tilemap
 *_pal.c
@@ -26,3 +28,4 @@ pix/pix.h
 music/songs.h
 *.zip
 *.bank
+*.gpl

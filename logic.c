@@ -31,7 +31,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
 
     // leaving the beach if bottle is not collected
     if((sg->progress[1] & PRGRS_BTL) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
-        dialog(strlen(text_stay_beach), text_stay_beach, text_narrator, 0);
+        dialog(text_stay_beach, text_narrator, 0);
         sg->character[0].direction = 0;
         sg->character[0].y++;
         return 1;
@@ -126,19 +126,19 @@ void interact() {
     // sign
     if (tile == 18) {
         if (sg->level_x == 1 && sg->level_y == 1) {
-            dialog(strlen(text_village), text_village, text_sign, 1);
+            dialog(text_village, text_sign, 1);
         } else {
-            dialog(strlen(text_hello_world), text_hello_world, text_sign, 1);
+            dialog(text_hello_world, text_sign, 1);
         }
         draw_hud(sg->lives, sg->tpaper);
     }
     // bottle
     if (tile == 34 && current_map == overworld_b_gbc_map) {
         if(sg->progress[1] & PRGRS_BTL){
-            dialog(strlen(text_empty_bottle), text_empty_bottle, text_narrator, 0);
+            dialog(text_empty_bottle, text_narrator, 0);
         }else{
-            dialog(strlen(text_bottle_post), text_bottle_post, text_narrator, 0);
-            dialog(strlen(text_shekiro_1), text_shekiro_1, text_letter, 4);
+            dialog(text_bottle_post, text_narrator, 0);
+            dialog(text_shekiro_1, text_letter, 4);
             sg->progress[1] |= PRGRS_BTL;
         }
         draw_hud(sg->lives, sg->tpaper);
@@ -163,11 +163,11 @@ void interact() {
                 SET_PRGRS_GHOST(0x1);
                 //sg->progress[0] & (0x1<<4));
             }
-            dialog(strlen(text_dead), text_dead, text_grave, 2);
+            dialog(text_dead, text_grave, 2);
             draw_hud(sg->lives, sg->tpaper);
         }
         if (tile == 30 && current_map == overworld_a_gbc_map) {
-            dialog(strlen(text_dialog4), text_dialog4, text_flame, 3);
+            dialog(text_dialog4, text_flame, 3);
             draw_hud(sg->lives, sg->tpaper);
             // reset();
         }

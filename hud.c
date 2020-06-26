@@ -56,7 +56,7 @@ void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 hei
 // write text into an area
 // scroll if necessary
 // \1 is new line
-UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, UINT8 length, char *str){
+UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, char *str){
     UINT8 start = 0;
     UINT8 end = 0;
     UINT8 run = 1;
@@ -78,8 +78,6 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         max = start + 16;
         if(width < max)
             max = width;
-        if(length < max)
-            max = length;
         for(; end < max; ++end)
             //get to that next round
             //end of this line
@@ -89,12 +87,11 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         write_line(x + start, tmp_y, (end-start), str + start);
         start = end;
 
-        if(str[start] == '\0' || start >= length){
+        if(str[start] == '\0'){
             run = 0;
         } else {
             if(str[start] == specialchar_nl)
                 ++start;//skip
-            length -= start;
             str += start;
             start = 0;
             end = 0;
@@ -104,7 +101,6 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
             // if it reached the width, we overwite the last letter
             if(str[start-1] != specialchar_nl){
                 --str;
-                ++length;
             }
             buffer[0] = specialchar_3;
             buffer[buffer_length - 1] = specialchar_3;
@@ -161,7 +157,7 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
         buffer[i] =  FONT_START + str[i];
     }
     for (; i < length; ++i) {
-        buffer[i] = FONT_START;
+        buffer[i] = FONT_START + specialchar_1;
     }
     set_win_tiles(x, y, length, 1, buffer);
 }
@@ -171,8 +167,9 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     if (length > 2) {
         length = 2;
     }
+    buffer[buffer_length-1] = '\0';
     //put two numbers into buffer (right to left)
-    for(UINT8 i = buffer_length-1; i > buffer_length-4; --i){
+    for(UINT8 i = buffer_length-2; i > buffer_length-5; --i){
         buffer[i] = specialchar_4 + (num % $(16));
         num /= $(16);
     }
@@ -184,8 +181,9 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     if (length > 3) {
         length = 3;
     }
+    buffer[buffer_length-1] = '\0';
     //put three numbers into buffer (right to left)
-    for(UINT8 i = buffer_length-1; i > buffer_length-5; --i){
+    for(UINT8 i = buffer_length-2; i > buffer_length-6; --i){
         buffer[i] = specialchar_4 + (num % $(10));
         num /= $(10);
     }
@@ -213,7 +211,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     move_win(7, 16 * 8);
 }
 
-UINT8 dialog(const UINT8 length, const char *str, const char* name, const UINT8 portrait){
+UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
     unsigned char tiles[16];
     UINT8 x;
     UINT8 y;
@@ -330,7 +328,7 @@ UINT8 dialog(const UINT8 length, const char *str, const char* name, const UINT8 
     //write_line(1, 0, namelength, name);
 
     move_win(7, 14 * 8);
-    ret = smart_write(1, 1, 14, 3, length, str);
+    ret = smart_write(1, 1, 14, 3, str);
     delay(100);
     // only wait for A if this isn't a selection
     if(ret == 0){

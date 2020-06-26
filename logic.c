@@ -31,7 +31,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
 
     // leaving the beach if bottle is not collected
     if((sg->progress[1] & PRGRS_BTL) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
-        dialog(strlen(text_youdontw), text_youdontw, strlen(text_narrator),
+        dialog(strlen(text_stay_beach), text_stay_beach, strlen(text_narrator),
                text_narrator, 0);
         sg->character[0].direction = 0;
         sg->character[0].y++;
@@ -127,10 +127,10 @@ void interact() {
     // sign
     if (tile == 18) {
         if (sg->level_x == 1 && sg->level_y == 1) {
-            dialog(strlen(text_welcomet), text_welcomet, strlen(text_sign),
+            dialog(strlen(text_village), text_village, strlen(text_sign),
                    text_sign, 1);
         } else {
-            dialog(strlen(text_hellowor), text_hellowor, strlen(text_sign),
+            dialog(strlen(text_hello_world), text_hello_world, strlen(text_sign),
                    text_sign, 1);
         }
         draw_hud(sg->lives, sg->tpaper);
@@ -138,12 +138,12 @@ void interact() {
     // bottle
     if (tile == 34 && current_map == overworld_b_gbc_map) {
         if(sg->progress[1] & PRGRS_BTL){
-            dialog(strlen(text_thisbott), text_thisbott, strlen(text_narrator),
+            dialog(strlen(text_empty_bottle), text_empty_bottle, strlen(text_narrator),
                text_narrator, 0);
         }else{
-            dialog(strlen(text_ohlookth), text_ohlookth, strlen(text_narrator),
+            dialog(strlen(text_bottle_post), text_bottle_post, strlen(text_narrator),
                text_narrator, 0);
-            dialog(strlen(text_pleasefi), text_pleasefi, strlen(text_letter),
+            dialog(strlen(text_shekiro_1), text_shekiro_1, strlen(text_letter),
                 text_letter, 4);
             sg->progress[1] |= PRGRS_BTL;
         }
@@ -169,12 +169,12 @@ void interact() {
                 SET_PRGRS_GHOST(0x1);
                 //sg->progress[0] & (0x1<<4));
             }
-            dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
+            dialog(strlen(text_dead), text_dead, strlen(text_grave),
                 text_grave, 2);
             draw_hud(sg->lives, sg->tpaper);
         }
         if (tile == 30 && current_map == overworld_a_gbc_map) {
-            dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
+            dialog(strlen(text_dialog4), text_dialog4, strlen(text_flame),
                 text_flame, 3);
             draw_hud(sg->lives, sg->tpaper);
             // reset();

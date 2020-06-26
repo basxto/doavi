@@ -47,11 +47,11 @@ Savegame sgemu;
 void menu() {
     move_win(7, 0);
     HIDE_SPRITES;
-    UINT8 ret = smart_write(0, 0, 20, 18, strlen(text_menucont), text_menucont);
+    UINT8 ret = smart_write(0, 0, 20, 18, strlen(text_menu), text_menu);
     // write_num(12, 1, 3, ret);
     switch (ret) {
     case 2:
-        smart_write(0, 0, 20, 18,strlen(text_creditsc), text_creditsc);
+        smart_write(0, 0, 20, 18,strlen(text_credits), text_credits);
         waitpad_any(J_A);
         delay(100);
         break;
@@ -340,11 +340,11 @@ void main() {
     //write_hex(0,0,2,sys_time>>8);
     //write_hex(2,0,2,sys_time&0xFF);
 
-    smart_write(3, 4, 20, 2, strlen(text_desserto), text_desserto);
-    smart_write(5, 12, 20, 2, strlen(text_bybasxto), text_bybasxto);
+    smart_write(3, 4, 20, 2, strlen(text_title), text_title);
+    smart_write(5, 12, 20, 2, strlen(text_author), text_author);
     waitpad_any(J_A | J_START);
     delay(100);
-    smart_write(0, 0, 20, 18, strlen(text_youaream), text_youaream);
+    smart_write(0, 0, 20, 18, strlen(text_intro), text_intro);
     waitpad_any(J_A | J_START);
     delay(100);
     init_hud();

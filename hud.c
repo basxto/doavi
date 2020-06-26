@@ -213,15 +213,19 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     move_win(7, 16 * 8);
 }
 
-UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* name, const UINT8 portrait){
+UINT8 dialog(const UINT8 length, const char *str, const char* name, const UINT8 portrait){
     unsigned char tiles[16];
     UINT8 x;
     UINT8 y;
     UINT8 accept = 0;
     UINT8 ret = 0;
+    UINT8 namelength = 0;
 
     // generate name field data blocks
-    for(y = 0; y < namelength; ++y){
+    // there is room for at most 13 characters
+    for(y = 0; y < 13; ++y){
+        if(!name[y])
+            break;
         get_bkg_data(FONT_START + name[y], 1, tiles);
         // generate lower case
         if(y!=0)
@@ -240,6 +244,7 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
             }
         }
         set_win_data(PORTRAIT_START + PORTRAIT_LENGTH + y, 1, tiles);
+        ++namelength;
     }
 
     //set brown

@@ -44,7 +44,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     // trigger stuff
 
     // cave entrance
-    if(tile == 21){
+    if(tile == 21 && current_map == overworld_a_gbc_map){
         if(sg->level_x == 4){
             sg->character[0].direction = 0;
             teleport_to(0, 6, 2, 1);
@@ -149,79 +149,85 @@ void interact() {
         }
         draw_hud(sg->lives, sg->tpaper);
     }
-    if (tile == 26) {
-        if(x == 5 && y == 2 && (sg->progress[0] & PRGRS_GHOST) == 0){
-            screen_shake();
-            // spawn ghost
-            sg->character[1].x = 4;
-            sg->character[1].y = 2;
-            if(sg->character[0].x == 4 && sg->character[0].y == 2){
-                sg->character[1].x = 6;
-            }
-            sg->character[1].sprite = 2;
-            sg->character[1].direction = 7<<2;//ghost bottom
-            sg->character[1].palette = 3<<4 | 3;
+    if(current_map == overworld_a_gbc_map) {
+        // grave
+        if (tile == 26) {
+            if(x == 5 && y == 2 && (sg->progress[0] & PRGRS_GHOST) == 0){
+                screen_shake();
+                // spawn ghost
+                sg->character[1].x = 4;
+                sg->character[1].y = 2;
+                if(sg->character[0].x == 4 && sg->character[0].y == 2){
+                    sg->character[1].x = 6;
+                }
+                sg->character[1].sprite = 2;
+                sg->character[1].direction = 7<<2;//ghost bottom
+                sg->character[1].palette = 3<<4 | 3;
 
-            render_character(1);
-            // ghost visible
-            SET_PRGRS_GHOST(0x1);
-            //sg->progress[0] & (0x1<<4));
+                render_character(1);
+                // ghost visible
+                SET_PRGRS_GHOST(0x1);
+                //sg->progress[0] & (0x1<<4));
+            }
+            dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
+                text_grave, 2);
+            draw_hud(sg->lives, sg->tpaper);
         }
-        dialog(strlen(text_somebody), text_somebody, strlen(text_grave),
-               text_grave, 2);
-        draw_hud(sg->lives, sg->tpaper);
+        if (tile == 30 && current_map == overworld_a_gbc_map) {
+            dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
+                text_flame, 3);
+            draw_hud(sg->lives, sg->tpaper);
+            // reset();
+        }
     }
-    if (tile == 30 && current_map == overworld_a_gbc_map) {
-        dialog(strlen(text_burnever), text_burnever, strlen(text_flame),
-               text_flame, 3);
-        draw_hud(sg->lives, sg->tpaper);
-        // reset();
-    }
-    if (tile == 32 || tile == 20) {
-        // we don't have to check the status
-        // since chests would be a different tile  otherwise
-        _Bool update = 0;
-        if(sg->level_x == 1 && sg->level_y == 0)
-            if (!(sg->chest & 0x1) && y == 2) {
-                sg->chest |= 0x1;
-                ++sg->tpaper;
-                update = 1;
-            }else if(!(sg->chest & 1<<1)){
-                sg->chest |= 1<<1;
+    if (current_map == overworld_a_gbc_map || current_map == overworld_b_gbc_map) {
+        // chest
+        if (tile == 32 || tile == 20) {
+            // we don't have to check the status
+            // since chests would be a different tile  otherwise
+            _Bool update = 0;
+            if(sg->level_x == 1 && sg->level_y == 0)
+                if (!(sg->chest & 0x1) && y == 2) {
+                    sg->chest |= 0x1;
+                    ++sg->tpaper;
+                    update = 1;
+                }else if(!(sg->chest & 1<<1)){
+                    sg->chest |= 1<<1;
+                    ++sg->tpaper;
+                    update = 1;
+                }
+            if(!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0){
+                sg->chest |= 1<<2;
                 ++sg->tpaper;
                 update = 1;
             }
-        if(!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0){
-            sg->chest |= 1<<2;
-            ++sg->tpaper;
-            update = 1;
+            if(update){
+                incject_map(x, y, tile-2);
+                draw_hud(sg->lives, sg->tpaper);
+                blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
+            }
         }
-        if(update){
-            incject_map(x, y, tile-2);
-            draw_hud(sg->lives, sg->tpaper);
-            blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
-        }
-    }
-    // cut grass
-    if (tile == 16) {
-        incject_map(x, y, 17-2);
-        incject_collision(x, y, FALSE);
-        current_background[(y * WIDTH) + x] = current_map[17-2];
-    }
-    // (current_collision[index / $(8)] & (1 << (index % $(8)))) == 0
-    // move stone
-    if (tile == 27) {
-        if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
-            incject_map_palette(x, y, 2);
-            incject_map(x, y, 20);
+        // cut grass
+        if (tile == 16) {
+            incject_map(x, y, 17-2);
             incject_collision(x, y, FALSE);
-            current_background[(y * WIDTH) + x] = 2;
-            x += (x - sg->character[0].x);
-            y += (y - sg->character[0].y);
-            incject_map_palette(x, y, 3);
-            incject_map(x, y, 27-2);
-            incject_collision(x, y, TRUE);
-            current_background[(y * WIDTH) + x] = 27;
+            current_background[(y * WIDTH) + x] = current_map[17-2];
+        }
+        // move stone
+        if (tile == 27) {
+            if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
+                incject_map_palette(x, y, 2);
+                incject_map(x, y, (current_map == overworld_a_gbc_map? 20 : 2));
+
+                incject_collision(x, y, FALSE);
+                current_background[(y * WIDTH) + x] = 2;
+                x += (x - sg->character[0].x);
+                y += (y - sg->character[0].y);
+                incject_map_palette(x, y, 3);
+                incject_map(x, y, 27-2);
+                incject_collision(x, y, TRUE);
+                current_background[(y * WIDTH) + x] = 27;
+            }
         }
     }
 }

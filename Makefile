@@ -180,7 +180,7 @@ else
 endif
 	$(DEV)/worldmap.sh
 
-strings.c strings.h: strings.ini stringmap.txt
+strings.c strings.h: strings.ini stringmap.txt specialchars.txt
 	$(DEV)/ini2c.py $^ -o $@
 
 %_rle.2bpp: %.2bpp

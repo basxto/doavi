@@ -24,6 +24,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('strings', metavar='strings.ini', help='Ini file with strings')
     parser.add_argument('stringmap', metavar='stringmap.txt', help='Map for mapping strings to font')
+    parser.add_argument('specialchars', metavar='specialchars.txt', help='Those characters get extra defines')
     parser.add_argument("--output", "-o", default="", help="Base name for generated c files")
     global args
 
@@ -52,8 +53,15 @@ def main():
 
     config = configparser.ConfigParser()
     config.read(args.strings)
-    h.write("// Generated with ini2c.py\n#ifndef {0}_h\n#define {0}_h\n#define strlen(x) (sizeof(x) - 1)\nextern const unsigned char *text;\n".format(args.output))
+    h.write("// Generated with ini2c.py\n#ifndef {0}_h\n#define {0}_h\n#define strlen(x) (sizeof(x) - 1)\n#define specialchar_nl '\\x01'\n".format(args.output))
     c.write("// Generated with ini2c.py\n#define strlen(x) (sizeof(x) - 1)\nconst unsigned char text[] = \"\";\n")
+    with open(args.specialchars, 'r') as file:
+        next_index = 1
+        for char in file.read().replace('\n', ''):
+            h.write("#define specialchar_{0} '\\x{1:02X}'\n".format(next_index, stringmap[char]))
+            next_index += 1
+
+    h.write("extern const unsigned char *text;\n")
     for key in config['strings']:
         compressed = compress_string(config['strings'][key])
         length = len(compressed)//4 + 1 # \x00 is four characters

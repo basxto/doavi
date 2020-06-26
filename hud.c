@@ -1,5 +1,6 @@
 #include <string.h>
 #include "hud.h"
+#include "strings.h"
 #include "pix/pix.h"
 #include "dev/png2gb/csrc/decompress.h"
 #include "utils.h"
@@ -66,7 +67,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     space_area(x, y, width, height);
     while(run){
         // detect choices
-        if(start == 0 && str[start] == '>'){
+        if(start == 0 && str[start] == specialchar_2){
             if(choices++ == 0)
                 firstchoice = tmp_y;
             buffer[buffer_length - 1] = ' ';
@@ -82,7 +83,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         for(; end < max; ++end)
             //get to that next round
             //end of this line
-            if(str[end] == '\1' || str[end] == '\0')
+            if(str[end] == specialchar_nl || str[end] == '\0')
                 break;
 
         write_line(x + start, tmp_y, (end-start), str + start);
@@ -91,7 +92,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         if(str[start] == '\0' || start >= length){
             run = 0;
         } else {
-            if(str[start] == '\1')
+            if(str[start] == specialchar_nl)
                 ++start;//skip
             length -= start;
             str += start;
@@ -101,12 +102,12 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         }
         if(tmp_y >= y+height){
             // if it reached the width, we overwite the last letter
-            if(str[start-1] != '\1'){
+            if(str[start-1] != specialchar_nl){
                 --str;
                 ++length;
             }
-            buffer[0] = 'v';
-            buffer[buffer_length - 1] = 'v';
+            buffer[0] = specialchar_3;
+            buffer[buffer_length - 1] = specialchar_3;
             write_line(x + width - 1, y + height - 1, 1, buffer + (buffer_length - 1));
             delay(100);
             waitpad_any(J_A);
@@ -121,11 +122,11 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         tmp_y = firstchoice;
         run = 1;
         //write arrow
-        buffer[buffer_length - 1] = 'w';
+        buffer[buffer_length - 1] = specialchar_2;
         write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
         while(run){
             delay(100);
-            buffer[buffer_length - 1] = ' ';
+            buffer[buffer_length - 1] = specialchar_1;
             write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
             switch(joypad()){
                 case J_UP:
@@ -140,7 +141,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
                     return (tmp_y - firstchoice) + 1;
                     break;
             }
-            buffer[buffer_length - 1] = 'w';
+            buffer[buffer_length - 1] = specialchar_2;
             write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
         }
     }

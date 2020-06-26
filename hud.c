@@ -173,9 +173,7 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     }
     //put two numbers into buffer (right to left)
     for(UINT8 i = buffer_length-1; i > buffer_length-4; --i){
-        UINT8 tmp = (num % $(16));
-        //for >9 shift from character : to A
-        buffer[i] = '0' + (tmp < 10 ? tmp : ('A'-':')+tmp);
+        buffer[i] = specialchar_4 + (num % $(16));
         num /= $(16);
     }
     write_line(x, y, length, (buffer + buffer_length) - length);
@@ -188,7 +186,7 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
     }
     //put three numbers into buffer (right to left)
     for(UINT8 i = buffer_length-1; i > buffer_length-5; --i){
-        buffer[i] = '0' + (num % $(10));
+        buffer[i] = specialchar_4 + (num % $(10));
         num /= $(10);
     }
     write_line(x, y, length, (buffer + buffer_length) - length);
@@ -224,7 +222,7 @@ UINT8 dialog(const UINT8 length, const char *str, UINT8 namelength, const char* 
 
     // generate name field data blocks
     for(y = 0; y < namelength; ++y){
-        get_bkg_data((WIN_START - (' '/2)) + name[y], 1, tiles);
+        get_bkg_data(FONT_START + name[y], 1, tiles);
         // generate lower case
         if(y!=0)
             for(x = 9; x > 1; --x){

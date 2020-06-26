@@ -55,7 +55,7 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     //  house entrance
-    if (tile == $(34 + 10)) {
+    if (tile == $(46 + 10)) {
         if(sg->level_y == 1 && sg->level_x == 1)
             if(sg->character[0].x > $(5))
                 teleport_to(0, 5, 5, 6);

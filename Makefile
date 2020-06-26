@@ -128,10 +128,10 @@ pix/win_gbc_rle.xbpp: pix/win_gbc_rle.2bpp pix/squont8ng_rle.1bpp
 
 # define position in rom
 # datrom and palrom have fixed max size
-pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/house_wood_round.png pix/overworld_path_gbc.png
+pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
 	$(pngconvert) --width 2 --height 2 --limit 128 $^ -bin | $(compress) - -o$@
 
-pix/overworld_a_gbc.2bpp: pix/overworld_a_gbc.png pix/house_wood_round.png pix/overworld_path_gbc.png
+pix/overworld_a_gbc.2bpp: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
 pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png

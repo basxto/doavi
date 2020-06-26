@@ -4,6 +4,8 @@
 
 #include <gb/gb.h>
 #define WIN_START $(0)
+// offset - \0 and \n
+#define FONT_START $(16-2)
 #define PORTRAIT_START $(96)
 #define PORTRAIT_LENGTH $(16)
 

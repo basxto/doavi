@@ -180,8 +180,8 @@ else
 endif
 	$(DEV)/worldmap.sh
 
-strings.c strings.h: strings.txt
-	$(DEV)/txt2c.sh $^ $@
+strings.c strings.h: strings.ini stringmap.txt
+	$(DEV)/ini2c.py $^ -o $@
 
 %_rle.2bpp: %.2bpp
 	dev/png2gb/compress2bpp.py $^ -o $@

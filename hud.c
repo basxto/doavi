@@ -54,6 +54,7 @@ void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 hei
 
 // write text into an area
 // scroll if necessary
+// \1 is new line
 UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, UINT8 length, char *str){
     UINT8 start = 0;
     UINT8 end = 0;
@@ -81,7 +82,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         for(; end < max; ++end)
             //get to that next round
             //end of this line
-            if(str[end] == '\n' || str[end] == '\0')
+            if(str[end] == '\1' || str[end] == '\0')
                 break;
 
         write_line(x + start, tmp_y, (end-start), str + start);
@@ -90,7 +91,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         if(str[start] == '\0' || start >= length){
             run = 0;
         } else {
-            if(str[start] == '\n')
+            if(str[start] == '\1')
                 ++start;//skip
             length -= start;
             str += start;
@@ -100,7 +101,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         }
         if(tmp_y >= y+height){
             // if it reached the width, we overwite the last letter
-            if(str[start-1] != '\n'){
+            if(str[start-1] != '\1'){
                 --str;
                 ++length;
             }
@@ -156,15 +157,10 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
             break;
         }
         // lower case is treated as special characters
-        buffer[i] =  (str[i]);
-        if(buffer[i] >= '{')
-            buffer[i] -= 2;
-        if(buffer[i] > 'o')
-            buffer[i] -= (' '/2);
-        buffer[i] += WIN_START - (' '/2);
+        buffer[i] =  FONT_START + str[i];
     }
     for (; i < length; ++i) {
-        buffer[i] = (WIN_START - (' '/2)) + ' ';
+        buffer[i] = FONT_START;
     }
     set_win_tiles(x, y, length, 1, buffer);
 }

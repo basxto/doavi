@@ -10,6 +10,7 @@
 
 extern const unsigned char overworld_a_gbc_map[];
 extern const unsigned char overworld_b_gbc_map[];
+extern const unsigned char inside_wood_house_map[];
 
 // defined in main.c
 extern UINT8 *current_background;
@@ -143,7 +144,34 @@ void interact() {
         }
         draw_hud(sg->lives, sg->tpaper);
     }
-    if(current_map == overworld_a_gbc_map) {
+    //if(current_map == inside_wood_house_map) {
+        // cabinet
+        if (tile == 11) {
+            dialog(text_empty_cabinet, text_narrator, 0);
+            draw_hud(sg->lives, sg->tpaper);
+        }
+        // cupboard
+        if (tile == 12 || tile == 13) {
+            dialog(text_empty_cupboard, text_narrator, 0);
+            draw_hud(sg->lives, sg->tpaper);
+        }
+        // chair
+        if (tile == 24) {
+            dialog(text_sit, text_narrator, 0);
+            draw_hud(sg->lives, sg->tpaper);
+        }
+        // plant
+        if (tile == 16) {
+            dialog(text_plant, text_narrator, 0);
+            draw_hud(sg->lives, sg->tpaper);
+        }
+        // barrel
+        if (tile == 8) {
+            dialog(text_na_barrel, text_narrator, 0);
+            draw_hud(sg->lives, sg->tpaper);
+        }
+    //}
+    //if(current_map == overworld_a_gbc_map) {
         // grave
         if (tile == 26) {
             if(x == 5 && y == 2 && (sg->progress[0] & PRGRS_GHOST) == 0){
@@ -171,7 +199,7 @@ void interact() {
             draw_hud(sg->lives, sg->tpaper);
             // reset();
         }
-    }
+    //}
     if (current_map == overworld_a_gbc_map || current_map == overworld_b_gbc_map) {
         // chest
         if (tile == 32 || tile == 20) {

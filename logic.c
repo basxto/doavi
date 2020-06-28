@@ -131,7 +131,6 @@ void interact() {
         } else {
             dialog(text_hello_world, text_sign, 1);
         }
-        draw_hud(sg->lives, sg->tpaper);
     }
     // bottle
     if (tile == 34 && current_map == overworld_b_gbc_map) {
@@ -142,33 +141,27 @@ void interact() {
             dialog(text_shekiro_1, text_letter, 4);
             sg->progress[1] |= PRGRS_BTL;
         }
-        draw_hud(sg->lives, sg->tpaper);
     }
     //if(current_map == inside_wood_house_map) {
         // cabinet
         if (tile == 11) {
             dialog(text_empty_cabinet, text_narrator, 0);
-            draw_hud(sg->lives, sg->tpaper);
         }
         // cupboard
         if (tile == 12 || tile == 13) {
             dialog(text_empty_cupboard, text_narrator, 0);
-            draw_hud(sg->lives, sg->tpaper);
         }
         // chair
         if (tile == 24) {
             dialog(text_sit, text_narrator, 0);
-            draw_hud(sg->lives, sg->tpaper);
         }
         // plant
         if (tile == 16) {
             dialog(text_plant, text_narrator, 0);
-            draw_hud(sg->lives, sg->tpaper);
         }
         // barrel
         if (tile == 8) {
             dialog(text_na_barrel, text_narrator, 0);
-            draw_hud(sg->lives, sg->tpaper);
         }
     //}
     //if(current_map == overworld_a_gbc_map) {
@@ -192,11 +185,9 @@ void interact() {
                 //sg->progress[0] & (0x1<<4));
             }
             dialog(text_dead, text_grave, 2);
-            draw_hud(sg->lives, sg->tpaper);
         }
         if (tile == 30 && current_map == overworld_a_gbc_map) {
             dialog(text_dialog4, text_flame, 3);
-            draw_hud(sg->lives, sg->tpaper);
             // reset();
         }
     //}
@@ -223,7 +214,6 @@ void interact() {
             }
             if(update){
                 incject_map(x, y, tile-2);
-                draw_hud(sg->lives, sg->tpaper);
                 blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
             }
         }
@@ -263,17 +253,15 @@ void interact() {
             // ghost
             if(sg->level_x == 0){
                 dialog(text_boohoo, text_ghost, 5);
-                draw_hud(sg->lives, sg->tpaper);
             }
             if(sg->level_x == 4){
                 if(i == 1){
                     dialog(text_stranded, text_t0, 0);
-                    draw_hud(sg->lives, sg->tpaper);
                 }else{
                     dialog(text_the_present, text_t1, 0);
-                    draw_hud(sg->lives, sg->tpaper);
                 }
             }
         }
     }
+    draw_hud(sg->lives, sg->tpaper);
 }

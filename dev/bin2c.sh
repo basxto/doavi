@@ -20,5 +20,5 @@ printf "const unsigned char %s[] = {\n" ${NAME} >> ${TO};
 cat "${FROM}" | xxd -i >> "${TO}"
 echo "};" >> ${TO}
 if [ "$#" -ge "4" ]; then
-    printf "const unsigned char %s_length = %d;\n" ${NAME} $4 >> ${TO}
+    printf "#define %s_length (%d)\n" ${NAME} $4 >> ${TO}
 fi

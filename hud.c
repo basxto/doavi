@@ -6,10 +6,6 @@
 #include "utils.h"
 #include "unpb16.h"
 
-// as defined in makefile
-//const unsigned char * win_gbc_data_inrom;// = (0x7FFF-0x1880);
-extern const unsigned char win_gbc_data[];
-extern const UINT8 win_gbc_data_length;
 extern UINT8 decompressed_tileset[128*16];
 
 const unsigned char *dialog_photos_data[] = {

@@ -42,7 +42,7 @@ endif
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters dialog_photos))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))
@@ -95,7 +95,7 @@ music/songs.rel: music/songs.c
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c $(PIX) pix/hud_pal.c
+pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c $(addprefix pix/dialog_photos_,$(addsuffix _pb16_data.c,none sign grave flame letter ghost)) $(PIX) pix/hud_pal.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
@@ -106,7 +106,10 @@ music/songs.h: music/songs.c music/songs.rel
 	$(c2h) $< >> $@
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
-	$(pngconvert) --width 4 --height 4 -u yes $^ -o $@ -bin | $(compress) - -o$@
+	$(pngconvert) --width 4 --height 4 -u yes $< -o $@ -bin | $(compress) - -o$@
+
+pix/dialog_photos_%.2bpp: pix/dialog_photos_%.png
+	$(pngconvert) -cno -uyes --width 4 --height 4 -u yes $< -o $@
 
 pix/modular_characters_data.c : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
 	$(pngconvert) -flip $^ -o $@

@@ -85,6 +85,7 @@ typedef struct {
 extern Savegame *sg;
 
 void menu();
+void screen_wobble();
 void screen_shake();
 void init_screen();
 void change_level();

@@ -31,6 +31,10 @@ extern const unsigned char overworld_b_gbc_map[];
 //TODO: pretty much a hack
 extern UINT8 decompressed_tileset[128*16];
 
+// for scanline effects
+const UINT8 scanline_wobble[] = {4,5,6,7,7,6,5,4,4,5,6,7,7,6,5};
+const UINT8 *scanline_offsets;
+UINT8 scanline_ly_offset;
 
 UINT8 counter;
 UINT8 anim_counter;
@@ -103,6 +107,25 @@ void menu() {
     }
     draw_hud(sg->lives, sg->tpaper);
     SHOW_SPRITES;
+}
+
+void scanline_isr() {
+    SCX_REG = scanline_offsets[LY_REG%8];
+}
+
+void screen_wobble() {
+    scanline_ly_offset = 0;
+    scanline_offsets = &scanline_wobble[0];
+
+    set_interrupts(VBL_IFLAG | TIM_IFLAG | LCD_IFLAG);
+    for(UINT8 i = 0; i < 40; ++i){
+        wait_vbl_done();
+        wait_vbl_done();
+        wait_vbl_done();
+        scanline_offsets = &scanline_wobble[(++scanline_ly_offset)%8];
+    }
+    set_interrupts(VBL_IFLAG | TIM_IFLAG);
+    SCX_REG = 8;
 }
 
 void screen_shake() {
@@ -357,10 +380,16 @@ void main() {
     // triggers interrupt when it reaches 0xFF
     TMA_REG = TIMA_REG = 0xE3;
     TAC_REG = 0x4 | 0x0; // 4096 Hz
-    // enable timer interrupt
+
+    // configure scanline interrupts
+    STAT_REG = 0x18;
+    LYC_REG = 0x00;
+
+    // enable interrupts
     disable_interrupts();
     add_TIM(timer_isr);
     add_VBL(vblank_isr);
+    add_LCD(scanline_isr);
     //add_
     enable_interrupts();
     // gbdk needs VBL iflag

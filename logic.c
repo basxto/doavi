@@ -273,6 +273,7 @@ void interact() {
                 if(i == 1){
                     dialog(text_stranded, text_t0, 7);
                 }else{
+                    screen_wobble();
                     if(IS_PRGRS_TIME(0)){
                         SET_PRGRS_TIME(1);
                         dialog(text_the_past, text_t1, 7);

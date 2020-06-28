@@ -7,7 +7,11 @@
 #include "overworld_cave_pb16_data.c"
 #include "modular_characters_pb16_data.c"
 #include "overworld_anim_gbc_data.c"
-#include "dialog_photos_data.c"
+#include "dialog_photos_sign_pb16_data.c"
+#include "dialog_photos_grave_pb16_data.c"
+#include "dialog_photos_flame_pb16_data.c"
+#include "dialog_photos_letter_pb16_data.c"
+#include "dialog_photos_ghost_pb16_data.c"
 #include "win_gbc_data.c"
 
 #include "inside_wood_house_map.c"

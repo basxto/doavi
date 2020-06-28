@@ -4,11 +4,21 @@
 #include "pix/pix.h"
 #include "dev/png2gb/csrc/decompress.h"
 #include "utils.h"
+#include "unpb16.h"
 
 // as defined in makefile
 //const unsigned char * win_gbc_data_inrom;// = (0x7FFF-0x1880);
 extern const unsigned char win_gbc_data[];
 extern const UINT8 win_gbc_data_length;
+extern UINT8 decompressed_tileset[128*16];
+
+const unsigned char **dialog_photos_data = {
+    &dialog_photos_sign_data[0],
+    &dialog_photos_grave_data[0],
+    &dialog_photos_flame_data[0],
+    &dialog_photos_letter_data[0],
+    &dialog_photos_ghost_data[0]
+};
 
 #define buffer_length (16)
 // be cautious with this!
@@ -269,7 +279,8 @@ UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
             set_win_data_rle(PORTRAIT_START + x, 4, &tiles[2], 0);
         }
     }else{
-        set_win_data_rle(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos_data, (portrait-1)*PORTRAIT_LENGTH);
+        //pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_data[portrait-1]);
+        pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_sign_data);
         // 2 or 3
         if($(portrait & 0x3) != 0){
             tiles[0] = portrait+1;

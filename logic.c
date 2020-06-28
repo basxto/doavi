@@ -75,6 +75,8 @@ UINT8 move_player(const INT8 x, const INT8 y) {
             teleport_to(2, 5, 6, 6);
         else if(sg->level_y == 2 && sg->level_x == 0)
             teleport_to(3, 5, 3, 6);
+        else // glitch house
+            teleport_to(4, 5, 4, 6);
     }
 
     // player stepped into the doorway
@@ -90,6 +92,9 @@ UINT8 move_player(const INT8 x, const INT8 y) {
         }
         else if (sg->level_x == 3) {
             teleport_to(0, 2, 5, 6);
+        }
+        else if (sg->level_x == 4) {
+            teleport_to(4, 1, 4, 6);
         }
     }
     // player goes through the back door
@@ -277,6 +282,9 @@ void interact() {
                     }
                 }
             }
+        }
+        if(sg->level_y == 5){
+            dialog(text_marvin, text_rachel, 0);
         }
     }
     draw_hud(sg->lives, sg->tpaper);

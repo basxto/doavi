@@ -68,7 +68,7 @@ playmusic:
 	$(MAKE) -C $(DEV)/gbdk-music playmusic DEV="../" EMU="$(EMU)"
 
 $(DEV)/gbdk-music/%: FORCE
-	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)"
+	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
 
 main.rel: main.c pix/pix.h strings.h
 	$(CC) -o $@ $<

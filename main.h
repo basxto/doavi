@@ -52,7 +52,6 @@ typedef struct {
 
 // 68 bytes
 typedef struct {
-    char magic;
     char name[10];
     UINT8 level_x;
     UINT8 level_y;
@@ -74,6 +73,14 @@ typedef struct {
 
     UINT8 progress[2];
 } Savegame;
+
+typedef struct {
+    char magic;
+    // up to 16 slots
+    // 0: unused
+    // 1: used
+    UINT16 slots;
+} Saveslots;
 
 extern Savegame *sg;
 

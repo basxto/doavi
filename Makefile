@@ -33,9 +33,10 @@ endif
 
 ifeq ($(ROMDEBUG), 0)
 BANK=
+MKROM+= -Wl-yt0x03 -Wl-ya1
 else
 BANK= -Wf-bo$(ROMDEBUG)
-MKROM+= -Wl-yt0x1 -Wl-yo4
+MKROM+= -Wl-yt0x03 -Wl-ya1 -Wl-yo4
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)

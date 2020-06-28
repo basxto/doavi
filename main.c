@@ -2,6 +2,7 @@
 #include <gb/gb.h>
 // gameboy color
 #include <gb/cgb.h>
+#include <gb/hardware.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -41,6 +42,7 @@ const UINT8 *current_background;
 // since we want to modify it
 UINT8 current_collision[10];
 extern const unsigned char *current_map;
+Saveslots *sl = (Saveslots *)0xa000;
 Savegame *sg;
 Savegame sgemu;
 
@@ -278,11 +280,16 @@ void vblank_isr(){
 }
 
 void main() {
-    //sg = (Savegame *)0xa000;
-    sg = &sgemu;
+    sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (0*sizeof(Savegame)));
+    //sg = &sgemu;
     // load savegame
-    //ENABLE_RAM_MBC1;
-    if (sg->magic != 'V') {
+    ENABLE_RAM_MBC1;
+    SWITCH_RAM_MBC1(0);
+    if(sl->magic != 'V') {
+        sl->magic = 'V';
+        sl->slots = 0x0;
+    }
+    if ((sl->slots & 0x1) == 0) {
         sg->level_x = 1;
         sg->level_y = 4;
         memcpy(sg->name, "candyhead1", 10);
@@ -305,7 +312,7 @@ void main() {
         sg->flame = 0;
         sg->progress[0] = sg->progress[1] = 0;
 
-        sg->magic = 'V';
+        sl->slots |= 0x1<<0;
     }
     counter = 0;
     init_screen();

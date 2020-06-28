@@ -42,7 +42,7 @@ endif
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc modular_characters))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))
@@ -52,7 +52,7 @@ ROM=doavi.gb
 
 build: $(ROM)
 
-$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel $(DEV)/png2gb/csrc/decompress.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
+$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(MKROM) -o $@ $^
 
 run: $(ROM)
@@ -109,7 +109,7 @@ pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $< -o $@ -bin | $(compress) - -o$@
 
 pix/dialog_photos_%.2bpp: pix/dialog_photos_%.png
-	$(pngconvert) -cno -uyes --width 4 --height 4 -u yes $< -o $@
+	$(pngconvert) -cno --width 4 --height 4 -u yes $< -o $@
 
 pix/modular_characters_data.c : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
 	$(pngconvert) -flip $^ -o $@
@@ -129,6 +129,9 @@ pix/win_gbc_data.c: pix/win_gbc_rle.xbpp pix/squont8ng.1bpp pix/win_gbc.2bpp
 
 pix/win_gbc_rle.xbpp: pix/win_gbc_rle.2bpp pix/squont8ng_rle.1bpp
 	cat $^ > $@
+
+pix/win_gbc.2bpp: pix/win_gbc.png pix/squont8ng_gbc.png
+	$(pngconvert) -cno -u yes $^ -o $@
 
 # define position in rom
 # datrom and palrom have fixed max size

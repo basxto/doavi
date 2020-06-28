@@ -25,20 +25,30 @@ void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
 }
 
 UINT8 move_player(const INT8 x, const INT8 y) {
+    UINT8 tile =
+        current_background[(sg->character[0].y * WIDTH) + sg->character[0].x];
+
     if (move_character(0, x, y) == 1) {
+        // little cheat
+        // jump from tree
+        if(tile == 12 || tile == 13){
+            if(move_character(0, x*2, y*2) == 0){
+                return 0;
+            }
+        }
+        // otherwise boing
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
         return 1;
     }
 
     // leaving the beach if bottle is not collected
-    if((sg->progress[1] & PRGRS_BTL) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
+    if((sg->progress[0] & PRGRS_BTL) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
         dialog(text_stay_beach, text_narrator, 0);
         sg->character[0].direction = 0;
         sg->character[0].y++;
         return 1;
     }
-
-    UINT8 tile =
+    tile =
         current_background[(sg->character[0].y * WIDTH) + sg->character[0].x];
 
     // trigger stuff
@@ -134,12 +144,12 @@ void interact() {
     }
     // bottle
     if (tile == 34 && current_map == overworld_b_gbc_map) {
-        if(sg->progress[1] & PRGRS_BTL){
+        if(sg->progress[0] & PRGRS_BTL){
             dialog(text_empty_bottle, text_narrator, 0);
         }else{
             dialog(text_bottle_post, text_narrator, 0);
             dialog(text_shekiro_1, text_letter, 4);
-            sg->progress[1] |= PRGRS_BTL;
+            sg->progress[0] |= PRGRS_BTL;
         }
     }
     //if(current_map == inside_wood_house_map) {
@@ -258,7 +268,13 @@ void interact() {
                 if(i == 1){
                     dialog(text_stranded, text_t0, 0);
                 }else{
-                    dialog(text_the_present, text_t1, 0);
+                    if(IS_PRGRS_TIME(0)){
+                        SET_PRGRS_TIME(2);
+                        dialog(text_the_past, text_t1, 0);
+                    }else{
+                        SET_PRGRS_TIME(0);
+                        dialog(text_the_present, text_t1, 0);
+                    }
                 }
             }
         }

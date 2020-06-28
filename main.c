@@ -285,7 +285,7 @@ void main() {
     if (sg->magic != 'V') {
         sg->level_x = 1;
         sg->level_y = 4;
-
+        memcpy(sg->name, "candyhead1", 10);
         sg->character[0].x = 4;
         sg->character[0].y = 4;
         sg->character[0].sprite = 0;

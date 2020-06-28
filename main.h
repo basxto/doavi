@@ -34,6 +34,8 @@ typedef struct {
     INT8 offset_y;
 } Character;
 
+
+// progress[0]
 #define PRGRS_BTL (1<<0) // bottle message read
 #define PRGRS_T1 (1<<1) // cleared access to T-1
 #define PRGRS_T0 (1<<2) // destroyed T0
@@ -41,11 +43,14 @@ typedef struct {
 
 // ghost status
 #define PRGRS_GHOST (0x3<<4)
-#define SET_PRGRS_GHOST(x) (sg->progress[0] |= (x)<<4)
+#define IS_PRGRS_GHOST(x)  (((sg->progress[0]) & (0x3<<4)) == (x)<<4)
+#define SET_PRGRS_GHOST(x) (sg->progress[0] = (sg->progress[0] & 0xCF) | (x)<<4)
 // time status
 #define PRGRS_TIME (0x3<<6)
-#define SET_PRGRS_TIME(x) (sg->progress[0] |= (x)<<6)
+#define IS_PRGRS_TIME(x)   (((sg->progress[0]) & (0x3<<6)) == (x)<<6)
+#define SET_PRGRS_TIME(x)  (sg->progress[0] = (sg->progress[0] & 0x3F) | (x)<<6)
 
+// 68 bytes
 typedef struct {
     char magic;
     char name[10];

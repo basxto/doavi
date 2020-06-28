@@ -125,6 +125,16 @@ void load_map(const UINT8 background[]) {
     UINT8 palette;
     unsigned char tiles[4];
 
+    // change map if time traveling
+    if(IS_PRGRS_TIME(1)){
+        if(sg->level_y == 0 && sg->level_x == 0)
+            sg->level_x = 6;
+    }
+    if(IS_PRGRS_TIME(2)){
+        if(sg->level_y == 1 && sg->level_x == 4)
+            sg->level_x = 6;
+    }
+
     background_shifted = !background_shifted;
     if (sg->level_y == 4) {//0b0100
         next_map = overworld_b_gbc_map;
@@ -189,6 +199,13 @@ void load_map(const UINT8 background[]) {
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
         }
     }
+    // change map back
+    if(sg->level_x == 6){
+        if(sg->level_y == 0)
+            sg->level_x = 0;
+        if(sg->level_y == 1)
+            sg->level_x = 4;
+    }
     DISPLAY_OFF;
     BGP_REG = 0xE4; // 11100100
     // load spritesheet
@@ -238,7 +255,8 @@ void load_map(const UINT8 background[]) {
         incject_map(3, 4, 17);
     }
 
-    if(((sg->progress[0] & PRGRS_GHOST)==0x10) && sg->level_x == 0 && sg->level_y == 0){
+    // only show ghost in present
+    if(IS_PRGRS_TIME(0) && IS_PRGRS_GHOST(1) && sg->level_x == 0 && sg->level_y == 0){
         // spawn ghost
         sg->character[1].x = 4;
         sg->character[1].y = 2;

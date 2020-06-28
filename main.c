@@ -12,8 +12,6 @@
 #include "logic.h"
 #include "map.h"
 
-#include "dev/png2gb/csrc/decompress.h"
-
 #include "dev/gbdk-music/music.h"
 #include "dev/gbdk-music/sound.h"
 

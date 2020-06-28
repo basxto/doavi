@@ -271,20 +271,20 @@ void interact() {
             }
             if(sg->level_x == 4){
                 if(i == 1){
-                    dialog(text_stranded, text_t0, 0);
+                    dialog(text_stranded, text_t0, 7);
                 }else{
                     if(IS_PRGRS_TIME(0)){
                         SET_PRGRS_TIME(2);
-                        dialog(text_the_past, text_t1, 0);
+                        dialog(text_the_past, text_t1, 7);
                     }else{
                         SET_PRGRS_TIME(0);
-                        dialog(text_the_present, text_t1, 0);
+                        dialog(text_the_present, text_t1, 7);
                     }
                 }
             }
         }
         if(sg->level_y == 5){
-            dialog(text_marvin, text_rachel, 0);
+            dialog(text_marvin, text_rachel, 6);
         }
     }
     draw_hud(sg->lives, sg->tpaper);

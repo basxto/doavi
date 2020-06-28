@@ -13,6 +13,8 @@
 #include "dialog_photos_flame_pb16_data.c"
 #include "dialog_photos_letter_pb16_data.c"
 #include "dialog_photos_ghost_pb16_data.c"
+#include "dialog_photos_rachel_pb16_data.c"
+#include "dialog_photos_robot_pb16_data.c"
 #include "win_gbc_pb16_data.c"
 
 #include "inside_wood_house_map.c"

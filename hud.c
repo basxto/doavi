@@ -14,7 +14,9 @@ const unsigned char *dialog_photos_data[] = {
     &dialog_photos_grave_data[0],
     &dialog_photos_flame_data[0],
     &dialog_photos_letter_data[0],
-    &dialog_photos_ghost_data[0]
+    &dialog_photos_ghost_data[0],
+    &dialog_photos_rachel_data[0],
+    &dialog_photos_robot_data[0]
 };
 
 #define buffer_length (16)

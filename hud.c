@@ -12,7 +12,8 @@ extern const unsigned char win_gbc_data[];
 extern const UINT8 win_gbc_data_length;
 extern UINT8 decompressed_tileset[128*16];
 
-const unsigned char **dialog_photos_data = {
+const unsigned char *dialog_photos_data[] = {
+    &dialog_photos_none_data[0],
     &dialog_photos_sign_data[0],
     &dialog_photos_grave_data[0],
     &dialog_photos_flame_data[0],
@@ -267,24 +268,10 @@ UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
 
     //tiles[0] = 2 is already set
     // set portrait
-    if(portrait == 0){
-        // this is just a black block
-        tiles[2] = 0xFF;
-        tiles[3] = 0xFF;
-        tiles[4] = 0xFF;
-        tiles[0] = 1;
-        //14 and 15 are still on 0xFF
-        // x+=4 only works because portrait length is multiple of 4
-        for (x = 0; x < PORTRAIT_LENGTH; x+=4) {
-            set_win_data_rle(PORTRAIT_START + x, 4, &tiles[2], 0);
-        }
-    }else{
-        //pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_data[portrait-1]);
-        pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_sign_data);
-        // 2 or 3
-        if($(portrait & 0x3) != 0){
-            tiles[0] = portrait+1;
-        }
+    pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_data[portrait]);
+    // 2 or 3
+    if($(portrait & 0x3) != 0){
+        tiles[0] = portrait+1;
     }
 
     // set portrait color

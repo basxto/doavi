@@ -250,4 +250,30 @@ void interact() {
             }
         }
     }
+    // we assume there can't be multiple characters at one place
+    UINT8 i;
+    // 4 enemies
+    for(i = 4; i != 0; --i){
+        if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
+            break;
+    }
+    // if we have a match
+    if(i != 0){
+        if(sg->level_y == 0){
+            // ghost
+            if(sg->level_x == 0){
+                dialog(text_boohoo, text_ghost, 5);
+                draw_hud(sg->lives, sg->tpaper);
+            }
+            if(sg->level_x == 4){
+                if(i == 1){
+                    dialog(text_stranded, text_t0, 0);
+                    draw_hud(sg->lives, sg->tpaper);
+                }else{
+                    dialog(text_the_present, text_t1, 0);
+                    draw_hud(sg->lives, sg->tpaper);
+                }
+            }
+        }
+    }
 }

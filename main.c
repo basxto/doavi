@@ -162,6 +162,18 @@ void init_screen() {
 }
 
 void change_level() {
+
+    // switch to different time
+    if(IS_PRGRS_TIME(1)){
+        if(sg->level_y == 0 && sg->level_x == 0)
+            sg->level_x = 6;
+    }
+    if(IS_PRGRS_TIME(2)){
+        if(sg->level_y == 1 && sg->level_x == 4)
+            sg->level_x = 6;
+    }
+
+    // load level into ram
     memcpy(current_collision, level[sg->level_y][sg->level_x].collision, 10);
     current_background = decompress(level[sg->level_y][sg->level_x].background);
     for(UINT8 i = 1; i < 5; ++i){

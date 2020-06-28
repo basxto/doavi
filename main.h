@@ -43,11 +43,11 @@ typedef struct {
 
 // ghost status
 #define PRGRS_GHOST (0x3<<4)
-#define IS_PRGRS_GHOST(x)  (((sg->progress[0]) & (0x3<<4)) == (x)<<4)
+#define IS_PRGRS_GHOST(x)  ($((sg->progress[0]) & (0x3<<4)) == (x)<<4)
 #define SET_PRGRS_GHOST(x) (sg->progress[0] = (sg->progress[0] & 0xCF) | (x)<<4)
 // time status
 #define PRGRS_TIME (0x3<<6)
-#define IS_PRGRS_TIME(x)   (((sg->progress[0]) & (0x3<<6)) == (x)<<6)
+#define IS_PRGRS_TIME(x)   ($((sg->progress[0]) & (0x3<<6)) == (x)<<6)
 #define SET_PRGRS_TIME(x)  (sg->progress[0] = (sg->progress[0] & 0x3F) | (x)<<6)
 
 // 68 bytes

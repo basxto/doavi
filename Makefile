@@ -20,7 +20,13 @@ bin2c=$(DEV)/bin2c.sh
 c2h=$(DEV)/c2h.sh
 convert?=convert
 
+NOPEEP?=0
+
+ifeq ($(NOPEEP),1)
+CFLAGS += -Wf--no-peep
+else
 CFLAGS += -Wf"--peep-file$(abspath $(DEV))/gbz80-ph/peep-rules.txt"
+endif
 
 COMPRESS?=1
 ROMDEBUG?=0

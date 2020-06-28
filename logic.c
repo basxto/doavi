@@ -274,7 +274,7 @@ void interact() {
                     dialog(text_stranded, text_t0, 7);
                 }else{
                     if(IS_PRGRS_TIME(0)){
-                        SET_PRGRS_TIME(2);
+                        SET_PRGRS_TIME(1);
                         dialog(text_the_past, text_t1, 7);
                     }else{
                         SET_PRGRS_TIME(0);

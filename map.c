@@ -125,16 +125,6 @@ void load_map(const UINT8 background[]) {
     UINT8 palette;
     unsigned char tiles[4];
 
-    // change map if time traveling
-    if(IS_PRGRS_TIME(1)){
-        if(sg->level_y == 0 && sg->level_x == 0)
-            sg->level_x = 6;
-    }
-    if(IS_PRGRS_TIME(2)){
-        if(sg->level_y == 1 && sg->level_x == 4)
-            sg->level_x = 6;
-    }
-
     background_shifted = !background_shifted;
     if (sg->level_y == 4) {//0b0100
         next_map = overworld_b_gbc_map;
@@ -199,7 +189,7 @@ void load_map(const UINT8 background[]) {
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
         }
     }
-    // change map back
+    // change map back when time jumping
     if(sg->level_x == 6){
         if(sg->level_y == 0)
             sg->level_x = 0;

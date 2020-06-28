@@ -46,6 +46,48 @@ Saveslots *sl = (Saveslots *)0xa000;
 Savegame *sg;
 Savegame sgemu;
 
+void init_save() {
+    sg->level_x = 1;
+    sg->level_y = 4;
+    memcpy(sg->name, "candyhead", 10);
+    sg->character[0].x = 4;
+    sg->character[0].y = 4;
+    sg->character[0].sprite = 0;
+    sg->character[0].direction = 0;
+    sg->character[0].palette = (2<<4)|2;
+    sg->character[0].offset_x = 0;
+    sg->character[0].offset_y = 0;
+
+    for(UINT8 i = 0; i < 5; ++i){
+        sg->character[i].sprite_index = (i*4);
+    }
+
+    sg->lives = 5;
+    sg->tpaper = 0;
+
+    sg->chest = 0;
+    sg->flame = 0;
+    sg->progress[0] = sg->progress[1] = 0;
+}
+
+void load_menu() {
+    smart_write(0, 0, 20, 18, text_load_title);
+    UINT8 save = smart_write(0, 4, 5, 18, text_load_select) - 1;
+    sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (save*sizeof(Savegame)));
+    //delay(100);
+    if((sl->slots & (0x1<<save)) == 0){ // new save
+        init_save();
+        sl->slots |= (0x1<<save);
+    }else{ // existing one
+        UINT8 ret = smart_write(0, 0, 20, 18, text_load_choice);
+        if(ret == 2){
+            init_save();
+            sl->slots |= (0x1<<save);
+        }
+    }
+    change_level();
+}
+
 void menu() {
     move_win(7, 0);
     HIDE_SPRITES;
@@ -56,6 +98,9 @@ void menu() {
         smart_write(0, 0, 20, 18, text_credits);
         waitpad_any(J_A);
         delay(100);
+        break;
+    case 4:
+        load_menu();
         break;
     }
     draw_hud(sg->lives, sg->tpaper);
@@ -289,39 +334,10 @@ void main() {
         sl->magic = 'V';
         sl->slots = 0x0;
     }
-    if ((sl->slots & 0x1) == 0) {
-        sg->level_x = 1;
-        sg->level_y = 4;
-        memcpy(sg->name, "candyhead1", 10);
-        sg->character[0].x = 4;
-        sg->character[0].y = 4;
-        sg->character[0].sprite = 0;
-        sg->character[0].direction = 0;
-        sg->character[0].palette = (2<<4)|2;
-        sg->character[0].offset_x = 0;
-        sg->character[0].offset_y = 0;
-
-        for(UINT8 i = 0; i < 5; ++i){
-            sg->character[i].sprite_index = (i*4);
-        }
-
-        sg->lives = 5;
-        sg->tpaper = 0;
-
-        sg->chest = 0;
-        sg->flame = 0;
-        sg->progress[0] = sg->progress[1] = 0;
-
-        sl->slots |= 0x1<<0;
-    }
+    DISABLE_RAM_MBC1;
     counter = 0;
     init_screen();
     init_hud();
-
-    //init_music(&the_journey_begins);
-    //init_music(&cosmicgem_voadi);
-
-    change_level();
 
     SHOW_BKG;
     SHOW_WIN;
@@ -354,6 +370,9 @@ void main() {
     smart_write(0, 0, 20, 18, text_intro);
     waitpad_any(J_A | J_START);
     delay(100);
+    ENABLE_RAM_MBC1;
+    current_map = 0x0;
+    load_menu();
     init_hud();
     draw_hud(sg->lives, sg->tpaper);
 

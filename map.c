@@ -233,7 +233,7 @@ void load_map(const UINT8 background[]) {
         }
     } else {
         if(current_map != overworld_a_gbc_map){
-            if(current_map == overworld_b_gbc_map)
+            if(current_map == overworld_b_gbc_map || current_map == 0)
                 init_music(&the_journey_begins);
             current_map = overworld_a_gbc_map;
             loaded_map = overworld_a_gbc_map;

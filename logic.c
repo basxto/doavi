@@ -157,7 +157,7 @@ void interact() {
             sg->progress[0] |= PRGRS_BTL;
         }
     }
-    //if(current_map == inside_wood_house_map) {
+    if(current_map == inside_wood_house_map) {
         // cabinet
         if (tile == 11) {
             dialog(text_empty_cabinet, text_narrator, 0);
@@ -178,8 +178,8 @@ void interact() {
         if (tile == 8) {
             dialog(text_na_barrel, text_narrator, 0);
         }
-    //}
-    //if(current_map == overworld_a_gbc_map) {
+    }
+    if(current_map == overworld_a_gbc_map) {
         // grave
         if (tile == 26) {
             if(x == 5 && y == 2 && (sg->progress[0] & PRGRS_GHOST) == 0){
@@ -205,7 +205,7 @@ void interact() {
             dialog(text_dialog4, text_flame, 3);
             // reset();
         }
-    //}
+    }
     if (current_map == overworld_a_gbc_map || current_map == overworld_b_gbc_map) {
         // chest
         if (tile == 32 || tile == 20) {

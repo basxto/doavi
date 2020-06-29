@@ -279,6 +279,51 @@ void load_map(const UINT8 background[]) {
         sg->character[1].palette = 1<<4 | 1;
 
         render_character(1);
+    } else if(IS_PRGRS_TIME(1)) {
+        if(sg->level_y == 5){
+            switch(sg->level_x){
+              case 0:
+                sg->character[1].x = 2;
+                sg->character[1].y = 3;
+                sg->character[1].sprite = 6;
+                sg->character[1].palette = 1<<4 | 1;
+                render_character(1);
+                break;
+              case 1:
+                sg->character[1].x = 3;
+                sg->character[1].y = 5;
+                sg->character[1].sprite = 10;
+                sg->character[1].palette = 1<<4 | 1;
+                render_character(1);
+                break;
+              case 2:
+                sg->character[1].x = 4;
+                sg->character[1].y = 3;
+                sg->character[1].sprite = 1;
+                sg->character[1].palette = 1<<4 | 1;
+                render_character(1);
+                break;
+              case 3:
+                sg->character[1].x = 7;
+                sg->character[1].y = 6;
+                sg->character[1].sprite = 9;
+                sg->character[1].palette = 1<<4 | 1;
+                render_character(1);
+                sg->character[2].x = 6;
+                sg->character[2].y = 4;
+                sg->character[2].sprite = 5;
+                sg->character[2].direction += 2;
+                sg->character[2].palette = 1<<4 | 1;
+                render_character(2);
+                break;
+            }
+        }else if(sg->level_x == 3 && sg->level_y == 1){
+            sg->character[1].x = 4;
+            sg->character[1].y = 3;
+            sg->character[1].sprite = 8;
+            sg->character[1].palette = 1<<4 | 1;
+            render_character(1);
+        }
     }
 
     if(background_shifted == 0){

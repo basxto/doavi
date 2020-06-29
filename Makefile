@@ -3,9 +3,9 @@ BIN=$(DEV)/gbdk-n/bin
 
 # globally installed
 # use --sdccbin= for a custom sdcc
-LCC?=lcc -Wa-l -Wl-m -Wl-j
+LCC?=lcc -Wa-l
 # 0x0143 is gameboy mode
-MKROM?=$(LCC) -Wl-yp0x0143=0x80 -Wl'-yn="DESSERTONAVEGI"'
+MKROM?=$(LCC) -Wl-m -Wl-j -Wl-yp0x0143=0x80
 CA=$(LCC) -c
 EMU?=sameboy
 pngconvert?=$(DEV)/png2gb/png2gb.py -ci
@@ -59,13 +59,10 @@ ROM=doavi.gb
 build: $(ROM)
 
 $(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
-	$(MKROM) -o $@ $^
+	$(MKROM) -Wl'-yn="DESSERTONAVEGI"' -o $@ $^
 
 run: $(ROM)
 	$(EMU) $^
-
-playmusic:
-	$(MAKE) -C $(DEV)/gbdk-music playmusic DEV="../" EMU="$(EMU)"
 
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
@@ -87,8 +84,10 @@ $(DEV)/png2gb/%: FORCE
 
 strings.rel: strings.c
 	$(CC) $(BANK) -o $@ $^
+
 level.rel: level.c
 	$(CC) $(BANK) -o $@ $^
+
 music/songs.rel: music/songs.c
 	$(CC) $(BANK) -o $@ $^
 
@@ -125,16 +124,6 @@ pix/modular_characters.2bpp : pix/body_gbc.png  pix/body_ghost_gbc.png $(addpref
 
 pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
-
-pix/win_gbc_data.c: pix/win_gbc_rle.xbpp pix/squont8ng.1bpp pix/win_gbc.2bpp
-	size=$$(stat --printf="%s" $<);\
-	tiles=$$(stat --printf="%s" pix/squont8ng.1bpp);\
-	tiles=$$((tiles*2 + $$(stat --printf="%s"  pix/win_gbc.2bpp)));\
-	tiles=$$((tiles/16));\
-	dev/bin2c.sh $< $@ "imagemagick, rgbgfx and png2gb" $$tiles $$size
-
-pix/win_gbc_rle.xbpp: pix/win_gbc_rle.2bpp pix/squont8ng_rle.1bpp
-	cat $^ > $@
 
 pix/win_gbc.2bpp: pix/win_gbc.png pix/squont8ng_gbc.png
 	$(pngconvert) -cno -u yes $^ -o $@
@@ -196,12 +185,6 @@ endif
 strings.c strings.h: strings.ini stringmap.txt specialchars.txt
 	$(DEV)/ini2c.py $^ -o $@
 
-%_rle.2bpp: %.2bpp
-	dev/png2gb/compress2bpp.py $^ -o $@
-
-%_rle.1bpp: %.1bpp
-	dev/png2gb/compress2bpp.py -mono $^ -o $@
-
 %.2bpp %.tilemap: %.png
 	$(pngconvert) -cno $< -o $@
 
@@ -229,9 +212,6 @@ strings.c strings.h: strings.ini stringmap.txt specialchars.txt
 %_mono.png: %_gbc.png
 	$(convert) $^ -monochrome $@
 
-gbdk-n:
-	$(MAKE) -C $(DEV)/gbdk-n
-
 clean:
 	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
 	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
@@ -239,9 +219,6 @@ clean:
 	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
 	$(MAKE) -C $(DEV)/gbdk-music clean
 	$(MAKE) -C $(DEV)/png2gb clean
-
-base64:
-	base64 $(ROM) | xclip -selection clipboard
 
 gbonline:  $(ROM) $(DEV)/GameBoy-Online/
 	$(DEV)/patch-gbonline.sh $< $(DEV)/GameBoy-Online/
@@ -260,31 +237,6 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 %.zip: $(DEV)/GameBoy-Online/index.html
 	cd $(DEV)/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
 	mv $(DEV)/GameBoy-Online/$@ .
-
-wordcount:
-	wc -m main.c
-
-rompng:
-	$(DEV)/gb2png/gb2png.py doavi.gb --byteoffset 15
-
-### tests for building banks
-pix/overworld_a_test_gbc_data.c: pix/overworld_a_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ -o pix/overworld_a_test_gbc
-
-pix/overworld_b_test_gbc_data.c: pix/overworld_b_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ -o pix/overworld_b_test_gbc
-
-banking.gb: banking.ihx
-	$(MKROM) $< $@
-
-banking.bank: banking.gb
-	dd skip=`printf "%d" 0x3FFF` count=`printf "%d" 0x4000` if=$^ of=$@ bs=1
-
-bigrom.gb: $(ROM) banking.bank
-	cat $^ > $@
-
-runbigrom: bigrom.gb
-	$(EMU) $^
 
 .PHONY: spaceleft
 spaceleft: $(ROM)

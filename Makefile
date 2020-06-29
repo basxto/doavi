@@ -116,10 +116,10 @@ pix/dialog_photos_data.c: pix/dialog_photos.png
 pix/dialog_photos_%.2bpp: pix/dialog_photos_%.png
 	$(pngconvert) -cno --width 4 --height 4 -u yes $< -o $@
 
-pix/modular_characters_data.c : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
+pix/modular_characters_data.c : pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
 	$(pngconvert) -flip $^ -o $@
 
-pix/modular_characters.2bpp : pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
+pix/modular_characters.2bpp : pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel))
 	$(pngconvert) -cno -flip $^ -o $@
 
 pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png

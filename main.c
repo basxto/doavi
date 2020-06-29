@@ -223,7 +223,7 @@ void render_character(const UINT8 index) {
         // shifted to top by 2px to look like standing on the tile
         UINT8 y = ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y - $(2);
         UINT8 mapping;
-        UINT8 base = (10*8) + (chrctr->sprite*19) + ((chrctr->direction&0x03)*4);
+        UINT8 base = (10*8) - 7 + (chrctr->sprite*19) + ((chrctr->direction&0x03)*4);
         UINT8 palette = chrctr->palette&0x0F;
         for(UINT8 i = 0; i < 2; ++i){
             mapping = modular_characters_map[base];

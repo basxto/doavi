@@ -118,11 +118,11 @@ void screen_wobble() {
     scanline_offsets = &scanline_wobble[0];
 
     set_interrupts(VBL_IFLAG | TIM_IFLAG | LCD_IFLAG);
-    for(UINT8 i = 0; i < 40; ++i){
+    for(UINT8 i = 40; i > 0; --i){
         wait_vbl_done();
         wait_vbl_done();
         wait_vbl_done();
-        scanline_offsets = &scanline_wobble[(++scanline_ly_offset)%8];
+        scanline_offsets = &scanline_wobble[$(++scanline_ly_offset)%8];
     }
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
     SCX_REG = 8;

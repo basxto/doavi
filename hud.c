@@ -177,12 +177,9 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
         length = 2;
     }
     buffer[buffer_length-1] = '\0';
-    //put two numbers into buffer (right to left)
-    for(UINT8 i = buffer_length-2; i > buffer_length-5; --i){
-        buffer[i] = specialchar_4 + (num % $(16));
-        num /= $(16);
-    }
-    write_line(x, y, length, (buffer + buffer_length) - length);
+    buffer[buffer_length-2] = num & 0xf;
+    buffer[buffer_length-3] = num >> 4;
+    write_line(x, y, length, (buffer + buffer_length - 1) - length);
 }
 
 // maximum length is 3 since maximum UINT8 is 255
@@ -196,7 +193,7 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
         buffer[i] = specialchar_4 + (num % $(10));
         num /= $(10);
     }
-    write_line(x, y, length, (buffer + buffer_length) - length);
+    write_line(x, y, length, (buffer + buffer_length - 1) - length);
 }
 
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {

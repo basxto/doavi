@@ -264,6 +264,13 @@ void interact() {
     }
     // if we have a match
     if(i != 0){
+        // turn to main character
+        UINT8 stance = sg->character[i].direction/4;
+        // mirror direction
+        UINT8 direction = $(sg->character[0].direction + 2)%4;
+        sg->character[i].direction = stance + direction;
+        render_character(i);
+        // talk
         if(sg->level_y == 0){
             // ghost
             if(sg->level_x == 0){

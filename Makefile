@@ -48,7 +48,7 @@ endif
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))

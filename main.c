@@ -291,19 +291,14 @@ UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
     }
     //write_num(12, 1, 3, tile);
     if (is_free((chrctr->x + x),(chrctr->y + y)) != 0) {
-        for (int i = 4; i != 0; --i) {
-            chrctr->offset_x += x * $(4);
-            chrctr->offset_y += y * $(4);
-            // a little jump in the walk
-            wait_vbl_done();
-            render_character(index);
-        }
-        chrctr->offset_x = 0;
-        chrctr->offset_y = 0;
+        chrctr->offset_x = x * $(-16);
+        chrctr->offset_y = y * $(-16);
         chrctr->x += x;
         chrctr->y += y;
-        wait_vbl_done();
         render_character(index);
+        while(chrctr->offset_x != 0 || chrctr->offset_y != 0){
+            wait_vbl_done();
+        }
         return 0;
     } else {
         blinger(0x00 | note_d, 4, 0x00, 0, 0x00 | note_a);
@@ -353,6 +348,47 @@ void vblank_isr(){
         }
         ++anim_counter;
         anim_counter %= ANIM_WIDTH;
+    }
+    if ((counter % $(4)) == 0){
+
+        // move characters
+        for(UINT8 i = 0; i < 5; ++i){
+            _Bool changed = 0;
+            Character *chrctr = &sg->character[i];
+            // move character
+            if(chrctr->offset_x > 0){
+                chrctr->offset_x -= 4;
+                changed = 1;
+            }
+            if(chrctr->offset_x < 0){
+                chrctr->offset_x += 4;
+                changed = 1;
+            }
+            if(chrctr->offset_y > 0){
+                chrctr->offset_y -= 4;
+                changed = 1;
+            }
+            if(chrctr->offset_y < 0){
+                chrctr->offset_y += 4;
+                changed = 1;
+            }
+
+            // pretty much a short version of render_character
+            // only render position
+            if(changed && chrctr->sprite != 0xFF){
+                UINT8 index = chrctr->sprite_index-1;
+                UINT8 x = $(8) + (chrctr->x) * $(16) + chrctr->offset_x;
+                UINT8 y = ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y - $(2);
+                move_sprite(++index, x, y);
+                x+=8;
+                move_sprite(++index, x, y);
+                x-=8;
+                y+=8;
+                move_sprite(++index, x, y);
+                x+=8;
+                move_sprite(++index, x, y);
+            }
+        }
     }
     counter %= $(32);
 }
@@ -424,34 +460,28 @@ void main() {
             sg->character[0].direction = 3;
             if (move_player(1, 0) == 1)
                 render_character(0);
-            delay(100);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
             sg->character[0].direction = 1;
             if (move_player(-1, 0) == 1)
                 render_character(0);
-            delay(100);
             break;
         case J_UP: // If joypad() is equal to UP
             sg->character[0].direction = 2;
             if (move_player(0, -1) == 1)
                 render_character(0);
-            delay(100);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
             sg->character[0].direction = 0;
             if (move_player(0, 1) == 1)
                 render_character(0);
-            delay(100);
             break;
         case J_A: // If joypad() is equal to DOWN
             interact();
-            delay(100);
             break;
         // for bank testing
         case J_START:
             menu();
-            delay(100);
         default:
             break;
         }

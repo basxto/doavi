@@ -73,13 +73,17 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     UINT8 max = 0;
     UINT8 choices = 0;
     UINT8 firstchoice = y;
+    // string return pointer
+    char *str_ret = 0;
+    // string pointer
+    char *str_ptr = str;
     space_area(x, y, width, height);
     while(run){
         // detect choices
         if(start == 0 && str[start] == specialchar_2){
             if(choices++ == 0)
                 firstchoice = tmp_y;
-            buffer[buffer_length - 1] = ' ';
+            buffer[buffer_length - 1] = specialchar_1;
             write_line(x + start, tmp_y, 1, buffer + (buffer_length - 1));
             start += 1;
         }
@@ -87,29 +91,38 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         max = start + 16;
         if(width < max)
             max = width;
-        for(; end < max; ++end)
+        for(; end < max; ++end){
             //get to that next round
             //end of this line
-            if(str[end] == specialchar_nl || str[end] == '\0')
+            if(str_ptr[end] == specialchar_nl || str_ptr[end] == '\0'){
+                buffer[end-start] = '\0';
                 break;
+            }
+            buffer[end-start] = str_ptr[end];
+        }
 
-        write_line(x + start, tmp_y, (end-start), str + start);
+        write_line(x + start, tmp_y, (end-start), buffer);
         start = end;
 
-        if(str[start] == '\0'){
-            run = 0;
+        if(str_ptr[start] == '\0'){
+            if(str_ret != 0){
+                str_ptr = str_ret;
+                str_ret = 0;
+            }else{
+                run = 0;
+            }
         } else {
-            if(str[start] == specialchar_nl)
+            if(str_ptr[start] == specialchar_nl)
                 ++start;//skip
-            str += start;
+            str_ptr += start;
             start = 0;
             end = 0;
             tmp_y += 1;
         }
         if(tmp_y >= y+height){
             // if it reached the width, we overwite the last letter
-            if(str[start-1] != specialchar_nl){
-                --str;
+            if(str_ptr[start-1] != specialchar_nl){
+                --str_ptr;
             }
             buffer[0] = specialchar_3;
             buffer[buffer_length - 1] = specialchar_3;

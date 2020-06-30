@@ -81,9 +81,16 @@ def main():
     h.write("extern const unsigned char *text;\n")
     for key in texts:
         compressed = texts[key]
-        length = len(compressed)//4 + 1 # \x00 is four characters
-        c.write('const unsigned char text_{0}[{2}] = "{1}";\n'.format(key, compressed, length))
-        h.write('extern const unsigned char text_{0}[{1}];\n'.format(key, length))
+        length = len(compressed)//4 + 1 # \x00 is four
+        # remove strings that are wholly contained in the dictionary
+        if length > 2:
+            c.write('const unsigned char text_{0}[{2}] = "{1}";\n'.format(key, compressed, length))
+            h.write('extern const unsigned char text_{0}[{1}];\n'.format(key, length))
+        else:
+            offset = int("0x"+compressed[-2:], base=16) & 0x7F
+            c.write('#define text_{0} (text+0x{1:02X})\n'.format(key, offset))
+            h.write('#define text_{0} (text+0x{1:02X})\n'.format(key, offset))
+
     h.write("\n#endif")
     h.close()
     c.close()

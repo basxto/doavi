@@ -67,7 +67,7 @@ void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 hei
 // \1 is new line
 UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, char *str){
     UINT8 start = 0;
-    UINT8 end = 0;
+    UINT8 length;
     UINT8 run = 1;
     UINT8 tmp_y = y;
     UINT8 max = 0;
@@ -80,31 +80,33 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     space_area(x, y, width, height);
     while(run){
         // detect choices
-        if(start == 0 && str[start] == specialchar_2){
+        if(start == 0 && *str_ptr == specialchar_2){
             if(choices++ == 0)
                 firstchoice = tmp_y;
             buffer[buffer_length - 1] = specialchar_1;
             write_line(x + start, tmp_y, 1, buffer + (buffer_length - 1));
             start += 1;
+            str_ptr += 1;
         }
         // regular stuff
-        max = start + 16;
-        if(width < max)
-            max = width;
-        for(; end < max; ++end){
+        max = 16;
+        if(width < start+max)
+            max = width-start;
+        for(length = 0; length < max; ++length){
             //get to that next round
             //end of this line
-            if(str_ptr[end] == specialchar_nl || str_ptr[end] == '\0'){
-                buffer[end-start] = '\0';
+            if(*str_ptr == specialchar_nl || *str_ptr == '\0'){
+                buffer[length] = '\0';
                 break;
             }
-            buffer[end-start] = str_ptr[end];
+            buffer[length] = *str_ptr;
+            ++str_ptr;
         }
 
-        write_line(x + start, tmp_y, (end-start), buffer);
-        start = end;
+        write_line(x + start, tmp_y, length, buffer);
+        start += length;
 
-        if(str_ptr[start] == '\0'){
+        if(*str_ptr == '\0'){
             if(str_ret != 0){
                 str_ptr = str_ret;
                 str_ret = 0;
@@ -112,16 +114,14 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
                 run = 0;
             }
         } else {
-            if(str_ptr[start] == specialchar_nl)
-                ++start;//skip
-            str_ptr += start;
+            if(*str_ptr == specialchar_nl)
+                ++str_ptr;
             start = 0;
-            end = 0;
             tmp_y += 1;
         }
         if(tmp_y >= y+height){
             // if it reached the width, we overwite the last letter
-            if(str_ptr[start-1] != specialchar_nl){
+            if(*(str_ptr-1) != specialchar_nl){
                 --str_ptr;
             }
             buffer[0] = specialchar_3;

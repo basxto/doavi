@@ -93,6 +93,16 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         if(width < start+max)
             max = width-start;
         for(length = 0; length < max; ++length){
+            // detect jump command
+            if((*str_ptr & 0x80) != 0){
+                if(str_ret == 0){
+                    // set it to next char
+                    str_ret = str_ptr+1;
+                }
+                UINT8 offset = *str_ptr & 0x7F;
+                // jump to dictionary entry
+                str_ptr = text + offset;
+            }
             //get to that next round
             //end of this line
             if(*str_ptr == specialchar_nl || *str_ptr == '\0'){
@@ -107,6 +117,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         start += length;
 
         if(*str_ptr == '\0'){
+            // dictionary entries return with \0
             if(str_ret != 0){
                 str_ptr = str_ret;
                 str_ret = 0;

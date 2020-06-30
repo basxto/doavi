@@ -26,13 +26,16 @@ def short2halfbyte(value, bytepart):
 def transform_value(v, byte, counter, cvalues, bytepart):
     value = 0
     # long grass in 4er blocks
-    if counter >= 4 and byte == 2:
+    if counter >= 4:
         amount = math.floor(counter/4)
         for i in range(0, amount):
-            cvalues += long2byte(0xC0 | 0, bytepart)
+            cvalues += long2byte(0xC0 | (byte-2), bytepart)
         # let the tail half do the rest
         counter -= amount * 4
-        value = 0x0 | 0
+        if byte == 2:
+            value = 0x0 | (byte-2)
+        else:
+            value = 0x80 | (byte)
         byte = v
     # short notation grass tiles
     elif byte >= 2 and byte <= 6:
@@ -74,7 +77,7 @@ def compress(values):
             counter+=1
         else:
             value, byte, counter, cvalues = transform_value(v, byte, counter, cvalues, bytepart)
-            
+
             for i in range(0, counter):
                 # byte
                 if value > 7:
@@ -85,10 +88,10 @@ def compress(values):
                     bytepart = (bytepart + 1) % 2
             # reset counter
             counter = 1
-    
+
     # handle the last byte
     value, byte, counter, cvalues = transform_value(-1, byte, counter, cvalues, bytepart)
-    
+
     for i in range(0, counter):
         # byte
         if value > 7:
@@ -97,7 +100,7 @@ def compress(values):
         else:
             cvalues += short2halfbyte(value, bytepart)
             bytepart = (bytepart + 1) % 2
-    
+
     # add missing half byte
     if bytepart == 1:
         cvalues += "0"
@@ -178,5 +181,5 @@ for filename in args.tmx:
                 file.write('//{0} bytes\n'.format(len(values.split(','))))
                 if rom != -1:
                     rom += len(values.split(','))
-    file.close() 
+    file.close()
     print('File written to ' + cfilename)

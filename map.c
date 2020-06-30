@@ -64,12 +64,10 @@ const unsigned char * decompress(const UINT8 *compressed_map){
                 ++c;
             }else{
                 //special
-                decompressed_background[i] = 2;
-                // 4x grass
-                if(lo == 0 && hi == 0xC){
-                    counter = 3;
-                    byte = 2;
-                }
+                // treat all as four times
+                byte = (((hi%4)<<4)|lo)+2;
+                decompressed_background[i] = byte;
+                counter = 3;
                 ++c;
             }
         }
@@ -253,8 +251,6 @@ void load_map(const UINT8 background[]) {
         sg->character[1].sprite = 2;
         sg->character[1].direction = 7<<2;//ghost bottom
         sg->character[1].palette = 3<<4 | 3;
-
-        render_character(1);
     }
     else if(sg->level_x == 4 && sg->level_y == 0){
         // spawn timetravel robot
@@ -267,9 +263,6 @@ void load_map(const UINT8 background[]) {
         sg->character[2].y = 6;
         sg->character[2].sprite = 3;
         sg->character[2].palette = 1<<4 | 1;
-
-        render_character(1);
-        render_character(2);
     }
     else if(sg->level_x == 4 && sg->level_y == 5){
         // spawn rachel
@@ -277,8 +270,6 @@ void load_map(const UINT8 background[]) {
         sg->character[1].y = 3;
         sg->character[1].sprite = 7;
         sg->character[1].palette = 1<<4 | 1;
-
-        render_character(1);
     } else if(IS_PRGRS_TIME(1)) {
         if(sg->level_y == 5){
             switch(sg->level_x){
@@ -287,34 +278,29 @@ void load_map(const UINT8 background[]) {
                 sg->character[1].y = 3;
                 sg->character[1].sprite = 6;
                 sg->character[1].palette = 1<<4 | 1;
-                render_character(1);
                 break;
               case 1:
                 sg->character[1].x = 3;
                 sg->character[1].y = 5;
                 sg->character[1].sprite = 10;
                 sg->character[1].palette = 1<<4 | 1;
-                render_character(1);
                 break;
               case 2:
                 sg->character[1].x = 4;
                 sg->character[1].y = 3;
                 sg->character[1].sprite = 1;
                 sg->character[1].palette = 1<<4 | 1;
-                render_character(1);
                 break;
               case 3:
                 sg->character[1].x = 7;
                 sg->character[1].y = 6;
                 sg->character[1].sprite = 9;
                 sg->character[1].palette = 1<<4 | 1;
-                render_character(1);
                 sg->character[2].x = 6;
                 sg->character[2].y = 4;
                 sg->character[2].sprite = 5;
                 sg->character[2].direction += 2;
                 sg->character[2].palette = 1<<4 | 1;
-                render_character(2);
                 break;
             }
         }else if(sg->level_x == 3 && sg->level_y == 1){
@@ -322,7 +308,6 @@ void load_map(const UINT8 background[]) {
             sg->character[1].y = 3;
             sg->character[1].sprite = 8;
             sg->character[1].palette = 1<<4 | 1;
-            render_character(1);
         }
     }
 
@@ -349,5 +334,7 @@ void load_map(const UINT8 background[]) {
     }
     // finally move character
     render_character(0);
+    render_character(1);
+    render_character(2);
     DISPLAY_ON;
 }

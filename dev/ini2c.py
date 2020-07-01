@@ -78,7 +78,7 @@ def main():
             h.write("#define specialchar_{0} '\\x{1:02X}'\n".format(next_index, stringmap[char]))
             next_index += 1
 
-    h.write("extern const unsigned char *text;\n")
+    h.write("extern const unsigned char text[{}];\n".format(len("\\x00".join(dictionary))//4+1))
     for key in texts:
         compressed = texts[key]
         length = len(compressed)//4 + 1 # \x00 is four

@@ -34,7 +34,7 @@ def main():
         args.output = '.'.join(args.output.split('.')[:-1])
 
     stringmap = {'\0': 0, '\n': 1}
-    dictionary = ["\\n▶ ", "(©人", "Load Game", "is empty", "You don’t", "welcome", "barrel", "box", "stranded", "bottle", "onim", "time", " ….", "pink", " want", "You ", "ever", "can’t", "this ", "Shekiro", "THE GOD OF FIRE"]
+    dictionary = ["u ", "©人", "is", "th", "em", "ty", "yo", "ar", "….", "on", "an", "ll", "is", "sx", "ed", "er", "d ", "ff", "bo", "tt", "le", "se", "'t", "me", "he", "so", "ev", "oo"]
     texts = {}
     next_index = 2
 
@@ -64,32 +64,28 @@ def main():
         texts[key] = compress_string(config['strings'][key])
 
     # replace from dictionary
+    # offset is in byte pairs
+    # compress with Digram Chain Encoding
     offset = 0
     for entry in dictionary:
         for key in texts:
             texts[key] = texts[key].replace(entry,"\\x{:02X}".format(0x80 | offset))
-        offset += len(entry)//4+1
+        offset += 1
 
     h.write("// Generated with ini2c.py\n#ifndef {0}_h\n#define {0}_h\n#define strlen(x) (sizeof(x) - 1)\n#define specialchar_nl '\\x01'\n".format(args.output))
-    c.write("// Generated with ini2c.py\n#define strlen(x) (sizeof(x) - 1)\nconst unsigned char text[{}] = \"{}\";\n".format(len("\\x00".join(dictionary))//4+1, "\\0".join(dictionary)))
+    c.write("// Generated with ini2c.py\n#define strlen(x) (sizeof(x) - 1)\nconst unsigned char text[{}] = \"{}\";\n".format(len("".join(dictionary))//4+1, "".join(dictionary)))
     with open(args.specialchars, 'r') as file:
         next_index = 1
         for char in file.read().replace('\n', ''):
             h.write("#define specialchar_{0} '\\x{1:02X}'\n".format(next_index, stringmap[char]))
             next_index += 1
 
-    h.write("extern const unsigned char text[{}];\n".format(len("\\x00".join(dictionary))//4+1))
+    h.write("extern const unsigned char text[{}];\n".format(len("".join(dictionary))//4+1))
     for key in texts:
         compressed = texts[key]
         length = len(compressed)//4 + 1 # \x00 is four
-        # remove strings that are wholly contained in the dictionary
-        if length > 2:
-            c.write('const unsigned char text_{0}[{2}] = "{1}";\n'.format(key, compressed, length))
-            h.write('extern const unsigned char text_{0}[{1}];\n'.format(key, length))
-        else:
-            offset = int("0x"+compressed[-2:], base=16) & 0x7F
-            c.write('#define text_{0} (text+0x{1:02X})\n'.format(key, offset))
-            h.write('#define text_{0} (text+0x{1:02X})\n'.format(key, offset))
+        c.write('const unsigned char text_{0}[{2}] = "{1}";\n'.format(key, compressed, length))
+        h.write('extern const unsigned char text_{0}[{1}];\n'.format(key, length))
 
     h.write("\n#endif")
     h.close()

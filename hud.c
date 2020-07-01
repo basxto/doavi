@@ -73,6 +73,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     UINT8 max = 0;
     UINT8 choices = 0;
     UINT8 firstchoice = y;
+    UINT8 jump_back = 0;
     // string return pointer
     char *str_ret = 0;
     // string pointer
@@ -99,9 +100,10 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
                     // set it to next char
                     str_ret = str_ptr+1;
                 }
-                UINT8 offset = *str_ptr & 0x7F;
+                UINT8 offset = (*str_ptr & 0x7F)*2;
                 // jump to dictionary entry
                 str_ptr = text + offset;
+                jump_back = 2;
             }
             //get to that next round
             //end of this line
@@ -111,19 +113,22 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
             }
             buffer[length] = *str_ptr;
             ++str_ptr;
+            // check if we have to return from dictionary
+            if(jump_back != 0){
+                --jump_back;
+                // actually jump back
+                if(jump_back == 0){
+                    str_ptr=str_ret;
+                    str_ret = 0;
+                }
+            }
         }
 
         write_line(x + start, tmp_y, length, buffer);
         start += length;
 
         if(*str_ptr == '\0'){
-            // dictionary entries return with \0
-            if(str_ret != 0){
-                str_ptr = str_ret;
-                str_ret = 0;
-            }else{
-                run = 0;
-            }
+            run = 0;
         } else {
             if(*str_ptr == specialchar_nl)
                 ++str_ptr;

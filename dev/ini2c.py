@@ -15,7 +15,10 @@ def compress_string(string):
 def decompress_string(string):
     tmp_string=""
     for i in range(0, len(string), 4):
-        tmp_string += stringmap_reverse[string[i:i+4]]
+        if int("0"+string[i+1:i+4], 16) < 0x80:
+            tmp_string += stringmap_reverse[string[i:i+4]]
+        else:
+            tmp_string += string[i:i+4]
     return tmp_string
 
 def most_used_pair(texts):
@@ -25,7 +28,7 @@ def most_used_pair(texts):
         chr1 = int("0"+texts[pos+1:pos+4], 16)
         chr2 = int("0"+texts[pos+5:pos+8], 16)
         # \n and ▶ must be avoided for now
-        if chr1 > 1 and chr1 < 0x80 and chr2 > 1 and chr2 < 0x80 and chr1 != stringmap['▶'] and chr2 != stringmap['▶']:
+        if chr1 > 1 and chr1 < 0x80 and chr2 > 1 and chr1 != stringmap['▶'] and chr2 != stringmap['▶']:
             pair = "\\x{:02X}\\x{:02X}".format(chr1, chr2)
             if pair in byte_pairs:
                 byte_pairs[pair] += 1
@@ -34,9 +37,9 @@ def most_used_pair(texts):
     # sort dictionary by value
     byte_pairs = {k: v for k, v in sorted(byte_pairs.items(), key=lambda pair: pair[1], reverse=True)}
     most_used = next(iter(byte_pairs))
-    #print("'{}': {}".format(decompress_string(most_used), byte_pairs[most_used]))
+    # print("'{}': {}".format(decompress_string(most_used), byte_pairs[most_used]))
     # it must be used more than once
-    if byte_pairs[most_used] == 1:
+    if byte_pairs[most_used] < 3:
         return ''
     return most_used
 

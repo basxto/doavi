@@ -5,16 +5,9 @@ import configparser
 
 def compress_string(string):
     tmp_string=""
-    escape = False
     for char in string:
-        if escape and char == 'n':
-            char = '\n'
-            escape = False
-        if char != '\\' or escape:
-            tmp_string += "\\x{:02X}".format(stringmap[char])
-            escape = False
-        else:
-            escape = True
+        tmp_string += "\\x{:02X}".format(stringmap[char])
+        escape = False
     return tmp_string
 
 def main():
@@ -61,7 +54,7 @@ def main():
 
     # get all strings
     for key in config['strings']:
-        texts[key] = compress_string(config['strings'][key])
+        texts[key] = compress_string(config['strings'][key].replace("\\n", "\n"))
 
     # replace from dictionary
     # offset is in byte pairs

@@ -34,7 +34,7 @@ def main():
         args.output = '.'.join(args.output.split('.')[:-1])
 
     stringmap = {'\0': 0, '\n': 1}
-    dictionary = ["u ", "©人", "is", "th", "em", "ty", "yo", "ar", "….", "on", "an", "ll", "is", "sx", "ed", "er", "d ", "ff", "bo", "tt", "le", "se", "'t", "me", "he", "so", "ev", "oo"]
+    dictionary = ["u ", "©人", "is", "th", "em", "ty", "yo", "ar", "….", "on", "an", "ll", "is", "sx", "ed", "er", "d ", "ff", "bo", "tt", "le", "se", "'t", "me", "he", "so", "ev", "oo", "en", "ti", "ck", "re", "nt", "id", "li", "gh", "of", "sh", "st", "be"]
     texts = {}
     next_index = 2
 

@@ -7,11 +7,36 @@ def compress_string(string):
     tmp_string=""
     for char in string:
         tmp_string += "\\x{:02X}".format(stringmap[char])
-        escape = False
     return tmp_string
+
+# for debugging
+def decompress_string(string):
+    tmp_string=""
+    for i in range(0, len(string), 4):
+        tmp_string += stringmap_reverse[string[i:i+4]]
+    return tmp_string
+
+def most_used_pair(texts):
+    byte_pairs = {}
+    for pos in range(0, len(texts)-4, 4):
+        # convert \x?? to hex
+        chr1 = int("0"+texts[pos+1:pos+4], 16)
+        chr2 = int("0"+texts[pos+5:pos+8], 16)
+        if chr1 > 1 and chr1 < 0x80 and chr2 > 1 and chr2 < 0x80:
+            pair = "\\x{:02X}\\x{:02X}".format(chr1, chr2)
+            if pair in byte_pairs:
+                byte_pairs[pair] += 1
+            else:
+                byte_pairs[pair] = 1
+    # sort dictionary by value
+    byte_pairs = {k: v for k, v in sorted(byte_pairs.items(), key=lambda pair: pair[1], reverse=True)}
+    most_used = next(iter(byte_pairs))
+    #print("'{}': {}".format(decompress_string(most_used), byte_pairs[most_used]))
+    return most_used
 
 def main():
     global stringmap
+    global stringmap_reverse
     global dictionary
     parser = argparse.ArgumentParser()
     parser.add_argument('strings', metavar='strings.ini', help='Ini file with strings')
@@ -27,6 +52,7 @@ def main():
         args.output = '.'.join(args.output.split('.')[:-1])
 
     stringmap = {'\0': 0, '\n': 1}
+    stringmap_reverse = {'\\x00': '\\0', '\\x01': '\\n'}
     dictionary = ["u ", "©人", "is", "th", "em", "ty", "yo", "ar", "….", "on", "an", "ll", "is", "sx", "ed", "er", "d ", "ff", "bo", "tt", "le", "se", "'t", "me", "he", "so", "ev", "oo", "en", "ti", "ck", "re", "nt", "id", "li", "gh", "of", "sh", "st", "be"]
     texts = {}
     next_index = 2
@@ -34,6 +60,7 @@ def main():
     with open(args.stringmap, 'r') as file:
         for char in file.read().replace('\n', ''):
             stringmap[char] = next_index
+            stringmap_reverse["\\x{:02X}".format(next_index)] = char
             # add a few handy aliases
             if(not char.lower() in stringmap):
                 stringmap[char.lower()] = next_index
@@ -55,6 +82,10 @@ def main():
     # get all strings
     for key in config['strings']:
         texts[key] = compress_string(config['strings'][key].replace("\\n", "\n"))
+
+
+    most_used_pair("\\x00".join(texts.values()))
+
 
     # replace from dictionary
     # offset is in byte pairs

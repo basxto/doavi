@@ -242,6 +242,12 @@ void load_map(const UINT8 background[]) {
     if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
         incject_map(3, 4, 17);
     }
+    if (!(sg->chest & 1<<3) && sg->level_x == 2 && sg->level_y == 1) {
+        incject_map(2, 2, 17);
+    }
+    if (!(sg->chest & 1<<4) && sg->level_x == 2 && sg->level_y == 1) {
+        incject_map(3, 3, 29);
+    }
 
     // only show ghost in present
     if(IS_PRGRS_TIME(0) && IS_PRGRS_GHOST(1) && sg->level_x == 0 && sg->level_y == 0){

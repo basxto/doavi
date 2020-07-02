@@ -93,6 +93,7 @@ def main():
     # we can have 256 pairs in our dictionary
     offset = 0
     for i in range(0, 256):
+        # print("[0x{:02X}] ".format(0x80 | offset), end='')
         mup = most_used_pair("\\x00".join(texts.values()))
         if mup != '':
             dictionary.append(mup)

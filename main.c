@@ -64,6 +64,11 @@ void init_save() {
         sg->character[i].sprite_index = (i*4);
     }
 
+    for(UINT8 i = 0; i < 8; ++i){
+        sg->item[i] = 0;
+    }
+    sg->selected_item = 0;
+
     sg->lives = 5;
     sg->tpaper = 0;
 
@@ -208,6 +213,10 @@ void change_level() {
         render_character(i);
     }
     load_map(current_background);
+}
+
+UINT8 get_selected_item(){
+    return sg->item[sg->selected_item];
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always

@@ -213,10 +213,12 @@ void interact() {
             // since chests would be a different tile  otherwise
             _Bool update = 0;
             if(sg->level_x == 1 && sg->level_y == 0)
-                if (!(sg->chest & 0x1) && y == 2) {
-                    sg->chest |= 0x1;
-                    ++sg->tpaper;
-                    update = 1;
+                if(y == 2){
+                    if (!(sg->chest & 0x1)) {
+                        sg->chest |= 0x1;
+                        ++sg->tpaper;
+                        update = 1;
+                    }
                 }else if(!(sg->chest & 1<<1)){
                     sg->chest |= 1<<1;
                     ++sg->tpaper;
@@ -227,6 +229,19 @@ void interact() {
                 ++sg->tpaper;
                 update = 1;
             }
+            if(sg->level_x == 2 && sg->level_y == 1)
+                if(y == 2){
+                    if (!(sg->chest & 1<<3)) {
+                        sg->chest |= 1<<3;
+                        sg->item[0] = ITEM_SWORD;
+                        dialog(text_found_sword, text_narrator, 0);
+                        update = 1;
+                    }
+                }else if(!(sg->chest & 1<<4)){
+                    sg->chest |= 1<<4;
+                    ++sg->tpaper;
+                    update = 1;
+                }
             if(update){
                 incject_map(x, y, tile-2);
                 blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
@@ -234,25 +249,32 @@ void interact() {
         }
         // cut grass
         if (tile == 16) {
-            incject_map(x, y, 17-2);
-            incject_collision(x, y, FALSE);
-            current_background[(y * WIDTH) + x] = current_map[17-2];
+            if(get_selected_item() == ITEM_SWORD){
+                incject_map(x, y, 17-2);
+                incject_collision(x, y, FALSE);
+                current_background[(y * WIDTH) + x] = current_map[17-2];
+            } else
+                dialog(text_na_grass, text_narrator, 0);
+
         }
         // move stone
         if (tile == 27) {
-            if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
-                incject_map_palette(x, y, 2);
-                incject_map(x, y, (current_map == overworld_a_gbc_map? 20 : 2));
+            if(get_selected_item() == ITEM_POWER){
+                if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
+                    incject_map_palette(x, y, 2);
+                    incject_map(x, y, (current_map == overworld_a_gbc_map? 20 : 2));
 
-                incject_collision(x, y, FALSE);
-                current_background[(y * WIDTH) + x] = 2;
-                x += (x - sg->character[0].x);
-                y += (y - sg->character[0].y);
-                incject_map_palette(x, y, 3);
-                incject_map(x, y, 27-2);
-                incject_collision(x, y, TRUE);
-                current_background[(y * WIDTH) + x] = 27;
-            }
+                    incject_collision(x, y, FALSE);
+                    current_background[(y * WIDTH) + x] = 2;
+                    x += (x - sg->character[0].x);
+                    y += (y - sg->character[0].y);
+                    incject_map_palette(x, y, 3);
+                    incject_map(x, y, 27-2);
+                    incject_collision(x, y, TRUE);
+                    current_background[(y * WIDTH) + x] = 27;
+                }
+            } else
+                dialog(text_na_rock, text_narrator, 0);
         }
     }
     // we assume there can't be multiple characters at one place

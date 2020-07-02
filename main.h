@@ -50,6 +50,12 @@ typedef struct {
 #define IS_PRGRS_TIME(x)   ($((sg->progress[0]) & (0x3<<6)) == (x)<<6)
 #define SET_PRGRS_TIME(x)  (sg->progress[0] = (sg->progress[0] & 0x3F) | (x)<<6)
 
+#define ITEM_NOTHING    (0)
+#define ITEM_SWORD      (1)
+#define ITEM_POWER      (2)
+#define ITEM_FLINT      (3)
+#define ITEM_SHOVEL     (4)
+
 // 68 bytes
 typedef struct {
     char name[10];
@@ -60,7 +66,7 @@ typedef struct {
     //0 is player; rest are NPCs
     Character character[5];
     // allow player to have 8 items
-    UINT8 items[8];
+    UINT8 item[8];
     UINT8 selected_item;
     UINT8 chest; // 7
     UINT8 flame; // 8
@@ -89,6 +95,7 @@ void screen_wobble();
 void screen_shake();
 void init_screen();
 void change_level();
+UINT8 get_selected_item();
 // we not allow so many characters, maybe just give id?
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const UINT8 index);

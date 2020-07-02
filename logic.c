@@ -226,7 +226,8 @@ void interact() {
                 }
             if(!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0){
                 sg->chest |= 1<<2;
-                ++sg->tpaper;
+                sg->item[1] = ITEM_POWER;
+                dialog(text_found_power, text_narrator, 0);
                 update = 1;
             }
             if(sg->level_x == 2 && sg->level_y == 1)

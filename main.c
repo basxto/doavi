@@ -485,12 +485,17 @@ void main() {
             if (move_player(0, 1) == 1)
                 render_character(0);
             break;
-        case J_A: // If joypad() is equal to DOWN
+        case J_A:
             interact();
             break;
-        // for bank testing
+        case J_B:
+            if(++sg->selected_item >= 8)
+                sg->selected_item = 0;
+            draw_hud(sg->lives, sg->tpaper);
+            break;
         case J_START:
             menu();
+            break;
         default:
             break;
         }

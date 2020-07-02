@@ -12,6 +12,7 @@
 #define TRANSPARENT (RGB(12, 25, 0))
 
 #define CHARACTERS_START $(0)
+#define ITEMS_START $(128-4)
 #define SHEET_START $(128)
 // width in 16x16 blocks
 #define SHEET_WIDTH $(8)
@@ -54,7 +55,8 @@ typedef struct {
 #define ITEM_SWORD      (1)
 #define ITEM_POWER      (2)
 #define ITEM_FLINT      (3)
-#define ITEM_SHOVEL     (4)
+#define ITEM_KEY        (4)
+#define ITEM_SHOVEL     (5)
 
 // 68 bytes
 typedef struct {

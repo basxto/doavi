@@ -48,6 +48,11 @@ Saveslots *sl = (Saveslots *)0xa000;
 Savegame *sg;
 Savegame sgemu;
 
+void efficient_delay(UINT8 time){
+    for(; time != 0; --time)
+        wait_vbl_done();
+}
+
 void init_save() {
     sg->level_x = 1;
     sg->level_y = 4;
@@ -95,6 +100,17 @@ void load_menu() {
     change_level();
 }
 
+void item_menu(){
+    smart_write(0, 0, 20, 18, text_item_selection);
+    if(sg->item[0] != 0)
+        smart_write(5, 4, 16, 1, text_sword);
+    if(sg->item[1] != 0)
+        smart_write(5, 5, 16, 1, text_power);
+    UINT8 item = smart_write(0, 4, 5, 18, text_load_select) - 1;
+    if(item != 0)
+        sg->selected_item = item-1;
+}
+
 void menu() {
     move_win(7, 0);
     HIDE_SPRITES;
@@ -108,6 +124,9 @@ void menu() {
         break;
     case 4:
         load_menu();
+        break;
+    case 5:
+        item_menu();
         break;
     }
     draw_hud(sg->lives, sg->tpaper);
@@ -170,6 +189,7 @@ void init_screen() {
 
     // load tilesets
     pb16_unpack_win_data(WIN_START, win_gbc_data_length, decompressed_tileset, win_gbc_data);
+    pb16_unpack_sprite_data(ITEMS_START, items_gbc_data_length, decompressed_tileset, items_gbc_data);
     pb16_unpack_sprite_data(CHARACTERS_START, modular_characters_data_length, decompressed_tileset, modular_characters_data);
 
     VBK_REG = 1;
@@ -487,11 +507,13 @@ void main() {
             break;
         case J_A:
             interact();
+            efficient_delay(15);
             break;
         case J_B:
-            if(++sg->selected_item >= 8)
+            if(++sg->selected_item >= 4)
                 sg->selected_item = 0;
             draw_hud(sg->lives, sg->tpaper);
+            efficient_delay(15);
             break;
         case J_START:
             menu();

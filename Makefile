@@ -25,7 +25,7 @@ NOPEEP?=0
 ifeq ($(NOPEEP),1)
 CFLAGS += -Wf--no-peep
 else
-CFLAGS += -Wf"--peep-file$(abspath $(DEV))/gbz80-ph/peep-rules.txt"
+CFLAGS += -Wf"--peep-file$(abspath $(DEV))/gbz80-ph/combined-peeph.def"
 endif
 
 COMPRESS?=1
@@ -48,7 +48,7 @@ endif
 LEVELTMX=$(wildcard level/lvl_*.tmx)
 LEVEL=$(LEVELTMX:.tmx=_tmap.c)
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16))
+PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16 items_gbc_pb16))
 
 define calc_hex
 $(shell printf '0x%X' $$(($(1))))
@@ -56,7 +56,10 @@ endef
 
 ROM=doavi.gb
 
-build: $(ROM)
+build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM)
+
+$(DEV)/gbz80-ph/combined-peeph.def: FORCE
+	$(MAKE) -C $(DEV)/gbz80-ph/ combined-peeph.def
 
 $(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(MKROM) -Wl'-yn="DESSERTONAVEGI"' -o $@ $^
@@ -67,17 +70,17 @@ run: $(ROM)
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
 
-main.rel: main.c pix/pix.h strings.h
-	$(CC) -o $@ $<
+main.s: main.c pix/pix.h strings.h
+	$(CC) -Wf--fverbose-asm -S -o $@ $<
 
-logic.rel: logic.c level.h strings.h
-	$(CC) -o $@ $<
+logic.s: logic.c level.h strings.h
+	$(CC) -Wf--fverbose-asm -S -o $@ $<
 
-hud.rel: hud.c pix/pix.h
-	$(CC) -o $@ $<
+hud.s: hud.c pix/pix.h
+	$(CC) -Wf--fverbose-asm -S -o $@ $<
 
-map.rel: map.c pix/pix.h music/songs.h
-	$(CC) -o $@ $<
+map.s: map.c pix/pix.h music/songs.h
+	$(CC) -Wf--fverbose-asm -S -o $@ $<
 
 $(DEV)/png2gb/%: FORCE
 	$(MAKE) DEV=../ -C $(DEV)/png2gb $*
@@ -90,9 +93,6 @@ level.rel: level.c
 
 music/songs.rel: music/songs.c
 	$(CC) $(BANK) -o $@ $^
-
-%.rel: %.c
-	$(CC) -o $@ $^
 
 %.s: %.c
 	$(CC) -Wf--fverbose-asm -S -o $@ $^

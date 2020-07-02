@@ -8,6 +8,7 @@
 #define FONT_START $(16-2)
 #define PORTRAIT_START $(96)
 #define PORTRAIT_LENGTH $(16)
+#define ITEM_SPRITE $(24)
 
 void init_hud();
 // fill area with spaces

@@ -1,5 +1,6 @@
 #include <string.h>
 #include "hud.h"
+#include "main.h"
 #include "strings.h"
 #include "pix/pix.h"
 #include "dev/png2gb/csrc/decompress.h"
@@ -228,6 +229,7 @@ void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     UINT8 i;
     unsigned char tiles[2];
+    UINT8 item = get_selected_item();
     tiles[0] = WIN_START + 8;
     set_win_tiles(3, 1, 1, 1, tiles);
     tiles[0] = WIN_START + 7;
@@ -244,6 +246,9 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     }
     write_num(4, 1, 3, toiletpaper);
     move_win(7, 16 * 8);
+    move_sprite(ITEM_SPRITE, 12, 148);
+    set_sprite_prop(ITEM_SPRITE, 3);
+    set_sprite_tile(ITEM_SPRITE, ITEMS_START-1+item);
 }
 
 UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
@@ -293,6 +298,10 @@ UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
     //tiles[0] = 2 is already set
     // set portrait
     pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_data[portrait]);
+
+
+    // hide item
+    move_sprite(ITEM_SPRITE, 0, 0);
     // 2 or 3
     if($(portrait & 0x3) != 0){
         tiles[0] = portrait+1;

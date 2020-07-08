@@ -18,8 +18,8 @@
     "C_Cpp.default.intelliSenseMode": "gcc-x64",
     "shellcheck.useWorkspaceRootAsCwd": true,
     "C_Cpp.default.systemIncludePath" : [
-        "dev/gbdk-n/include/",
-        "dev/gbdk-n/include/asm/",
+        "/opt/gbdk-2020/include/",
+        "/opt/gbdk-2020/include/asm/",
         "/usr/share/sdcc/include/"
     ]
 

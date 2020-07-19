@@ -65,10 +65,10 @@ typedef struct {
     UINT8 level_y;
     UINT8 lives;
     UINT8 tpaper;
-    //0 is player; rest are NPCs
-    Character character[5];// we only need our main character
+    // character[0]:
     UINT8 x;
     UINT8 y;
+    UINT8 direction;
     // allow player to have 8 items
     UINT8 item[8];
     UINT8 selected_item;
@@ -99,6 +99,7 @@ extern UINT8 level_x;
 extern UINT8 level_y;
 extern UINT8 lives;
 extern UINT8 tpaper;
+//0 is player; rest are NPCs
 extern Character character[5];
 extern UINT8 item[8];
 extern UINT8 selected_item;

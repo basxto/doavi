@@ -65,27 +65,23 @@ void efficient_delay(UINT8 time){
 }
 
 void init_save() {
-    level_x = 1;
-    level_y = 4;
+    sg->level_x = 1;
+    sg->level_y = 4;
     //memcpy(sg->name, "candyhead", 10);
-    character[0].x = 4;
-    character[0].y = 4;
-
-    for(UINT8 i = 0; i < 5; ++i){
-        character[i].sprite_index = (i*4);
-    }
+    sg->x = 4;
+    sg->y = 4;
 
     for(UINT8 i = 0; i < 8; ++i){
-        item[i] = 0;
+        sg->item[i] = 0;
     }
-    selected_item = 0;
+    sg->selected_item = 0;
 
-    lives = 5;
-    tpaper = 0;
+    sg->lives = 5;
+    sg->tpaper = 0;
 
-    chest = 0;
-    flame = 0;
-    progress[0] = progress[1] = 0;
+    sg->chest = 0;
+    sg->flame = 0;
+    sg->progress[0] = sg->progress[1] = 0;
 }
 
 void load_menu() {
@@ -98,7 +94,9 @@ void load_menu() {
         init_save();
         sl->slots |= (0x1<<save);
     }else{ // existing one
+        DISABLE_RAM_MBC1;
         UINT8 ret = smart_write(0, 0, 20, 18, text_load_choice);
+        ENABLE_RAM_MBC1;
         if(ret == 2){
             init_save();
             sl->slots |= (0x1<<save);
@@ -243,7 +241,6 @@ void change_level() {
     }
     save_sg();
     load_map(current_background);
-    render_character(0);
 }
 
 UINT8 get_selected_item(){
@@ -446,6 +443,8 @@ void save_sg(){
     sg->progress[1] = progress[1];
     sg->x = character[0].x;
     sg->y = character[0].y;
+    sg->direction = character[0].direction;
+    memcpy(sg->item, item, 8);
     DISABLE_RAM_MBC1;
 }
 
@@ -462,7 +461,11 @@ void load_sg(){
     progress[1] = sg->progress[1];
     character[0].x = sg->x;
     character[0].y = sg->y;
+    character[0].direction = sg->direction;
+    memcpy(item, sg->item, 8);
     DISABLE_RAM_MBC1;
+    character[0].offset_x = 0;
+    character[0].offset_y = 0;
 }
 
 void main() {
@@ -471,10 +474,11 @@ void main() {
 
     // initialize main character
     character[0].sprite = 0;
-    character[0].direction = 0;
     character[0].palette = (2<<4)|2;
-    character[0].offset_x = 0;
-    character[0].offset_y = 0;
+    // initialize sprites for characters
+    for(UINT8 i = 0; i < 5; ++i){
+        character[i].sprite_index = (i*4);
+    }
     //sg = &sgemu;
     // load savegame
     ENABLE_RAM_MBC1;

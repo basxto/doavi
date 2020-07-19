@@ -58,6 +58,7 @@ UINT8 selected_item;
 UINT8 chest;
 UINT8 flame;
 UINT8 progress[2];
+_Bool cheat;
 
 void efficient_delay(UINT8 time){
     for(; time != 0; --time)
@@ -441,10 +442,13 @@ void save_sg(){
     sg->flame = flame;
     sg->progress[0] = progress[0];
     sg->progress[1] = progress[1];
+    sg->cheat = cheat;
     sg->x = character[0].x;
     sg->y = character[0].y;
     sg->direction = character[0].direction;
     memcpy(sg->item, item, 8);
+    if(cheat)
+        memcpy(sg->name, "cheathead", 10);
     DISABLE_RAM_MBC1;
 }
 
@@ -459,6 +463,7 @@ void load_sg(){
     flame = sg->flame;
     progress[0] = sg->progress[0];
     progress[1] = sg->progress[1];
+    cheat = sg->cheat;
     character[0].x = sg->x;
     character[0].y = sg->y;
     character[0].direction = sg->direction;

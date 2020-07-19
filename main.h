@@ -82,6 +82,7 @@ typedef struct {
     //rest through PRGGS_ defines
 
     UINT8 progress[2];
+    _Bool cheat;
 } Savegame;
 
 typedef struct {
@@ -106,6 +107,8 @@ extern UINT8 selected_item;
 extern UINT8 chest;
 extern UINT8 flame;
 extern UINT8 progress[2];
+
+extern _Bool cheat;
 
 void menu();
 void screen_wobble();

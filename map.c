@@ -248,6 +248,19 @@ void load_map(const UINT8 background[]) {
         incject_map(3, 3, 29);
     }
 
+    if(cheat && level_y == 0){
+        if(level_x == 1){
+            incject_collision(9, 2, 0);
+        }
+        if(level_x == 3){
+            incject_collision(4, 1, 0);
+            incject_collision(6, 1, 0);
+        }
+        if(level_x == 5){
+            incject_collision(6, 1, 0);
+        }
+    }
+
     // only show ghost in present
     if(IS_PRGRS_TIME(0) && IS_PRGRS_GHOST(1) && level_x == 0 && level_y == 0){
         // spawn ghost

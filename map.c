@@ -177,7 +177,6 @@ void load_map(const UINT8 background[]) {
             // set tiles
             UINT8 j = 0;// goes 0 2 1 3
             for(UINT8 i = 0; i < 4; ++i){
-                //tiles[0] = SHEET_START + current_map[index + j];
                 tiles[i] = SHEET_START + next_map[index + j];
                 if(j==2)
                     --j;

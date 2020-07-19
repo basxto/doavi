@@ -1,3 +1,7 @@
+rule_bridgefix.tmx
+rule_housefix.tmx
+rule_pathfix.tmx
+rule_carpetfix.tmx
 rule_gras.tmx
 rule_flowerfix.tmx
 rule_collision.tmx

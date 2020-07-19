@@ -48,38 +48,44 @@ Saveslots *sl = (Saveslots *)0xa000;
 Savegame *sg;
 Savegame sgemu;
 
+UINT8 level_x;
+UINT8 level_y;
+UINT8 lives;
+UINT8 tpaper;
+Character character[5];
+UINT8 item[8];
+UINT8 selected_item;
+UINT8 chest;
+UINT8 flame;
+UINT8 progress[2];
+
 void efficient_delay(UINT8 time){
     for(; time != 0; --time)
         wait_vbl_done();
 }
 
 void init_save() {
-    sg->level_x = 1;
-    sg->level_y = 4;
-    memcpy(sg->name, "candyhead", 10);
-    sg->character[0].x = 4;
-    sg->character[0].y = 4;
-    sg->character[0].sprite = 0;
-    sg->character[0].direction = 0;
-    sg->character[0].palette = (2<<4)|2;
-    sg->character[0].offset_x = 0;
-    sg->character[0].offset_y = 0;
+    level_x = 1;
+    level_y = 4;
+    //memcpy(sg->name, "candyhead", 10);
+    character[0].x = 4;
+    character[0].y = 4;
 
     for(UINT8 i = 0; i < 5; ++i){
-        sg->character[i].sprite_index = (i*4);
+        character[i].sprite_index = (i*4);
     }
 
     for(UINT8 i = 0; i < 8; ++i){
-        sg->item[i] = 0;
+        item[i] = 0;
     }
-    sg->selected_item = 0;
+    selected_item = 0;
 
-    sg->lives = 5;
-    sg->tpaper = 0;
+    lives = 5;
+    tpaper = 0;
 
-    sg->chest = 0;
-    sg->flame = 0;
-    sg->progress[0] = sg->progress[1] = 0;
+    chest = 0;
+    flame = 0;
+    progress[0] = progress[1] = 0;
 }
 
 void load_menu() {
@@ -87,6 +93,7 @@ void load_menu() {
     UINT8 save = smart_write(0, 4, 5, 18, text_load_select) - 1;
     sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (save*sizeof(Savegame)));
     //delay(100);
+    ENABLE_RAM_MBC1;
     if((sl->slots & (0x1<<save)) == 0){ // new save
         init_save();
         sl->slots |= (0x1<<save);
@@ -97,18 +104,20 @@ void load_menu() {
             sl->slots |= (0x1<<save);
         }
     }
+    DISABLE_RAM_MBC1;
+    load_sg();
     change_level();
 }
 
 void item_menu(){
     smart_write(0, 0, 20, 18, text_item_selection);
-    if(sg->item[0] != 0)
+    if(item[0] != 0)
         smart_write(5, 4, 16, 1, text_sword);
-    if(sg->item[1] != 0)
+    if(item[1] != 0)
         smart_write(5, 5, 16, 1, text_power);
     UINT8 item = smart_write(0, 4, 5, 18, text_load_select) - 1;
     if(item != 0)
-        sg->selected_item = item-1;
+        selected_item = item-1;
 }
 
 void menu() {
@@ -129,7 +138,7 @@ void menu() {
         item_menu();
         break;
     }
-    draw_hud(sg->lives, sg->tpaper);
+    draw_hud(lives, tpaper);
     SHOW_SPRITES;
 }
 
@@ -213,35 +222,37 @@ void change_level() {
 
     // switch to different time
     if(IS_PRGRS_TIME(1)){
-        if(sg->level_y == 0 && sg->level_x == 0)
-            sg->level_x = 6;
+        if(level_y == 0 && level_x == 0)
+            level_x = 6;
     }
     if(IS_PRGRS_TIME(2)){
-        if(sg->level_y == 1 && sg->level_x == 4)
-            sg->level_x = 6;
+        if(level_y == 1 && level_x == 4)
+            level_x = 6;
     }
 
     // load level into ram
-    memcpy(current_collision, level[sg->level_y][sg->level_x].collision, 10);
-    current_background = decompress(level[sg->level_y][sg->level_x].background);
+    memcpy(current_collision, level[level_y][level_x].collision, 10);
+    current_background = decompress(level[level_y][level_x].background);
     for(UINT8 i = 1; i < 5; ++i){
         // disable characters
-        sg->character[i].sprite = 0xFF;
-        sg->character[i].offset_x = 0;
-        sg->character[i].offset_y = 0;
-        sg->character[i].direction = 0;
+        character[i].sprite = 0xFF;
+        character[i].offset_x = 0;
+        character[i].offset_y = 0;
+        character[i].direction = 0;
         render_character(i);
     }
+    save_sg();
     load_map(current_background);
+    render_character(0);
 }
 
 UINT8 get_selected_item(){
-    return sg->item[sg->selected_item];
+    return item[selected_item];
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const UINT8 index) {
-    Character *chrctr = &sg->character[index];
+    Character *chrctr = &character[index];
     if(chrctr->sprite == 0xFF){
         // move all four sprites outside of the view
         for(UINT8 i = 0; i < 4; ++i)
@@ -285,7 +296,7 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     if ((current_collision[index / $(8)] & (1 << (index % $(8)))) == 0) {
         // check entity collision
         for(UINT8 i = 1; i < 5; ++i)
-            if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
+            if(character[i].sprite != 0xFF && character[i].x == x && character[i].y == y)
                 return 0;
         return 1;
     }
@@ -293,27 +304,27 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
 }
 
 UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
-    Character *chrctr = &sg->character[index];
+    Character *chrctr = &character[index];
     if (chrctr->x == 0 && x < 0) {
-        sg->level_x--;
+        level_x--;
         chrctr->x += WIDTH + x;
         change_level();
         return 0;
     }
     if (chrctr->x == WIDTH - 1 && x > 0) {
-        sg->level_x++;
+        level_x++;
         chrctr->x += -WIDTH + x;
         change_level();
         return 0;
     }
     if (chrctr->y == 0 && y < 0) {
-        sg->level_y--;
+        level_y--;
         chrctr->y += HEIGHT + y;
         change_level();
         return 0;
     }
     if (chrctr->y == HEIGHT - 1 && y > 0) {
-        sg->level_y++;
+        level_y++;
         chrctr->y += -HEIGHT + y;
         change_level();
         return 0;
@@ -383,7 +394,7 @@ void vblank_isr(){
         // move characters
         for(UINT8 i = 0; i < 5; ++i){
             _Bool changed = 0;
-            Character *chrctr = &sg->character[i];
+            Character *chrctr = &character[i];
             // move character
             if(chrctr->offset_x > 0){
                 chrctr->offset_x -= 4;
@@ -422,8 +433,48 @@ void vblank_isr(){
     counter %= $(32);
 }
 
+void save_sg(){
+    ENABLE_RAM_MBC1;
+    sg->level_x = level_x;
+    sg->level_y = level_y;
+    sg->lives = lives;
+    sg->tpaper = tpaper;
+    sg->selected_item = selected_item;
+    sg->chest = chest;
+    sg->flame = flame;
+    sg->progress[0] = progress[0];
+    sg->progress[1] = progress[1];
+    sg->x = character[0].x;
+    sg->y = character[0].y;
+    DISABLE_RAM_MBC1;
+}
+
+void load_sg(){
+    ENABLE_RAM_MBC1;
+    level_x = sg->level_x;
+    level_y = sg->level_y;
+    lives = sg->lives;
+    tpaper = sg->tpaper;
+    selected_item = sg->selected_item;
+    chest = sg->chest;
+    flame = sg->flame;
+    progress[0] = sg->progress[0];
+    progress[1] = sg->progress[1];
+    character[0].x = sg->x;
+    character[0].y = sg->y;
+    DISABLE_RAM_MBC1;
+}
+
 void main() {
     sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (0*sizeof(Savegame)));
+
+
+    // initialize main character
+    character[0].sprite = 0;
+    character[0].direction = 0;
+    character[0].palette = (2<<4)|2;
+    character[0].offset_x = 0;
+    character[0].offset_y = 0;
     //sg = &sgemu;
     // load savegame
     ENABLE_RAM_MBC1;
@@ -474,11 +525,10 @@ void main() {
     smart_write(0, 0, 20, 18, text_intro);
     waitpad_any(J_A | J_START);
     delay(100);
-    ENABLE_RAM_MBC1;
     current_map = 0x0;
     load_menu();
     init_hud();
-    draw_hud(sg->lives, sg->tpaper);
+    draw_hud(lives, tpaper);
 
     SHOW_SPRITES;
 
@@ -486,22 +536,22 @@ void main() {
 
         switch (joypad()) {
         case J_RIGHT: // If joypad() is equal to RIGHT
-            sg->character[0].direction = 3;
+            character[0].direction = 3;
             if (move_player(1, 0) == 1)
                 render_character(0);
             break;
         case J_LEFT: // If joypad() is equal to LEFT
-            sg->character[0].direction = 1;
+            character[0].direction = 1;
             if (move_player(-1, 0) == 1)
                 render_character(0);
             break;
         case J_UP: // If joypad() is equal to UP
-            sg->character[0].direction = 2;
+            character[0].direction = 2;
             if (move_player(0, -1) == 1)
                 render_character(0);
             break;
         case J_DOWN: // If joypad() is equal to DOWN
-            sg->character[0].direction = 0;
+            character[0].direction = 0;
             if (move_player(0, 1) == 1)
                 render_character(0);
             break;
@@ -510,9 +560,9 @@ void main() {
             efficient_delay(15);
             break;
         case J_B:
-            if(++sg->selected_item >= 4)
-                sg->selected_item = 0;
-            draw_hud(sg->lives, sg->tpaper);
+            if(++selected_item >= 4)
+                selected_item = 0;
+            draw_hud(lives, tpaper);
             efficient_delay(15);
             break;
         case J_START:

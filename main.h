@@ -66,7 +66,9 @@ typedef struct {
     UINT8 lives;
     UINT8 tpaper;
     //0 is player; rest are NPCs
-    Character character[5];
+    Character character[5];// we only need our main character
+    UINT8 x;
+    UINT8 y;
     // allow player to have 8 items
     UINT8 item[8];
     UINT8 selected_item;
@@ -92,6 +94,18 @@ typedef struct {
 
 extern Savegame *sg;
 
+// it's too much overhead to access the savegame directly
+extern UINT8 level_x;
+extern UINT8 level_y;
+extern UINT8 lives;
+extern UINT8 tpaper;
+extern Character character[5];
+extern UINT8 item[8];
+extern UINT8 selected_item;
+extern UINT8 chest;
+extern UINT8 flame;
+extern UINT8 progress[2];
+
 void menu();
 void screen_wobble();
 void screen_shake();
@@ -103,6 +117,8 @@ UINT8 get_selected_item();
 void render_character(const UINT8 index);
 UINT8 is_free( const UINT8 x, const UINT8 y);
 UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y);
+void save_sg();
+void load_sg();
 
 inline void tick_animate();
 void timer_isr();

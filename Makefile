@@ -56,16 +56,18 @@ endef
 
 ROM=doavi.gb
 
+.PHONY: build
 build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM)
 
-$(DEV)/gbz80-ph/combined-peeph.def: FORCE
-	$(MAKE) -C $(DEV)/gbz80-ph/ combined-peeph.def
+$(DEV)/gbz80-ph/%.def: FORCE
+	$(MAKE) -C $(DEV)/gbz80-ph/ $*.def
 
 $(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(MKROM) -Wl'-yn="DESSERTONAVEGI"' -o $@ $^
 
-run: $(ROM)
-	$(EMU) $^
+.PHONY: run
+run: build
+	$(EMU) $(ROM)
 
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
@@ -239,7 +241,7 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 	mv $(DEV)/GameBoy-Online/$@ .
 
 .PHONY: spaceleft
-spaceleft: $(ROM)
+spaceleft: build
 	@hexdump -v -e '/1 "%02X\n"' $(ROM) | awk '/FF/ {n += 1} !/FF/ {n = 0} END {print n}'
 
 FORCE:

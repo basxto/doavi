@@ -124,11 +124,11 @@ void load_map(const UINT8 background[]) {
     unsigned char tiles[4];
 
     background_shifted = !background_shifted;
-    if (sg->level_y == 4) {//0b0100
+    if (level_y == 4) {//0b0100
         next_map = overworld_b_gbc_map;
-    } else if (sg->level_y == 5) {//0b0101
+    } else if (level_y == 5) {//0b0101
         next_map = inside_wood_house_map;
-    } else if (sg->level_y > 5) {
+    } else if (level_y > 5) {
         next_map = overworld_cave_map;
     } else {
         next_map = overworld_a_gbc_map;
@@ -187,16 +187,16 @@ void load_map(const UINT8 background[]) {
         }
     }
     // change map back when time jumping
-    if(sg->level_x == 6){
-        if(sg->level_y == 0)
-            sg->level_x = 0;
-        if(sg->level_y == 1)
-            sg->level_x = 4;
+    if(level_x == 6){
+        if(level_y == 0)
+            level_x = 0;
+        if(level_y == 1)
+            level_x = 4;
     }
     DISPLAY_OFF;
     BGP_REG = 0xE4; // 11100100
     // load spritesheet
-    if (sg->level_y == 4) {//0b0100
+    if (level_y == 4) {//0b0100
         if(current_map != overworld_b_gbc_map){
             init_music(&cosmicgem_voadi);
             current_map = overworld_b_gbc_map;
@@ -204,14 +204,14 @@ void load_map(const UINT8 background[]) {
             pb16_unpack_bkg_data(SHEET_START, overworld_b_gbc_data_length, decompressed_tileset, overworld_b_gbc_data);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
-    } else if (sg->level_y == 5) {//0b0101
+    } else if (level_y == 5) {//0b0101
         if(current_map != inside_wood_house_map){
             current_map = inside_wood_house_map;
             loaded_map = inside_wood_house_map;
             pb16_unpack_bkg_data(SHEET_START, inside_wood_house_data_length, decompressed_tileset, inside_wood_house_data);
             set_bkg_palette(0, 6, overworld_b_gbc_pal[0]);
         }
-    } else if (sg->level_y > 5) {
+    } else if (level_y > 5) {
         if(current_map != overworld_cave_map){
             current_map = overworld_cave_map;
             loaded_map = overworld_cave_map;
@@ -232,87 +232,87 @@ void load_map(const UINT8 background[]) {
 
     // map scripting
     // must be done when maps are loaded
-    if (!(sg->chest & 0x1) && sg->level_x == 1 && sg->level_y == 0) {
+    if (!(chest & 0x1) && level_x == 1 && level_y == 0) {
         incject_map(2, 2, 29);
     }
-    if (!(sg->chest & 1<<1) && sg->level_x == 1 && sg->level_y == 0) {
+    if (!(chest & 1<<1) && level_x == 1 && level_y == 0) {
         incject_map(1, 6, 29);
     }
-    if (!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0) {
+    if (!(chest & 1<<2) && level_x == 2 && level_y == 0) {
         incject_map(3, 4, 17);
     }
-    if (!(sg->chest & 1<<3) && sg->level_x == 2 && sg->level_y == 1) {
+    if (!(chest & 1<<3) && level_x == 2 && level_y == 1) {
         incject_map(2, 2, 17);
     }
-    if (!(sg->chest & 1<<4) && sg->level_x == 2 && sg->level_y == 1) {
+    if (!(chest & 1<<4) && level_x == 2 && level_y == 1) {
         incject_map(3, 3, 29);
     }
 
     // only show ghost in present
-    if(IS_PRGRS_TIME(0) && IS_PRGRS_GHOST(1) && sg->level_x == 0 && sg->level_y == 0){
+    if(IS_PRGRS_TIME(0) && IS_PRGRS_GHOST(1) && level_x == 0 && level_y == 0){
         // spawn ghost
-        sg->character[1].x = 4;
-        sg->character[1].y = 2;
-        sg->character[1].sprite = 2;
-        sg->character[1].direction = 7<<2;//ghost bottom
-        sg->character[1].palette = 3<<4 | 3;
+        character[1].x = 4;
+        character[1].y = 2;
+        character[1].sprite = 2;
+        character[1].direction = 7<<2;//ghost bottom
+        character[1].palette = 3<<4 | 3;
     }
-    else if(sg->level_x == 4 && sg->level_y == 0){
+    else if(level_x == 4 && level_y == 0){
         // spawn timetravel robot
-        sg->character[1].x = 4;
-        sg->character[1].y = 2;
-        sg->character[1].sprite = 4;
-        sg->character[1].palette = 1<<4 | 1;
+        character[1].x = 4;
+        character[1].y = 2;
+        character[1].sprite = 4;
+        character[1].palette = 1<<4 | 1;
         // spawn broken timetravel robot
-        sg->character[2].x = 8;
-        sg->character[2].y = 6;
-        sg->character[2].sprite = 3;
-        sg->character[2].palette = 1<<4 | 1;
+        character[2].x = 8;
+        character[2].y = 6;
+        character[2].sprite = 3;
+        character[2].palette = 1<<4 | 1;
     }
-    else if(sg->level_x == 4 && sg->level_y == 5){
+    else if(level_x == 4 && level_y == 5){
         // spawn rachel
-        sg->character[1].x = 4;
-        sg->character[1].y = 3;
-        sg->character[1].sprite = 7;
-        sg->character[1].palette = 1<<4 | 1;
+        character[1].x = 4;
+        character[1].y = 3;
+        character[1].sprite = 7;
+        character[1].palette = 1<<4 | 1;
     } else if(IS_PRGRS_TIME(1)) {
-        if(sg->level_y == 5){
-            switch(sg->level_x){
+        if(level_y == 5){
+            switch(level_x){
               case 0:
-                sg->character[1].x = 2;
-                sg->character[1].y = 3;
-                sg->character[1].sprite = 6;
-                sg->character[1].palette = 1<<4 | 1;
+                character[1].x = 2;
+                character[1].y = 3;
+                character[1].sprite = 6;
+                character[1].palette = 1<<4 | 1;
                 break;
               case 1:
-                sg->character[1].x = 3;
-                sg->character[1].y = 5;
-                sg->character[1].sprite = 10;
-                sg->character[1].palette = 1<<4 | 1;
+                character[1].x = 3;
+                character[1].y = 5;
+                character[1].sprite = 10;
+                character[1].palette = 1<<4 | 1;
                 break;
               case 2:
-                sg->character[1].x = 4;
-                sg->character[1].y = 3;
-                sg->character[1].sprite = 1;
-                sg->character[1].palette = 1<<4 | 1;
+                character[1].x = 4;
+                character[1].y = 3;
+                character[1].sprite = 1;
+                character[1].palette = 1<<4 | 1;
                 break;
               case 3:
-                sg->character[1].x = 7;
-                sg->character[1].y = 6;
-                sg->character[1].sprite = 9;
-                sg->character[1].palette = 1<<4 | 1;
-                sg->character[2].x = 6;
-                sg->character[2].y = 4;
-                sg->character[2].sprite = 5;
-                sg->character[2].direction += 2;
-                sg->character[2].palette = 1<<4 | 1;
+                character[1].x = 7;
+                character[1].y = 6;
+                character[1].sprite = 9;
+                character[1].palette = 1<<4 | 1;
+                character[2].x = 6;
+                character[2].y = 4;
+                character[2].sprite = 5;
+                character[2].direction += 2;
+                character[2].palette = 1<<4 | 1;
                 break;
             }
-        }else if(sg->level_x == 3 && sg->level_y == 1){
-            sg->character[1].x = 4;
-            sg->character[1].y = 3;
-            sg->character[1].sprite = 8;
-            sg->character[1].palette = 1<<4 | 1;
+        }else if(level_x == 3 && level_y == 1){
+            character[1].x = 4;
+            character[1].y = 3;
+            character[1].sprite = 8;
+            character[1].palette = 1<<4 | 1;
         }
     }
 

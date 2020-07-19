@@ -17,16 +17,16 @@ extern UINT8 *current_background;
 extern const unsigned char *current_map;
 
 void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
-    sg->level_x = lx;
-    sg->level_y = ly;
-    sg->character[0].x = px;
-    sg->character[0].y = py;
+    level_x = lx;
+    level_y = ly;
+    character[0].x = px;
+    character[0].y = py;
     change_level();
 }
 
 UINT8 move_player(const INT8 x, const INT8 y) {
     UINT8 tile =
-        current_background[(sg->character[0].y * WIDTH) + sg->character[0].x];
+        current_background[(character[0].y * WIDTH) + character[0].x];
 
     if (move_character(0, x, y) == 1) {
         // little cheat
@@ -42,74 +42,74 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     // leaving the beach if bottle is not collected
-    if((sg->progress[0] & PRGRS_BTL) == 0 && sg->level_y == 4 && sg->character[0].y == 0){
+    if((progress[0] & PRGRS_BTL) == 0 && level_y == 4 && character[0].y == 0){
         dialog(text_stay_beach, text_narrator, 0);
-        sg->character[0].direction = 0;
-        sg->character[0].y++;
+        character[0].direction = 0;
+        character[0].y++;
         return 1;
     }
     tile =
-        current_background[(sg->character[0].y * WIDTH) + sg->character[0].x];
+        current_background[(character[0].y * WIDTH) + character[0].x];
 
     // trigger stuff
 
     // cave entrance
     if(tile == 21 && current_map == overworld_a_gbc_map){
-        if(sg->level_x == 4){
-            sg->character[0].direction = 0;
+        if(level_x == 4){
+            character[0].direction = 0;
             teleport_to(0, 6, 2, 1);
         }else{
-            sg->character[0].direction = 0;
+            character[0].direction = 0;
             teleport_to(1, 6, 7, 1);
         }
     }
 
     //  house entrance
     if (tile == $(46 + 10)) {
-        if(sg->level_y == 1 && sg->level_x == 1)
-            if(sg->character[0].x > $(5))
+        if(level_y == 1 && level_x == 1)
+            if(character[0].x > $(5))
                 teleport_to(0, 5, 5, 6);
             else
                 teleport_to(1, 5, 4, 6);
-        else if(sg->level_y == 1 && sg->level_x == 0)
+        else if(level_y == 1 && level_x == 0)
             teleport_to(2, 5, 6, 6);
-        else if(sg->level_y == 2 && sg->level_x == 0)
+        else if(level_y == 2 && level_x == 0)
             teleport_to(3, 5, 3, 6);
         else // glitch house
             teleport_to(4, 5, 4, 6);
     }
 
     // player stepped into the doorway
-    if(sg->level_y == 5 && sg->character[0].y == 7){
-        if (sg->level_x == 0) {
+    if(level_y == 5 && character[0].y == 7){
+        if (level_x == 0) {
             teleport_to(1, 1, 7, 5);
         }
-        else if (sg->level_x == 1) {
+        else if (level_x == 1) {
             teleport_to(1, 1, 2, 6);
         }
-        else if (sg->level_x == 2) {
+        else if (level_x == 2) {
             teleport_to(0, 1, 4, 6);
         }
-        else if (sg->level_x == 3) {
+        else if (level_x == 3) {
             teleport_to(0, 2, 5, 6);
         }
-        else if (sg->level_x == 4) {
+        else if (level_x == 4) {
             teleport_to(4, 1, 4, 6);
         }
     }
     // player goes through the back door
-    if(sg->level_y == 5 && sg->character[0].y == 2){
+    if(level_y == 5 && character[0].y == 2){
         teleport_to(1, 0, 7, 6);
     }
 
     // player goes back into the house
-    if(sg->level_x == 1 && sg->level_y == 0 && sg->character[0].y == 7){
+    if(level_x == 1 && level_y == 0 && character[0].y == 7){
         teleport_to(0, 5, 7, 3);
     }
 
     // player stepped onto the stairs
-    if (sg->level_y == 6 && sg->character[0].y == 0) {
-        if(sg->level_x == 0)
+    if (level_y == 6 && character[0].y == 0) {
+        if(level_x == 0)
             teleport_to(4, 2, 5, 3);
         else
             teleport_to(5, 2, 5, 3);
@@ -120,10 +120,10 @@ UINT8 move_player(const INT8 x, const INT8 y) {
 
 
 void interact() {
-    UINT8 x = sg->character[0].x;
-    UINT8 y = sg->character[0].y;
+    UINT8 x = character[0].x;
+    UINT8 y = character[0].y;
     UINT8 tile;
-    switch (sg->character[0].direction) {
+    switch (character[0].direction) {
     case 0:
         y++;
         break;
@@ -141,7 +141,7 @@ void interact() {
     // write_num(8, 1, 3, tile);
     // sign
     if (tile == 18) {
-        if (sg->level_x == 1 && sg->level_y == 1) {
+        if (level_x == 1 && level_y == 1) {
             dialog(text_village, text_sign, 1);
         } else {
             dialog(text_hello_world, text_sign, 1);
@@ -149,12 +149,12 @@ void interact() {
     }
     // bottle
     if (tile == 34 && current_map == overworld_b_gbc_map) {
-        if(sg->progress[0] & PRGRS_BTL){
+        if(progress[0] & PRGRS_BTL){
             dialog(text_empty_bottle, text_narrator, 0);
         }else{
             dialog(text_bottle_post, text_narrator, 0);
             dialog(text_shekiro_1, text_letter, 4);
-            sg->progress[0] |= PRGRS_BTL;
+            progress[0] |= PRGRS_BTL;
         }
     }
     if(current_map == inside_wood_house_map) {
@@ -182,22 +182,22 @@ void interact() {
     if(current_map == overworld_a_gbc_map) {
         // grave
         if (tile == 26) {
-            if(x == 5 && y == 2 && (sg->progress[0] & PRGRS_GHOST) == 0){
+            if(x == 5 && y == 2 && (progress[0] & PRGRS_GHOST) == 0){
                 screen_shake();
                 // spawn ghost
-                sg->character[1].x = 4;
-                sg->character[1].y = 2;
-                if(sg->character[0].x == 4 && sg->character[0].y == 2){
-                    sg->character[1].x = 6;
+                character[1].x = 4;
+                character[1].y = 2;
+                if(character[0].x == 4 && character[0].y == 2){
+                    character[1].x = 6;
                 }
-                sg->character[1].sprite = 2;
-                sg->character[1].direction = 7<<2;//ghost bottom
-                sg->character[1].palette = 3<<4 | 3;
+                character[1].sprite = 2;
+                character[1].direction = 7<<2;//ghost bottom
+                character[1].palette = 3<<4 | 3;
 
                 render_character(1);
                 // ghost visible
                 SET_PRGRS_GHOST(0x1);
-                //sg->progress[0] & (0x1<<4));
+                //progress[0] & (0x1<<4));
             }
             dialog(text_dead, text_grave, 2);
         }
@@ -212,35 +212,35 @@ void interact() {
             // we don't have to check the status
             // since chests would be a different tile  otherwise
             _Bool update = 0;
-            if(sg->level_x == 1 && sg->level_y == 0)
+            if(level_x == 1 && level_y == 0)
                 if(y == 2){
-                    if (!(sg->chest & 0x1)) {
-                        sg->chest |= 0x1;
-                        ++sg->tpaper;
+                    if (!(chest & 0x1)) {
+                        chest |= 0x1;
+                        ++tpaper;
                         update = 1;
                     }
-                }else if(!(sg->chest & 1<<1)){
-                    sg->chest |= 1<<1;
-                    ++sg->tpaper;
+                }else if(!(chest & 1<<1)){
+                    chest |= 1<<1;
+                    ++tpaper;
                     update = 1;
                 }
-            if(!(sg->chest & 1<<2) && sg->level_x == 2 && sg->level_y == 0){
-                sg->chest |= 1<<2;
-                sg->item[1] = ITEM_POWER;
+            if(!(chest & 1<<2) && level_x == 2 && level_y == 0){
+                chest |= 1<<2;
+                item[1] = ITEM_POWER;
                 dialog(text_found_power, text_narrator, 0);
                 update = 1;
             }
-            if(sg->level_x == 2 && sg->level_y == 1)
+            if(level_x == 2 && level_y == 1)
                 if(y == 2){
-                    if (!(sg->chest & 1<<3)) {
-                        sg->chest |= 1<<3;
-                        sg->item[0] = ITEM_SWORD;
+                    if (!(chest & 1<<3)) {
+                        chest |= 1<<3;
+                        item[0] = ITEM_SWORD;
                         dialog(text_found_sword, text_narrator, 0);
                         update = 1;
                     }
-                }else if(!(sg->chest & 1<<4)){
-                    sg->chest |= 1<<4;
-                    ++sg->tpaper;
+                }else if(!(chest & 1<<4)){
+                    chest |= 1<<4;
+                    ++tpaper;
                     update = 1;
                 }
             if(update){
@@ -261,14 +261,14 @@ void interact() {
         // move stone
         if (tile == 27) {
             if(get_selected_item() == ITEM_POWER){
-                if(is_free(x + (x - sg->character[0].x),y + (y - sg->character[0].y)) == 1){
+                if(is_free(x + (x - character[0].x),y + (y - character[0].y)) == 1){
                     incject_map_palette(x, y, 2);
                     incject_map(x, y, (current_map == overworld_a_gbc_map? 20 : 2));
 
                     incject_collision(x, y, FALSE);
                     current_background[(y * WIDTH) + x] = 2;
-                    x += (x - sg->character[0].x);
-                    y += (y - sg->character[0].y);
+                    x += (x - character[0].x);
+                    y += (y - character[0].y);
                     incject_map_palette(x, y, 3);
                     incject_map(x, y, 27-2);
                     incject_collision(x, y, TRUE);
@@ -282,24 +282,24 @@ void interact() {
     UINT8 i;
     // 4 enemies
     for(i = 4; i != 0; --i){
-        if(sg->character[i].sprite != 0xFF && sg->character[i].x == x && sg->character[i].y == y)
+        if(character[i].sprite != 0xFF && character[i].x == x && character[i].y == y)
             break;
     }
     // if we have a match
     if(i != 0){
         // turn to main character
-        UINT8 stance = sg->character[i].direction/4;
+        UINT8 stance = character[i].direction/4;
         // mirror direction
-        UINT8 direction = $(sg->character[0].direction + 2)%4;
-        sg->character[i].direction = stance + direction;
+        UINT8 direction = $(character[0].direction + 2)%4;
+        character[i].direction = stance + direction;
         render_character(i);
         // talk
-        if(sg->level_y == 0){
+        if(level_y == 0){
             // ghost
-            if(sg->level_x == 0){
+            if(level_x == 0){
                 dialog(text_boohoo, text_ghost, 5);
             }
-            if(sg->level_x == 4){
+            if(level_x == 4){
                 if(i == 1){
                     dialog(text_stranded, text_t0, 7);
                 }else{
@@ -314,9 +314,9 @@ void interact() {
                 }
             }
         }
-        if(sg->level_y == 5){
+        if(level_y == 5){
             dialog(text_marvin, text_rachel, 6);
         }
     }
-    draw_hud(sg->lives, sg->tpaper);
+    draw_hud(lives, tpaper);
 }

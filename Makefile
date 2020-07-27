@@ -1,12 +1,16 @@
 DEV?=./dev
 BIN=$(DEV)/gbdk-n/bin
+SDCCBIN=
+GBDKDIR=/opt/gbdk-2020/
+GBDKLIB=$(GBDKDIR)/lib/small/asxxxx/
 
 # globally installed
 # use --sdccbin= for a custom sdcc
 LCC?=lcc -Wa-l
 # 0x0143 is gameboy mode
-MKROM?=$(LCC) -Wl-m -Wl-j -Wl-yp0x0143=0x80
-CA=$(LCC) -c
+MKROM?=$(SDCCBIN)makebin -Z -yc
+CA=$(SDCCBIN)sdasgb -plosgff
+LD=$(SDCCBIN)sdldgb
 EMU?=sameboy
 pngconvert?=$(DEV)/png2gb/png2gb.py -ci
 compress?=$(DEV)/png2gb/compress2bpp.py -ci
@@ -23,26 +27,26 @@ convert?=convert
 NOPEEP?=0
 
 ifeq ($(NOPEEP),1)
-CFLAGS += -Wf--no-peep
+CFLAGS += --no-peep
 else
-CFLAGS += -Wf"--peep-file$(abspath $(DEV))/gbz80-ph/combined-peeph.def"
+CFLAGS += --peep-file$(abspath $(DEV))/gbz80-ph/combined-peeph.def
 endif
 
 COMPRESS?=1
 ROMDEBUG?=0
 
 ifeq ($(COMPRESS),1)
-CC=$(LCC) -c -DCOMPRESS=1 $(CFLAGS)
+CC=$(SDCCBIN)sdcc -mgbz80 --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c -DCOMPRESS=1 $(CFLAGS)
 else
-CC=$(LCC) -c $(CFLAGS)
+CC=$(SDCCBIN)sdcc -mgbz80 --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c $(CFLAGS)
 endif
 
 ifeq ($(ROMDEBUG), 0)
 BANK=
-MKROM+= -Wl-yt0x03 -Wl-ya1
+MKROM+= -yt 0x03 -ya 1
 else
 BANK= -Wf-bo$(ROMDEBUG)
-MKROM+= -Wl-yt0x03 -Wl-ya1 -Wl-yo4
+MKROM+= -yt 0x03 -ya 1 -yo 4
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
@@ -62,8 +66,14 @@ build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM)
 $(DEV)/gbz80-ph/%.def: FORCE
 	$(MAKE) -C $(DEV)/gbz80-ph/ $*.def
 
-$(ROM): main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
-	$(MKROM) -Wl'-yn="DESSERTONAVEGI"' -o $@ $^
+$(ROM): $(ROM).ihx
+	$(MKROM) -yn "DESSERTONAVEGI" $^ $@
+
+$(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
+#sdcc doesn't like .o
+	#cp "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" crt0.rel
+	#$(SDCCBIN)sdcc -mgbz80 --no-std-crt0 --data-loc 0xc0a0 -Wl-g.STACK=0xE000 -Wl-g.refresh_OAM=0xFF80 -Wl-g.init=0x000 -Wl-g.OAM=0xC000 -L "${GBDKDIR}/lib/small/asxxxx/" crt0.rel "${GBDKDIR}/lib/small/asxxxx/gb/gb.lib" -o $@ $^
+	$(LD) -nmjwxi -k "$(GBDKLIB)/gbz80/" -l gbz80.lib -k "$(GBDKLIB)/gb/" -l gb.lib -g .OAM=0xC000 -g .STACK=0xE000 -g .refresh_OAM=0xFF80 -g .init=0x000 -b _DATA=0xc0a0 -b _CODE=0x0200 $@ "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" $^
 
 .PHONY: run
 run: build
@@ -73,16 +83,16 @@ $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
 
 main.s: main.c pix/pix.h strings.h
-	$(CC) -Wf--fverbose-asm -S -o $@ $<
+	$(CC) --fverbose-asm -S -o $@ $<
 
 logic.s: logic.c level.h strings.h
-	$(CC) -Wf--fverbose-asm -S -o $@ $<
+	$(CC) --fverbose-asm -S -o $@ $<
 
 hud.s: hud.c pix/pix.h
-	$(CC) -Wf--fverbose-asm -S -o $@ $<
+	$(CC) --fverbose-asm -S -o $@ $<
 
 map.s: map.c pix/pix.h music/songs.h
-	$(CC) -Wf--fverbose-asm -S -o $@ $<
+	$(CC) --fverbose-asm -S -o $@ $<
 
 $(DEV)/png2gb/%: FORCE
 	$(MAKE) DEV=../ -C $(DEV)/png2gb $*
@@ -97,7 +107,7 @@ music/songs.rel: music/songs.c
 	$(CC) $(BANK) -o $@ $^
 
 %.s: %.c
-	$(CC) -Wf--fverbose-asm -S -o $@ $^
+	$(CC) --fverbose-asm -S -o $@ $^
 
 %.rel: %.s
 	$(CA) -o $@ $^

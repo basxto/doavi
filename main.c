@@ -71,8 +71,8 @@ void init_save() {
     sg->level_x = (*(volatile UINT8*)0x13D)&0xF;// 1
     sg->level_y = (*(volatile UINT8*)0x13A)&0xF;// 4
     //memcpy(sg->name, "candyhead", 10);
-    sg->x = ((*(volatile UINT8*)0x13B)&0xF0)>>4; // 4
-    sg->y = ((*(volatile UINT8*)0x13C)&0xF0)>>4; // 4
+    sg->x = (*(volatile UINT8*)0x13B)>>4; // 4
+    sg->y = (*(volatile UINT8*)0x13C)>>4; // 4
 
     for(UINT8 i = 0; i < 8; ++i){
         sg->item[i] = 0;

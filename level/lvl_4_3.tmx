@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.4" tiledversion="1.4.0" orientation="orthogonal" renderorder="right-down" width="10" height="8" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#c865ca00" nextlayerid="4" nextobjectid="1">
+ <properties>
+  <property name="flame" type="int" value="6"/>
+ </properties>
  <tileset firstgid="1" source="collision.tsx"/>
  <tileset firstgid="2" source="overworld_gb.tsx"/>
  <layer id="1" name="background" width="10" height="8">
@@ -10,7 +13,7 @@
 10,11,2,2,2,2,4,2,2,5,
 14,15,27,10,11,10,11,2,2,2,
 3,2,2,14,15,14,15,10,11,2,
-11,27,6,10,11,30,10,13,12,11,
+11,27,6,10,11,33,10,13,12,11,
 15,16,27,14,15,2,14,15,14,12
 </data>
  </layer>

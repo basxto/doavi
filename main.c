@@ -43,6 +43,9 @@ UINT8 anim_counter;
 const UINT8 *current_background;
 // since we want to modify it
 UINT8 current_collision[10];
+UINT8 current_chest;
+UINT8 current_flame;
+
 extern const unsigned char *current_map;
 Saveslots *sl = (Saveslots *)0xa000;
 Savegame *sg;
@@ -236,6 +239,8 @@ void change_level() {
     // load level into ram
     memcpy(current_collision, level[level_y][level_x].collision, 10);
     current_background = decompress(level[level_y][level_x].background);
+    current_chest = level[level_y][level_x].chest;
+    current_flame = level[level_y][level_x].flame;
     for(UINT8 i = 1; i < 5; ++i){
         // disable characters
         character[i].sprite = 0xFF;
@@ -374,7 +379,7 @@ void vblank_isr(){
         if (current_map == overworld_a_gbc_map) {
             replace_tile(2, 1);
             replace_tile(1, 0);
-            replace_tile(SHEET_WIDTH * 3 + 4, 2);
+            replace_tile(SHEET_WIDTH * 3 + 7, 2);
         }else if (current_map == overworld_b_gbc_map) {
             UINT8 indexa = 3;
             UINT8 index = SHEET_WIDTH * 3 + 3;

@@ -141,6 +141,10 @@ void load_map(const UINT8 background[]) {
             UINT8 tmpx = x * $(2) + $(1);
             // load background
             tile = background[tmp1 + x] - 2;
+            if(current_chest != 0 && !(chest & current_chest) && (tile == 29 || tile == 18))
+                --tile;
+            if(current_flame != 0 && (flame & current_flame) && tile == 30)
+                ++tile;
             index = tile * 4;
             // set color (GBC only)
             VBK_REG = 1;
@@ -231,22 +235,6 @@ void load_map(const UINT8 background[]) {
     }
 
     // map scripting
-    // must be done when maps are loaded
-    if (!(chest & 0x1) && level_x == 1 && level_y == 0) {
-        incject_map(2, 2, 29);
-    }
-    if (!(chest & 1<<1) && level_x == 1 && level_y == 0) {
-        incject_map(1, 6, 29);
-    }
-    if (!(chest & 1<<2) && level_x == 2 && level_y == 0) {
-        incject_map(3, 4, 17);
-    }
-    if (!(chest & 1<<3) && level_x == 2 && level_y == 1) {
-        incject_map(2, 2, 17);
-    }
-    if (!(chest & 1<<4) && level_x == 2 && level_y == 1) {
-        incject_map(3, 3, 29);
-    }
 
     if(cheat && level_y == 0){
         if(level_x == 1){

@@ -207,8 +207,8 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
         length = 2;
     }
     buffer[buffer_length-1] = '\0';
-    buffer[buffer_length-2] = num & 0xf;
-    buffer[buffer_length-3] = num >> 4;
+    buffer[buffer_length-2] = specialchar_4 + (num & 0xf);
+    buffer[buffer_length-3] = specialchar_4 + (num >> 4);
     write_line(x, y, length, (buffer + buffer_length - 1) - length);
 }
 

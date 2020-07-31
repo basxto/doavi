@@ -110,6 +110,10 @@ extern UINT8 progress[2];
 
 extern _Bool cheat;
 
+
+extern UINT8 current_chest;
+extern UINT8 current_flame;
+
 void menu();
 void screen_wobble();
 void screen_shake();

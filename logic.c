@@ -208,45 +208,33 @@ void interact() {
     }
     if (current_map == overworld_a_gbc_map || current_map == overworld_b_gbc_map) {
         // chest
-        if (tile == 32 || tile == 20) {
+        if (tile == 31 || tile == 20) {
             // we don't have to check the status
             // since chests would be a different tile  otherwise
-            _Bool update = 0;
-            if(level_x == 1 && level_y == 0)
-                if(y == 2){
-                    if (!(chest & 0x1)) {
-                        chest |= 0x1;
-                        ++tpaper;
-                        update = 1;
-                    }
-                }else if(!(chest & 1<<1)){
-                    chest |= 1<<1;
-                    ++tpaper;
-                    update = 1;
-                }
-            if(!(chest & 1<<2) && level_x == 2 && level_y == 0){
-                chest |= 1<<2;
+            chest |= current_chest;
+            switch(current_chest){
+                case (1<<(1-1)):
                 item[1] = ITEM_POWER;
                 dialog(text_found_power, text_narrator, 0);
-                update = 1;
+                break;
+                case (1<<(2-1)):
+                item[0] = ITEM_SWORD;
+                dialog(text_found_sword, text_narrator, 0);
+                break;
+                case (1<<(3-1)):
+                item[2] = ITEM_FLINT;
+                dialog(text_found_flint, text_narrator, 0);
+                break;
+                default:
+                ++tpaper;
             }
-            if(level_x == 2 && level_y == 1)
-                if(y == 2){
-                    if (!(chest & 1<<3)) {
-                        chest |= 1<<3;
-                        item[0] = ITEM_SWORD;
-                        dialog(text_found_sword, text_narrator, 0);
-                        update = 1;
-                    }
-                }else if(!(chest & 1<<4)){
-                    chest |= 1<<4;
-                    ++tpaper;
-                    update = 1;
-                }
-            if(update){
-                incject_map(x, y, tile-2);
-                blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
-            }
+            incject_map(x, y, tile-2);
+            blinger(0x05 | note_a, 4, 0x05 | note_b, 5, 0x04 | note_e);
+        }
+        // enflame
+        if (tile == 32 && get_selected_item() == ITEM_FLINT) {
+            flame |= current_flame;
+            incject_map(x, y, tile-1);
         }
         // cut grass
         if (tile == 16) {

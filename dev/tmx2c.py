@@ -150,8 +150,16 @@ for filename in args.tmx:
             if p.attributes['name'].value == "flame":
                 flame = int(p.attributes['value'].value)
 
-    file.write('#define {}_tmap_chest (0x{:02X})\n'.format(os.path.basename(filename).split('.')[0], chest))
-    file.write('#define {}_tmap_flame (0x{:02X})\n'.format(os.path.basename(filename).split('.')[0], flame))
+    file.write('#define {}_tmap_chest '.format(os.path.basename(filename).split('.')[0]))
+    if chest == 0:
+        file.write('(0x00)\n')
+    else:
+        file.write('(0x{:02X})\n'.format(1<<(chest-1)))
+    file.write('#define {}_tmap_flame '.format(os.path.basename(filename).split('.')[0]))
+    if flame == 0:
+        file.write('(0x00)\n')
+    else:
+        file.write('(0x{:02X})\n'.format(1<<(flame-1)))
 
     layers = xmldoc.getElementsByTagName('layer')
     for l in layers:

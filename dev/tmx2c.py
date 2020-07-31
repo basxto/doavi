@@ -139,6 +139,20 @@ for filename in args.tmx:
     if args.compress != "no":
         file.write('//Compressed\n')
 
+    chest = 0
+    flame = 0
+    properties = xmldoc.getElementsByTagName('property')
+    # read custom variables
+    for p in properties:
+        if p.attributes['type'].value == "int":
+            if p.attributes['name'].value == "chest":
+                chest = int(p.attributes['value'].value)
+            if p.attributes['name'].value == "flame":
+                flame = int(p.attributes['value'].value)
+
+    file.write('#define {}_tmap_chest (0x{:02X})\n'.format(os.path.basename(filename).split('.')[0], chest))
+    file.write('#define {}_tmap_flame (0x{:02X})\n'.format(os.path.basename(filename).split('.')[0], flame))
+
     layers = xmldoc.getElementsByTagName('layer')
     for l in layers:
         if not l.attributes['name'].value in ignore:

@@ -136,7 +136,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
             start = 0;
             tmp_y += 1;
         }
-        if(tmp_y >= y+height){
+        if(tmp_y >= (UINT8)(y+height)){
             // if it reached the width, we overwite the last letter
             if(*(str_ptr-1) != specialchar_nl){
                 --str_ptr;

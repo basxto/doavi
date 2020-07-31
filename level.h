@@ -7,6 +7,8 @@
 typedef struct {
     const UINT8 *background;
     const UINT8 *collision;
+    const UINT8 chest;
+    const UINT8 flame;
 } Level;
 
 #endif

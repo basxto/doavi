@@ -25,7 +25,7 @@ for y in $(seq 0 "${max_y}"); do
     for x in $(seq 0 "${max_x}"); do
         file="lvl_${x}_${y}_tmap"
         if [ -f "${file}.c" ]; then
-            printf '\t\t{%s_background, %s_collision},\n' "${file}" "${file}" >> ../level.c
+            printf '\t\t{%s_background, %s_collision, %s_chest, %s_flame},\n' "${file}" "${file}" "${file}" "${file}" >> ../level.c
         else
             printf "\t\t{0, 0},\n" >> ../level.c
         fi

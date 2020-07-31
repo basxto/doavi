@@ -36,16 +36,16 @@ COMPRESS?=1
 ROMDEBUG?=0
 
 ifeq ($(COMPRESS),1)
-CC=$(SDCCBIN)sdcc -mgbz80 --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c -DCOMPRESS=1 $(CFLAGS)
+CC=$(SDCCBIN)sdcc -mgbz80 --fsigned-char --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c -DCOMPRESS=1 $(CFLAGS)
 else
-CC=$(SDCCBIN)sdcc -mgbz80 --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c $(CFLAGS)
+CC=$(SDCCBIN)sdcc -mgbz80 --fsigned-char --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c $(CFLAGS)
 endif
 
 ifeq ($(ROMDEBUG), 0)
 BANK=
 MKROM+= -yt 0x03 -ya 1
 else
-BANK= -Wf-bo$(ROMDEBUG)
+BANK= -bo $(ROMDEBUG)
 MKROM+= -yt 0x03 -ya 1 -yo 4
 endif
 
@@ -67,12 +67,10 @@ $(DEV)/gbz80-ph/%.def: FORCE
 	$(MAKE) -C $(DEV)/gbz80-ph/ $*.def
 
 $(ROM): $(ROM).ihx
+	$(DEV)/noi2sym.sh $(ROM).noi $$(basename $(ROM) .gb).sym
 	$(MKROM) -yn "DESSERTONAVEGI" $^ $@
 
 $(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel strings.rel level.rel music/songs.rel pix/pix.rel
-#sdcc doesn't like .o
-	#cp "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" crt0.rel
-	#$(SDCCBIN)sdcc -mgbz80 --no-std-crt0 --data-loc 0xc0a0 -Wl-g.STACK=0xE000 -Wl-g.refresh_OAM=0xFF80 -Wl-g.init=0x000 -Wl-g.OAM=0xC000 -L "${GBDKDIR}/lib/small/asxxxx/" crt0.rel "${GBDKDIR}/lib/small/asxxxx/gb/gb.lib" -o $@ $^
 	$(LD) -nmjwxi -k "$(GBDKLIB)/gbz80/" -l gbz80.lib -k "$(GBDKLIB)/gb/" -l gb.lib -g .OAM=0xC000 -g .STACK=0xE000 -g .refresh_OAM=0xFF80 -g .init=0x000 -b _DATA=0xc0a0 -b _CODE=0x0200 $@ "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" $^
 
 .PHONY: run

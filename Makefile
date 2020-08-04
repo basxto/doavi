@@ -80,16 +80,16 @@ run: build
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
 
-main.s: main.c pix/pix.h strings.h
+main.asm: main.c pix/pix.h strings.h
 	$(CC) --fverbose-asm -S -o $@ $<
 
-logic.s: logic.c level.h strings.h
+logic.asm: logic.c level.h strings.h
 	$(CC) --fverbose-asm -S -o $@ $<
 
-hud.s: hud.c pix/pix.h
+hud.asm: hud.c pix/pix.h
 	$(CC) --fverbose-asm -S -o $@ $<
 
-map.s: map.c pix/pix.h music/songs.h
+map.asm: map.c pix/pix.h music/songs.h
 	$(CC) --fverbose-asm -S -o $@ $<
 
 $(DEV)/png2gb/%: FORCE
@@ -104,9 +104,14 @@ level.rel: level.c
 music/songs.rel: music/songs.c
 	$(CC) $(BANK) -o $@ $^
 
-%.s: %.c
+%.asm: %.c
 	$(CC) --fverbose-asm -S -o $@ $^
 
+# generated
+%.rel: %.asm
+	$(CA) -o $@ $^
+
+# handwritten
 %.rel: %.s
 	$(CA) -o $@ $^
 

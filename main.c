@@ -275,7 +275,8 @@ void render_character(const UINT8 index) {
         for(UINT8 i = 0; i < 2; ++i){
             mapping = modular_characters_map[base];
             set_sprite_tile(++index, CHARACTERS_START+(mapping&0x7F));
-            set_sprite_prop(index, palette | (mapping&0x80?0x20:0x0));
+            // 0x80 marks mirrored tiles
+            set_sprite_prop(index, palette | (mapping&0x80? $(0x20) : $(0x0) ));
             move_sprite(index, x, y);
             x+=8;
             base+=2;
@@ -287,7 +288,7 @@ void render_character(const UINT8 index) {
         for(UINT8 j = 0; j < 2; ++j){
             mapping = modular_characters_map[base++];
             set_sprite_tile(++index, CHARACTERS_START+(mapping&0x7F));
-            set_sprite_prop(index, palette | (mapping&0x80?0x20:0x0));
+            set_sprite_prop(index, palette | (mapping&0x80? $(0x20) : $(0x0) ));
             move_sprite(index, x, y);
             x+=8;
         }
@@ -356,17 +357,17 @@ UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
 void replace_tile(UINT8 index, UINT8 indexa){
-    UINT8 first = SHEET_START + current_map[(index)*4];
+    UINT8 first = SHEET_START + current_map[$(index*4)];
     UINT8 amount = 4;
-    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (anim_counter)) * 4] * 16];
+    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[$($($(indexa*ANIM_WIDTH) + (anim_counter)) * 4)] * 16];
     set_bkg_data(first, amount,data);
 }
 
 // for deduplicated tiles
 void replace_subtile(UINT8 index, UINT8 indexa, UINT8 offset){
-    UINT8 first = SHEET_START + current_map[(index)*4 + offset];
+    UINT8 first = SHEET_START + current_map[$($(index*4) + offset)];
     UINT8 amount = 1;
-    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[((indexa)*ANIM_WIDTH + (anim_counter)) * 4 + offset] * 16];
+    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[$($($(indexa*ANIM_WIDTH) + (anim_counter)) * 4 + offset)] * 16];
     set_bkg_data(first, amount,data);
 }
 

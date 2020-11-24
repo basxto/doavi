@@ -115,7 +115,7 @@ music/songs.rel: music/songs.c
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c $(addprefix pix/dialog_photos_,$(addsuffix _pb16_data.c,none sign grave flame letter ghost rachel robot)) $(PIX) pix/hud_pal.c
+pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_upper_pb16_data.c $(addprefix pix/dialog_photos_,$(addsuffix _pb16_data.c,none sign grave flame letter ghost rachel robot)) $(PIX) pix/hud_pal.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
@@ -124,6 +124,9 @@ pix/pix.h: pix/pix.c pix/pix.rel
 music/songs.h: music/songs.c music/songs.rel
 	grep "music.h" music/cosmicgem_voadi.c > $@
 	$(c2h) $< >> $@
+
+pix/dialog_upper.2bpp: $(addprefix pix/dialog_upper_,$(addsuffix .png, male0 ghost robot0 robot1 female0 male2 rachel male6 male1 male3))
+	$(pngconvert) -cno --width 4 --height 3 -u no $^ -o $@
 
 pix/dialog_photos_data.c: pix/dialog_photos.png
 	$(pngconvert) --width 4 --height 4 -u yes $< -o $@ -bin | $(compress) - -o$@

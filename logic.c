@@ -137,7 +137,7 @@ void interact() {
         x++;
         break;
     }
-    tile = current_background[(y * WIDTH) + x];
+    tile = current_background[$(y * WIDTH + x)];
     // write_num(8, 1, 3, tile);
     // sign
     if (tile == 18) {

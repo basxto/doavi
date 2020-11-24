@@ -71,25 +71,25 @@ void efficient_delay(UINT8 time){
 // reads values from game header
 // for easy game genie support
 void init_save() {
-    sg->level_x = (*(volatile UINT8*)0x13D)&0xF;// 1
-    sg->level_y = (*(volatile UINT8*)0x13A)&0xF;// 4
+    sg->level_x = 1;//(*(volatile UINT8*)0x13D)&0xF;// 1
+    sg->level_y = 4;//(*(volatile UINT8*)0x13A)&0xF;// 4
     //memcpy(sg->name, "candyhead", 10);
-    sg->x = (*(volatile UINT8*)0x13B)>>4; // 4
-    sg->y = (*(volatile UINT8*)0x13C)>>4; // 4
+    sg->x = 4;//(*(volatile UINT8*)0x13B)>>4; // 4
+    sg->y = 4;//(*(volatile UINT8*)0x13C)>>4; // 4
 
     for(UINT8 i = 0; i < 8; ++i){
         sg->item[i] = 0;
     }
     sg->selected_item = 0;
 
-    sg->lives = (*(volatile UINT8*)0x135)&0xF; // 4
-    sg->tpaper = *(volatile UINT8*)0x142; // 0
+    sg->lives = 4;//(*(volatile UINT8*)0x135)&0xF; // 4
+    sg->tpaper = 0;//*(volatile UINT8*)0x142; // 0
 
     sg->chest = 0;
     sg->flame = 0;
-    sg->progress[0] = *(volatile UINT8*)0x144; // 0
-    sg->progress[1] = *(volatile UINT8*)0x145; // 0
-    sg->cheat = *(volatile UINT8*)0x146; // 0
+    sg->progress[0] = 0;//*(volatile UINT8*)0x144; // 0
+    sg->progress[1] = 0;//*(volatile UINT8*)0x145; // 0
+    sg->cheat = 0;//*(volatile UINT8*)0x146; // 0
 }
 
 void load_menu() {

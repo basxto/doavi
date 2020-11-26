@@ -1,9 +1,7 @@
 ; compression format: https://github.com/bonimy/MushROMs/blob/master/doc/LC_LZ3%20Compression%20Format.md
 ; compressor: https://github.com/aaaaaa123456789/lzcomp but set MAX_COMMAND_COUNT to 256
 
-; should be called like 
-;void lz3_unpack_block(unsigned char packets, unsigned char* dst, unsigned char* src) NONBANKED;
-;void lz3_unpack_bkg_data(UINT8 first_tile, UINT8 nb_tiles, unsigned char *dst, unsigned char* src) NONBANKED;
+; see unlz3.h for calling convention
 
 ; format:
 ;[x] ._lz3_unpack_block_000: ; direct copy
@@ -31,8 +29,8 @@ _lz3_unpack_block::
 	; packets - c
 	; 16B blocks (8x8 pixels)
 	; not enough space for this
-	ld	a, (hl+)
-	ld	b, a
+	;ld	a, (hl+)
+	;ld	b, a
 	; dst     - hl
 	ld	a, (hl+)
 	ld	c, a
@@ -102,14 +100,14 @@ _lz3_unpack_block::
 	bit 6, b
 	jr NZ, ._lz3_unpack_block_101
 ._lz3_unpack_block_100: ; repeat
-	jr ._lz3_unpack_block_header
+	jr ._lz3_unpack_block_start
 ._lz3_unpack_block_101: ; bit-reverse repeat
-	jr ._lz3_unpack_block_header
+	jr ._lz3_unpack_block_start
 ._lz3_unpack_block_11X:
 	bit 6, b
 	jr NZ, ._lz3_unpack_block_111
 ._lz3_unpack_block_110: ; backwards repeat
-	jr ._lz3_unpack_block_header
+	jr ._lz3_unpack_block_start
 ._lz3_unpack_block_111: ; long length
 	ld a, [de] ; LLLL LLLL
 	inc de

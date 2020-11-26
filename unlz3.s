@@ -14,7 +14,7 @@
 ; CCCL LLLL
 ;[x] ._lz3_unpack_block_100: ; repeat
 ; CCCL LLLL AYYY YYYY [ZZZZ ZZZZ]
-;[ ] ._lz3_unpack_block_101: ; bit-reverse repeat
+;[x] ._lz3_unpack_block_101: ; bit-reverse repeat
 ; CCCL LLLL AYYY YYYY [ZZZZ ZZZZ]
 ;[x] ._lz3_unpack_block_110: ; backwards repeat
 ; CCCL LLLL AYYY YYYY [ZZZZ ZZZZ]
@@ -183,7 +183,13 @@ _lz3_unpack_block::
 	ld a, [de]
 	bit 6, b
 	jr Z, ._lz3_unpack_block_repeat_skip_rev
-	; TODO: reverse is missing
+	ld [hl], b
+	.rept 8
+	rla
+	rr b
+	.endm
+	ld a, b
+	ld b, [hl]
 	inc de 
 	jr ._lz3_unpack_block_repeat_skip_dec
 ._lz3_unpack_block_repeat_skip_rev:

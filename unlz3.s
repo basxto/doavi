@@ -4,21 +4,21 @@
 ; see unlz3.h for calling convention
 
 ; format:
-;[x] ._lz3_unpack_block_000: ; direct copy
+;[x] ._lz3_unpack_block_000 / 0x0: ; direct copy
 ; CCCL LLLL MMMM MMMM NNNN NNNN ... (L+1 bytes)
-;[x] ._lz3_unpack_block_001: ; byte fill
+;[x] ._lz3_unpack_block_001 / 0x2: ; byte fill
 ; CCCL LLLL YYYY YYYY
-;[x] ._lz3_unpack_block_010: ; word fill
+;[x] ._lz3_unpack_block_010 / 0x4: ; word fill
 ; CCCL LLLL YYYY YYYY ZZZZ ZZZZ
-;[x] ._lz3_unpack_block_011: ; zero fill
+;[x] ._lz3_unpack_block_011 / 0x6: ; zero fill
 ; CCCL LLLL
-;[x] ._lz3_unpack_block_100: ; repeat
+;[x] ._lz3_unpack_block_100 / 0x8: ; repeat
 ; CCCL LLLL AYYY YYYY [ZZZZ ZZZZ]
-;[x] ._lz3_unpack_block_101: ; bit-reverse repeat
+;[x] ._lz3_unpack_block_101 / 0xA: ; bit-reverse repeat
 ; CCCL LLLL AYYY YYYY [ZZZZ ZZZZ]
-;[x] ._lz3_unpack_block_110: ; backwards repeat
+;[x] ._lz3_unpack_block_110 / 0xC: ; backwards repeat
 ; CCCL LLLL AYYY YYYY [ZZZZ ZZZZ]
-;[~] ._lz3_unpack_block_111: ; long length
+;[~] ._lz3_unpack_block_111 / 0xE: ; long length
 ; 111C CC00 LLLL LLLL [depends on CCC]
 ; simplified this one => 256B instead of 1024B
 
@@ -147,19 +147,23 @@ _lz3_unpack_block::
 	ld a, (de)
 	inc de
 	bit 7, a
-	jr NZ, ._lz3_unpack_block_start_extended
+	jr Z, ._lz3_unpack_block_start_extended
 	push de
 	push bc
+	; first bit ignored
+	res 7, a
 	; two complement, we want to substract (Y+1)
+	cpl
 	ld c, a
 	ld b, #0xFF
+	; it’s relative to the output buffer
+	ld e, l
+	ld d, h
 	jr ._lz3_unpack_block_start_trail
 ._lz3_unpack_block_start_extended:
 	inc de
 	push de
 	push bc
-	; first bit ignored
-	res 7, a
 	ld b, a ; upper byte
 	dec de
 	ld a, (de)

@@ -109,6 +109,11 @@ _lz3_unpack_block::
 ._lz3_unpack_block_110: ; backwards repeat
 	jr ._lz3_unpack_block_start
 ._lz3_unpack_block_111: ; long length
+	; terminate on 1111 1111
+	ld a, #0xFF
+	cp a, b
+	ret Z
+	; read length byte
 	ld a, (de) ; LLLL LLLL
 	inc de
 	ld c, a

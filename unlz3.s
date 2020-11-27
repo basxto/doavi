@@ -52,7 +52,6 @@ _lz3_unpack_block::
 	; read 1byte header
 	ld a, (de) ; CCCL LLLL
 	inc de
-	ld (hl), a ; store it
 	ld b, a
 	and a, #0x1F
 	ld c, a
@@ -112,7 +111,10 @@ _lz3_unpack_block::
 	; terminate on 1111 1111
 	ld a, #0xFF
 	cp a, b
-	ret Z
+	jr NZ, ._lz3_unpack_block_111_cont
+	pop hl
+	ret
+._lz3_unpack_block_111_cont: 
 	; read length byte
 	ld a, (de) ; LLLL LLLL
 	inc de

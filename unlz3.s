@@ -24,26 +24,17 @@
 
 _lz3_unpack_block::
 	; skip over return address
-	ldhl	sp,#(2)
+	ldhl	sp,#(2+3)
 .lz3_unpack_block_data:
-	; packets - c
-	; 16B blocks (8x8 pixels)
-	; not enough space for this
-	;ld	a, (hl+)
-	;ld	b, a
-	; dst     - hl
-	ld	a, (hl+)
-	ld	c, a
-	ld	a, (hl+)
-	ld	d, a
 	; src    - de
-	ld	a, (hl+)
-	ld	e, a
-	ld	a, (hl)
-	; swap back
-	ld	l, c
-	ld	h, d
+	ld	a, (hl-)
 	ld	d, a
+	ld	a, (hl-)
+	ld	e, a
+	; dst     - hl
+	ld	a, (hl-)
+	ld	l, (hl)
+	ld	h, a
 
 	; a and b are free
 	push hl ; so we can restore later in start_extended
@@ -98,10 +89,7 @@ _lz3_unpack_block::
 	; terminate on 1111 1111
 	ld a, #0xFF
 	cp a, b
-	jr NZ, ._lz3_unpack_block_111_cont
-	pop hl
-	ret
-._lz3_unpack_block_111_cont: 
+	jr Z, ._lz3_unpack_block_terminate
 	; read length byte
 	ld a, (de) ; LLLL LLLL
 	inc de
@@ -113,6 +101,9 @@ _lz3_unpack_block::
 	add a
 	ld b, a
 	jr ._lz3_unpack_block_command
+._lz3_unpack_block_terminate:
+	pop hl
+	ret
 
 ._lz3_unpack_block_001: ; byte fill
 	ld a, (de)
@@ -146,6 +137,7 @@ _lz3_unpack_block::
 	jr Z, ._lz3_unpack_block_start_extended
 	push de
 	push bc
+	push hl
 	; first bit ignored
 	res 7, a
 	; two complement, we want to substract (Y+1)
@@ -153,32 +145,27 @@ _lz3_unpack_block::
 	ld c, a
 	ld b, #0xFF
 	; it’s relative to the output buffer
-	ld e, l
-	ld d, h
 	jr ._lz3_unpack_block_start_trail
 ._lz3_unpack_block_start_extended:
 	inc de
 	push de
 	push bc
+	push hl
 	ld b, a ; upper byte
 	dec de
 	ld a, (de)
 	inc de
 	ld c, a ; lower byte
 	; set de to dest buffer start
-	push hl
 	ldhl	sp,#(6) ; skip hl, bc, de
-	ld	e, (hl)
-	inc hl
-	ld	d, (hl)
-	pop hl
+	ld	a, (hl+)
+	ld	h, (hl)
+	ld	l, a
 ._lz3_unpack_block_start_trail:
-	ld a, e
-	add c
-	ld e, a
-	ld a, d
-	adc b
-	ld d, a
+	add hl, bc
+	ld e, l
+	ld d, h
+	pop hl
 	pop bc
 	; fall through
 

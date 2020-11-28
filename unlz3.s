@@ -73,11 +73,6 @@ _lz3_unpack_block::
 	dec c
 	jr NZ, ._lz3_unpack_block_000
 	jr ._lz3_unpack_block_header
-._lz3_unpack_block_001: ; byte fill
-	ld a, (de)
-	inc de
-	ld b, a
-	jr ._lz3_unpack_block_fill
 ._lz3_unpack_block_01X:
 	bit 5, b
 	jr NZ, ._lz3_unpack_block_011
@@ -90,23 +85,15 @@ _lz3_unpack_block::
 	jr ._lz3_unpack_block_fill
 ._lz3_unpack_block_011: ; zero fill
 	xor a
-	ld b, a
-	jr ._lz3_unpack_block_fill
+	jr ._lz3_unpack_block_fill_doubler
 ._lz3_unpack_block_1XX:
 	bit 6, b
-	jr NZ, ._lz3_unpack_block_11X
-._lz3_unpack_block_10X:
-	bit 5, b
-	jr NZ, ._lz3_unpack_block_101
-._lz3_unpack_block_100: ; repeat
-	jr ._lz3_unpack_block_start
-._lz3_unpack_block_101: ; bit-reverse repeat
-	jr ._lz3_unpack_block_start
+	; repeat and bit-reverse repeat
+	; will be distinguised later
+	jr Z, ._lz3_unpack_block_start
 ._lz3_unpack_block_11X:
 	bit 5, b
-	jr NZ, ._lz3_unpack_block_111
-._lz3_unpack_block_110: ; backwards repeat
-	jr ._lz3_unpack_block_start
+	jr Z, ._lz3_unpack_block_110
 ._lz3_unpack_block_111: ; long length
 	; terminate on 1111 1111
 	ld a, #0xFF
@@ -127,6 +114,12 @@ _lz3_unpack_block::
 	ld b, a
 	jr ._lz3_unpack_block_command
 
+._lz3_unpack_block_001: ; byte fill
+	ld a, (de)
+	inc de
+._lz3_unpack_block_fill_doubler:
+	ld b, a
+	; fall through
 ; a: second byte to write
 ; b: first byte  to write (alternate)
 ; c: amount (1 is once)
@@ -140,6 +133,7 @@ _lz3_unpack_block::
 	jr NZ, ._lz3_unpack_block_fill
 	jr ._lz3_unpack_block_header
 
+._lz3_unpack_block_110: ; backwards repeat
 ; b: command
 ; c: amount (1 is once)
 ; get start address for repeat

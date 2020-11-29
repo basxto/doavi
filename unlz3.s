@@ -137,6 +137,7 @@ _lz3_unpack_block::
 	jr Z, ._lz3_unpack_block_start_extended
 	push de
 	push bc
+	; de will become hl
 	push hl
 	; first bit ignored
 	res 7, a
@@ -168,13 +169,25 @@ _lz3_unpack_block::
 	pop hl
 	pop bc
 	; fall through
-
+	bit 5, b
+	jr NZ, ._lz3_unpack_block_repeat_rev
+	bit 6, b
+	jr NZ, ._lz3_unpack_block_repeat_dec
+; three specialized functions are a lot faster for bigger L
 ; b: command
 ; c: amount (1 is once)
 ._lz3_unpack_block_repeat:
 	ld a, (de)
-	bit 5, b
-	jr Z, ._lz3_unpack_block_repeat_skip_rev
+	ld (hl+), a
+	inc de
+	dec c
+	jr NZ, ._lz3_unpack_block_repeat
+._lz3_unpack_block_repeat_end:
+	pop de
+	jp ._lz3_unpack_block_header
+
+._lz3_unpack_block_repeat_rev:
+	ld a, (de)
 	ld (hl), b
 	.rept 8
 	rla
@@ -182,17 +195,16 @@ _lz3_unpack_block::
 	.endm
 	ld a, b
 	ld b, (hl)
-	inc de 
-	jr ._lz3_unpack_block_repeat_skip_dec
-._lz3_unpack_block_repeat_skip_rev:
-	bit 6, b
-	inc de 
-	jr Z, ._lz3_unpack_block_repeat_skip_dec
-	dec de
-	dec de
-._lz3_unpack_block_repeat_skip_dec:
 	ld (hl+), a
+	inc de 
 	dec c
-	jr NZ, ._lz3_unpack_block_repeat
-	pop de
-	jp ._lz3_unpack_block_header
+	jr NZ, ._lz3_unpack_block_repeat_rev
+	jr ._lz3_unpack_block_repeat_end
+
+._lz3_unpack_block_repeat_dec:
+	ld a, (de)
+	ld (hl+), a
+	dec de
+	dec c
+	jr NZ, ._lz3_unpack_block_repeat_dec
+	jr ._lz3_unpack_block_repeat_end

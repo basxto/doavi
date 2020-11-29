@@ -22,9 +22,25 @@
 ; 111C CC00 LLLL LLLL [depends on CCC]
 ; simplified this one => 256B instead of 1024B
 
+_lz3_unpack_sprite_data::
+	ld	bc, #_set_sprite_data
+	jr	.lz3_unpack_data
+
+_lz3_unpack_win_data::
+_lz3_unpack_bkg_data::
+	; set new return address for .lz3_unpack_block
+	ld	bc, #_set_bkg_data
+.lz3_unpack_data:
+	push	bc
+
+	ldhl	sp,#(6+3)
+	; jr	.lz3_unpack_block_data
+	; reads the next 2 byte to BC
+	.db #0x11
+
 _lz3_unpack_block::
 	; skip over return address
-	ldhl	sp, #(2+3)
+	ldhl	sp, #(2+3) ; 2 bytes
 .lz3_unpack_block_data:
 	; src    - de
 	ld	a, (hl-)

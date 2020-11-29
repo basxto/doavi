@@ -81,14 +81,14 @@ _lz3_unpack_block::
 	bit 6, b
 	; repeat and bit-reverse repeat
 	; will be distinguised later
-	jr Z, ._lz3_unpack_block_start
+	jr Z, ._lz3_unpack_block_start ; aka _10X
 ._lz3_unpack_block_11X:
 	bit 5, b
 	jr Z, ._lz3_unpack_block_110
 ._lz3_unpack_block_111: ; long length
 	; terminate on 1111 1111
-	ld a, #0xFF
-	cp a, b
+	ld a, b
+	inc a
 	jr Z, ._lz3_unpack_block_terminate
 	; read length byte
 	ld a, (de) ; LLLL LLLL
@@ -184,16 +184,25 @@ _lz3_unpack_block::
 	jr NZ, ._lz3_unpack_block_repeat
 ._lz3_unpack_block_repeat_end:
 	pop de
-	jp ._lz3_unpack_block_header
+	jp ._lz3_unpack_block_header ; 3 bits missing for jr
 
 ._lz3_unpack_block_repeat_rev:
 	ld a, (de)
 	ld (hl), b
-	.rept 8
-	rla
-	rr b
-	.endm
-	ld a, b
+	; rotate bits of A
+	ld b, a
+	rlca
+	rlca
+	xor b
+	and #0xAA
+	xor b
+	ld b, a
+	swap b
+	xor b
+	and #0x33
+	xor b
+	rrca
+	; restore B
 	ld b, (hl)
 	ld (hl+), a
 	inc de 

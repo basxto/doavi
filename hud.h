@@ -10,6 +10,9 @@
 #define PORTRAIT_LENGTH $(16)
 #define ITEM_SPRITE $(24)
 
+// preloads all compressed images
+void preload_hud();
+// inits the window
 void init_hud();
 // fill area with spaces
 void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height);

@@ -6,18 +6,21 @@
 #include "dev/png2gb/csrc/decompress.h"
 #include "utils.h"
 #include "unpb16.h"
+#include "unlz3.h"
 
 extern UINT8 decompressed_tileset[128*16];
+// decompress to RAM
+UINT8 decompressed_dialog_photos[dialog_photos_data_length*16];
 
-const unsigned char *dialog_photos_data[] = {
-    &dialog_photos_none_data[0],
-    &dialog_photos_sign_data[0],
-    &dialog_photos_grave_data[0],
-    &dialog_photos_flame_data[0],
-    &dialog_photos_letter_data[0],
-    &dialog_photos_ghost_data[0],
-    &dialog_photos_rachel_data[0],
-    &dialog_photos_robot_data[0]
+const unsigned char *dialog_photos[] = {
+    &decompressed_dialog_photos[0],
+    &decompressed_dialog_photos[1*16*16],
+    &decompressed_dialog_photos[2*16*16],
+    &decompressed_dialog_photos[3*16*16],
+    &decompressed_dialog_photos[4*16*16],
+    &decompressed_dialog_photos[5*16*16],
+    &decompressed_dialog_photos[6*16*16],
+    &decompressed_dialog_photos[7*16*16]
 };
 
 #define buffer_length (16)
@@ -28,6 +31,12 @@ void waitpad_any(UINT8 mask){
     while ((joypad() & mask) == 0) {
         wait_vbl_done();
     }
+}
+
+void preload_hud() {
+    lz3_unpack_block(decompressed_dialog_photos, dialog_photos_data);
+    //set_bkg_data(0, 255, &decompressed_dialog_photos[0]);
+    //while(1);
 }
 
 void init_hud() {
@@ -297,7 +306,7 @@ UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
 
     //tiles[0] = 2 is already set
     // set portrait
-    pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_data[portrait]);
+    set_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos[portrait]);
 
 
     // hide item

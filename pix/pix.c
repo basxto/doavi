@@ -7,7 +7,7 @@
 #include "overworld_cave_pb16_data.c"
 #include "modular_characters_pb16_data.c"
 #include "overworld_anim_gbc_data.c"
-#include "dialog_upper_pb16_data.c"
+#include "dialog_photos_lz3_data.c"
 #include "dialog_photos_none_pb16_data.c"
 #include "dialog_photos_sign_pb16_data.c"
 #include "dialog_photos_grave_pb16_data.c"

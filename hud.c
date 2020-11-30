@@ -20,7 +20,11 @@ const unsigned char *dialog_photos[] = {
     &decompressed_dialog_photos[4*16*16],
     &decompressed_dialog_photos[5*16*16],
     &decompressed_dialog_photos[6*16*16],
-    &decompressed_dialog_photos[7*16*16]
+    &decompressed_dialog_photos[7*16*16],
+    &decompressed_dialog_photos[8*16*16],
+    &decompressed_dialog_photos[9*16*16],
+    &decompressed_dialog_photos[10*16*16],
+    &decompressed_dialog_photos[11*16*16]
 };
 
 #define buffer_length (16)

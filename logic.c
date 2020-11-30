@@ -142,9 +142,9 @@ void interact() {
     // sign
     if (tile == 18) {
         if (level_x == 1 && level_y == 1) {
-            dialog(text_village, text_sign, 1);
+            dialog(text_village, text_sign, 0);
         } else {
-            dialog(text_hello_world, text_sign, 1);
+            dialog(text_hello_world, text_sign, 0);
         }
     }
     // bottle
@@ -153,7 +153,7 @@ void interact() {
             dialog(text_empty_bottle, text_narrator, 0);
         }else{
             dialog(text_bottle_post, text_narrator, 0);
-            dialog(text_shekiro_1, text_letter, 4);
+            dialog(text_shekiro_1, text_letter, 0);
             progress[0] |= PRGRS_BTL;
         }
     }
@@ -199,10 +199,10 @@ void interact() {
                 SET_PRGRS_GHOST(0x1);
                 //progress[0] & (0x1<<4));
             }
-            dialog(text_dead, text_grave, 2);
+            dialog(text_dead, text_grave, 0);
         }
         if (tile == 30 && current_map == overworld_a_gbc_map) {
-            dialog(text_dialog4, text_flame, 3);
+            dialog(text_dialog4, text_flame, 0);
             // reset();
         }
     }
@@ -285,25 +285,25 @@ void interact() {
         if(level_y == 0){
             // ghost
             if(level_x == 0){
-                dialog(text_boohoo, text_ghost, 6);
+                dialog(text_boohoo, text_ghost, 5);
             }
             if(level_x == 4){
                 if(i == 1){
-                    dialog(text_stranded, text_t0, 7);
+                    dialog(text_stranded, text_t0, 2);
                 }else{
                     screen_wobble();
                     if(IS_PRGRS_TIME(0)){
                         SET_PRGRS_TIME(1);
-                        dialog(text_the_past, text_t1, 8);
+                        dialog(text_the_past, text_t1, 2);
                     }else{
                         SET_PRGRS_TIME(0);
-                        dialog(text_the_present, text_t1, 8);
+                        dialog(text_the_present, text_t1, 2);
                     }
                 }
             }
         }
         if(level_y == 5){
-            dialog(text_marvin, text_rachel, 11);
+            dialog(text_marvin, text_rachel, 4);
         }
     }
     draw_hud(lives, tpaper);

@@ -7,6 +7,7 @@
 #include "overworld_cave_pb16_data.c"
 #include "modular_characters_pb16_data.c"
 #include "overworld_anim_gbc_data.c"
+#include "dialog_mouths_lz3_data.c"
 #include "dialog_photos_lz3_data.c"
 #include "win_gbc_pb16_data.c"
 #include "items_gbc_pb16_data.c"

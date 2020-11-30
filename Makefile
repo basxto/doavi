@@ -116,7 +116,7 @@ music/songs.rel: music/songs.c
 %.rel: %.s
 	$(CA) -o $@ $^
 
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c  pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
+pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
 	$(CC) $(BANK) -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel

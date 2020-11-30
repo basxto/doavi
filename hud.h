@@ -9,6 +9,8 @@
 #define PORTRAIT_START $(96)
 #define PORTRAIT_LENGTH $(16)
 #define ITEM_SPRITE $(24)
+#define MOUTH_SPRITE $(25)
+#define MOUTHS_START $(0x70)
 
 // preloads all compressed images
 void preload_hud();
@@ -26,7 +28,7 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num);
 void draw_hud(const UINT8 lives, const UINT8 toiletpaper);
 
-UINT8 dialog(const char *str, const char* name, const UINT8 portrait);
+UINT8 dialog(const char const *str, const char const *name, const UINT8 mouth);
 
 // like waitpad but looks for any of the given keys
 // does not keep cpu busy

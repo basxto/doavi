@@ -207,6 +207,7 @@ void init_screen() {
     pb16_unpack_win_data(WIN_START, win_gbc_data_length, decompressed_tileset, win_gbc_data);
     pb16_unpack_sprite_data(ITEMS_START, items_gbc_data_length, decompressed_tileset, items_gbc_data);
     pb16_unpack_sprite_data(CHARACTERS_START, modular_characters_data_length, decompressed_tileset, modular_characters_data);
+    lz3_unpack_sprite_data(MOUTHS_START, dialog_mouths_data_length, decompressed_tileset, dialog_mouths_data);
     preload_hud();
 
     VBK_REG = 1;

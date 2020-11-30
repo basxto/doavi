@@ -10,3 +10,7 @@
 [submodule "dev/gbz80-ph"]
 	path = dev/gbz80-ph
 	url = https://github.com/basxto/gbz80-ph
+[submodule "dev/lzcomp"]
+	path = dev/lzcomp
+	url = https://github.com/basxto/lzcomp
+	branch = LZ256

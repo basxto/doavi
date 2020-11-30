@@ -102,20 +102,19 @@ _lz3_unpack_block::
 	bit	5, b
 	jr	Z, .lz3_unpack_block_110
 .lz3_unpack_block_111: ; long length
-	; terminate on 1111 1111
-	ld	a, b
-	inc	a
-	jr	Z, .lz3_unpack_block_terminate
 	; read length byte
 	ld	a, (de) ; LLLL LLLL
 	inc	de
 	ld	c, a
 	; b<<3
 	ld	a, b
-	add	a
-	add	a
-	add	a
+	rlca
+	rlca
+	rlca
 	ld	b, a
+	; terminate on 1111 1111
+	inc	a
+	jr	Z, .lz3_unpack_block_terminate
 	jr	.lz3_unpack_block_command
 .lz3_unpack_block_terminate:
 	pop	hl
@@ -137,8 +136,8 @@ _lz3_unpack_block::
 	jr	Z, .lz3_unpack_block_header
 	ld	(hl+), a
 	dec	c
-	jr	Z, .lz3_unpack_block_header
-	jr	.lz3_unpack_block_fill
+	jr	NZ, .lz3_unpack_block_fill
+	jr	.lz3_unpack_block_header
 
 .lz3_unpack_block_110: ; backwards repeat
 ; b: command
@@ -198,7 +197,7 @@ _lz3_unpack_block::
 	jr	NZ, .lz3_unpack_block_repeat
 .lz3_unpack_block_repeat_end:
 	pop	de
-	jp	.lz3_unpack_block_header ; 1 bits missing for jr
+	jr	.lz3_unpack_block_header
 
 .lz3_unpack_block_repeat_rev:
 	ld	a, (de)

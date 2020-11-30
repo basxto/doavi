@@ -137,8 +137,8 @@ _lz3_unpack_block::
 	jr	Z, .lz3_unpack_block_header
 	ld	(hl+), a
 	dec	c
-	jr	NZ, .lz3_unpack_block_fill
-	jr	.lz3_unpack_block_header
+	jr	Z, .lz3_unpack_block_header
+	jr	.lz3_unpack_block_fill
 
 .lz3_unpack_block_110: ; backwards repeat
 ; b: command
@@ -149,45 +149,43 @@ _lz3_unpack_block::
 .lz3_unpack_block_start:
 	ld	a, (de)
 	inc	de
+	ld	(hl), b
 	bit	7, a
 	jr	Z, .lz3_unpack_block_start_extended
 	push	de
-	push	bc
 	; de will become hl
 	push	hl
 	; first bit	ignored
 	res	7, a
 	; two complement, we want to substract (Y+1)
 	cpl
-	ld	c, a
-	ld	b, #0xFF
+	ld	d, #0xFF
 	; it’s relative to the output buffer
 	jr	.lz3_unpack_block_start_trail
 .lz3_unpack_block_start_extended:
 	inc	de
 	push	de
-	push	bc
 	push	hl
 	ld	b, a ; upper byte
-	dec	de
-	ld	a, (de)
-	inc	de
-	ld	c, a ; lower byte
 	; set de to dest buffer start
-	ldhl	sp, #(6) ; skip hl, bc, de
+	ldhl	sp, #(4) ; skip hl, de
 	ld	a, (hl+)
 	ld	h, (hl)
 	ld	l, a
+	; get lower byte
+	dec	de
+	ld	a, (de)
+	ld	d, b
 .lz3_unpack_block_start_trail:
-	add	hl, bc
+	ld	e, a ; lower byte
+	add	hl, de
 	ld	e, l
 	ld	d, h
 	pop	hl
-	pop	bc
 	; fall through
-	bit	5, b
+	bit	5, (hl)
 	jr	NZ, .lz3_unpack_block_repeat_rev
-	bit	6, b
+	bit	6, (hl)
 	jr	NZ, .lz3_unpack_block_repeat_dec
 ; three specialized functions are a lot faster for bigger L
 ; b: command
@@ -200,11 +198,10 @@ _lz3_unpack_block::
 	jr	NZ, .lz3_unpack_block_repeat
 .lz3_unpack_block_repeat_end:
 	pop	de
-	jp	.lz3_unpack_block_header ; 3 bits missing for jr
+	jp	.lz3_unpack_block_header ; 1 bits missing for jr
 
 .lz3_unpack_block_repeat_rev:
 	ld	a, (de)
-	ld	(hl), b
 	; rotate bits of A
 	ld	b, a
 	rlca
@@ -219,7 +216,6 @@ _lz3_unpack_block::
 	xor	b
 	rrca
 	; restore B
-	ld	b, (hl)
 	ld	(hl+), a
 	inc	de
 	dec	c

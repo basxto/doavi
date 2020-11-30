@@ -13,7 +13,7 @@ fi
 if [ "${FROM}" != "$(echo ${FROM}|sed 's/_pb8//g')" ]; then
     echo "// Compressed with pb8.py" >>  ${TO};
 fi
-if [ "${FROM}" != "$(echo ${FROM}|sed 's/_lz2//g')" ]; then
+if [ "${FROM}" != "$(echo ${FROM}|sed 's/_lz3//g')" ]; then
     echo "// Compressed with lzcomp" >>  ${TO};
 fi
 if [ "$#" -ge "5" ]; then

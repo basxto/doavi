@@ -71,7 +71,7 @@ $(ROM): $(ROM).ihx
 	$(DEV)/noi2sym.sh $(ROM).noi $$(basename $(ROM) .gb).sym
 	$(MKROM) -yn "DESSERTONAVEGI" $^ $@
 
-$(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
+$(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(LD) -nmjwxi -k "$(GBDKLIB)/gbz80/" -l gbz80.lib -k "$(GBDKLIB)/gb/" -l gb.lib -g .OAM=0xC000 -g .STACK=0xE000 -g .refresh_OAM=0xFF80 -g .init=0x000 -b _DATA=0xc0a0 -b _CODE=0x0200 $@ "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" $^
 
 .PHONY: run

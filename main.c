@@ -94,8 +94,8 @@ void init_save() {
 }
 
 void load_menu() {
-    smart_write(0, 0, 20, 18, text_load_title);
-    UINT8 save = smart_write(0, 4, 5, 18, text_load_select) - 1;
+    smart_write(2, 0, 16, 18, text_load_title);
+    UINT8 save = smart_write(2, 4, 5, 18, text_load_select) - 1;
     sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (save*sizeof(Savegame)));
     //delay(100);
     ENABLE_RAM_MBC1;
@@ -104,7 +104,7 @@ void load_menu() {
         sl->slots |= (0x1<<save);
     }else{ // existing one
         DISABLE_RAM_MBC1;
-        UINT8 ret = smart_write(0, 0, 20, 18, text_load_choice);
+        UINT8 ret = smart_write(2, 0, 16, 18, text_load_choice);
         ENABLE_RAM_MBC1;
         if(ret == 2){
             init_save();
@@ -117,24 +117,25 @@ void load_menu() {
 }
 
 void item_menu(){
-    smart_write(0, 0, 20, 18, text_item_selection);
+    smart_write(2, 0, 16, 18, text_item_selection);
     if(item[0] != 0)
-        smart_write(5, 4, 16, 1, text_sword);
+        smart_write(7, 4, 16, 1, text_sword);
     if(item[1] != 0)
-        smart_write(5, 5, 16, 1, text_power);
-    UINT8 item = smart_write(0, 4, 5, 18, text_load_select) - 1;
+        smart_write(7, 5, 16, 1, text_power);
+    UINT8 item = smart_write(2, 4, 5, 18, text_load_select) - 1;
     if(item != 0)
         selected_item = item-1;
 }
 
 void menu() {
+    space_area(0, 0, 20, 18);
     move_win(7, 0);
     HIDE_SPRITES;
-    UINT8 ret = smart_write(0, 0, 20, 18, text_menu);
+    UINT8 ret = smart_write(2, 0, 16, 18, text_menu);
     // write_num(12, 1, 3, ret);
     switch (ret) {
     case 2:
-        smart_write(0, 0, 20, 18, text_credits);
+        smart_write(2, 0, 16, 18, text_credits);
         waitpad_any(J_A);
         delay(100);
         break;
@@ -540,11 +541,11 @@ void main() {
     //write_hex(0,0,2,sys_time>>8);
     //write_hex(2,0,2,sys_time&0xFF);
 
-    smart_write(3, 4, 20, 2, text_title);
-    smart_write(5, 12, 20, 2, text_author);
+    smart_write(3, 4, 16, 2, text_title);
+    smart_write(5, 12, 16, 2, text_author);
     waitpad_any(J_A | J_START);
     delay(100);
-    smart_write(0, 0, 20, 18, text_intro);
+    smart_write(2, 0, 16, 18, text_intro);
     waitpad_any(J_A | J_START);
     delay(100);
     current_map = 0x0;

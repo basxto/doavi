@@ -182,10 +182,15 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     UINT8 i;
     unsigned char tiles[2];
     UINT8 item = get_selected_item();
-    tiles[0] = WIN_START + 8;
-    set_win_tiles(3, 1, 1, 1, tiles);
+    // clear it
+    tiles[1] = tiles[0] = WIN_START + 6;
+    for(i = 0;i < 20; ++i)
+        set_win_tiles(i, 0, 1, 2, tiles);
+    // draw decoration
     tiles[0] = WIN_START + 7;
     set_win_tiles(2, 1, 1, 1, tiles);
+    tiles[0] = WIN_START + 8;
+    set_win_tiles(3, 1, 1, 1, tiles);
     tiles[0] = WIN_START + 12;
     tiles[1] = WIN_START + 13;
     set_win_tiles(0, 0, 2, 1, tiles);
@@ -196,6 +201,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
         tiles[0] = (i >= lives ? WIN_START + $(11) : WIN_START + $(9));
         set_win_tiles(2 + i, 0, 1, 1, tiles);
     }
+    // write values
     write_num(4, 1, 3, toiletpaper);
     move_win(7, 16 * 8);
     move_sprite(ITEM_SPRITE, 12, 148);

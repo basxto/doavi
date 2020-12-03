@@ -57,6 +57,7 @@ _undice_line::
 	ld	h, (hl)
 	ld	l, a
 .undice_line_loop:
+	; read from str
 	ld	a, (hl+)
 	add	a ; check leftmost bit
 	jr	C, .undice_line_reference
@@ -64,14 +65,16 @@ _undice_line::
 	; write to buffer
 	ld	(de), a
 	inc	de
-	; (b>0?b-1:0)
+	; b=(b>0?b-1:0)
 	srl	b
 	; jump on b == 1
 	jr	c, .undice_line_jumpback
 .undice_line_continue_loop:
+	cp	#1
 	; terminate for value == 0
-	or	a
-	jr	Z, .undice_line_terminate
+	jr	C, .undice_line_terminate
+	; terminate for value == 1
+	jr	Z, .undice_line_fix_nl
 	; return on counter == 0
 	dec	c
 	jr	NZ, .undice_line_loop
@@ -90,6 +93,12 @@ _undice_line::
 	; return a
 	ld	e, a
 	ret
+.undice_line_fix_nl:
+	dec a
+	dec de
+	ld	(de), a
+	inc a
+	jr .undice_line_terminate
 .undice_line_reference:
 	; a is already *2
 	rrc	b ; test for 0

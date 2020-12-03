@@ -537,11 +537,11 @@ void main() {
     //write_hex(0,0,2,sys_time>>8);
     //write_hex(2,0,2,sys_time&0xFF);
 
-    smart_write(3, 4, 20, 2, text_title);
-    smart_write(5, 12, 20, 2, text_author);
+    smart_write(3, 4, 16, 2, text_title);
+    smart_write(5, 12, 16, 2, text_author);
     waitpad_any(J_A | J_START);
     delay(100);
-    smart_write(0, 0, 20, 18, text_intro);
+    smart_write(2, 0, 16, 18, text_intro);
     waitpad_any(J_A | J_START);
     delay(100);
     current_map = 0x0;

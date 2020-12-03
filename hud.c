@@ -6,6 +6,7 @@
 #include "dev/png2gb/csrc/decompress.h"
 #include "utils.h"
 #include "unpb16.h"
+#include "undice.h"
 
 extern UINT8 decompressed_tileset[128*16];
 
@@ -259,12 +260,15 @@ UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
     UINT8 ret = 0;
     UINT8 namelength = 0;
 
+    undice_init(buffer_length, buffer, name);
+    undice_line();
+
     // generate name field data blocks
     // there is room for at most 13 characters
     for(y = 0; y < 13; ++y){
-        if(!name[y])
+        if(!buffer[y])
             break;
-        get_bkg_data(FONT_START + name[y], 1, tiles);
+        get_bkg_data(FONT_START + buffer[y], 1, tiles);
         // generate lower case
         if(y!=0)
             for(x = 9; x > 1; --x){

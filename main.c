@@ -20,6 +20,7 @@
 #include "strings.h"
 
 #include "unpb16.h"
+#include "unlz3.h"
 
 #include "level.h"
 
@@ -87,7 +88,7 @@ void init_save() {
 
     sg->chest = 0;
     sg->flame = 0;
-    sg->progress[0] = 0;//*(volatile UINT8*)0x144; // 0
+    sg->progress[0] = 0x40;//*(volatile UINT8*)0x144; // 0
     sg->progress[1] = 0;//*(volatile UINT8*)0x145; // 0
     sg->cheat = 0;//*(volatile UINT8*)0x146; // 0
 }
@@ -206,6 +207,8 @@ void init_screen() {
     pb16_unpack_win_data(WIN_START, win_gbc_data_length, decompressed_tileset, win_gbc_data);
     pb16_unpack_sprite_data(ITEMS_START, items_gbc_data_length, decompressed_tileset, items_gbc_data);
     pb16_unpack_sprite_data(CHARACTERS_START, modular_characters_data_length, decompressed_tileset, modular_characters_data);
+    lz3_unpack_sprite_data(MOUTHS_START, dialog_mouths_data_length, decompressed_tileset, dialog_mouths_data);
+    preload_hud();
 
     VBK_REG = 1;
     // make it all black

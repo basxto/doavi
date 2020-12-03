@@ -29,3 +29,10 @@ music/songs.h
 *.zip
 *.bank
 *.gpl
+*.rst
+*.diff
+*.uge
+*.ini
+*.sav
+*.tiled-project
+*.tiled-session

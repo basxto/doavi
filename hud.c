@@ -6,18 +6,25 @@
 #include "dev/png2gb/csrc/decompress.h"
 #include "utils.h"
 #include "unpb16.h"
+#include "unlz3.h"
 
 extern UINT8 decompressed_tileset[128*16];
+// decompress to RAM
+UINT8 decompressed_dialog_photos[dialog_photos_data_length*16];
 
-const unsigned char *dialog_photos_data[] = {
-    &dialog_photos_none_data[0],
-    &dialog_photos_sign_data[0],
-    &dialog_photos_grave_data[0],
-    &dialog_photos_flame_data[0],
-    &dialog_photos_letter_data[0],
-    &dialog_photos_ghost_data[0],
-    &dialog_photos_rachel_data[0],
-    &dialog_photos_robot_data[0]
+const unsigned char *dialog_photos[] = {
+    &decompressed_dialog_photos[0],
+    &decompressed_dialog_photos[1*16*16],
+    &decompressed_dialog_photos[2*16*16],
+    &decompressed_dialog_photos[3*16*16],
+    &decompressed_dialog_photos[4*16*16],
+    &decompressed_dialog_photos[5*16*16],
+    &decompressed_dialog_photos[6*16*16],
+    &decompressed_dialog_photos[7*16*16],
+    &decompressed_dialog_photos[8*16*16],
+    &decompressed_dialog_photos[9*16*16],
+    &decompressed_dialog_photos[10*16*16],
+    &decompressed_dialog_photos[11*16*16]
 };
 
 #define buffer_length (16)
@@ -28,6 +35,15 @@ void waitpad_any(UINT8 mask){
     while ((joypad() & mask) == 0) {
         wait_vbl_done();
     }
+}
+
+void preload_hud() {
+    lz3_unpack_block(decompressed_dialog_photos, dialog_photos_data);
+    //set_bkg_data(0, 255, &decompressed_dialog_photos[0]);
+    //while(1);
+    move_sprite(MOUTH_SPRITE, 0x94, 0x91);
+    set_sprite_prop(MOUTH_SPRITE, 3);
+    set_sprite_tile(MOUTH_SPRITE, MOUTHS_START);
 }
 
 void init_hud() {
@@ -249,15 +265,34 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     move_sprite(ITEM_SPRITE, 12, 148);
     set_sprite_prop(ITEM_SPRITE, 3);
     set_sprite_tile(ITEM_SPRITE, ITEMS_START-1+item);
+    set_sprite_tile(MOUTH_SPRITE, MOUTHS_START);
 }
 
-UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
+UINT8 dialog(const char const *str, const char const *name, const UINT8 mouth){
+    UINT8 portrait = 0;
     unsigned char tiles[16];
     UINT8 x;
     UINT8 y;
     UINT8 accept = 0;
     UINT8 ret = 0;
     UINT8 namelength = 0;
+
+    if (name == text_sign)
+        portrait = 1;
+    if (name == text_grave)
+        portrait = 2;
+    if (name == text_flame)
+        portrait = 3;
+    if (name == text_letter)
+        portrait = 4;
+    if (name == text_ghost)
+        portrait = 6;
+    if (name == text_t0)
+        portrait = 7;
+    if (name == text_t1)
+        portrait = 8;
+    if (name == text_rachel)
+        portrait = 11;
 
     // generate name field data blocks
     // there is room for at most 13 characters
@@ -297,7 +332,8 @@ UINT8 dialog(const char *str, const char* name, const UINT8 portrait){
 
     //tiles[0] = 2 is already set
     // set portrait
-    pb16_unpack_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, decompressed_tileset, dialog_photos_data[portrait]);
+    set_bkg_data(PORTRAIT_START, PORTRAIT_LENGTH, dialog_photos[portrait]);
+    set_sprite_tile(MOUTH_SPRITE, MOUTHS_START+mouth);
 
 
     // hide item

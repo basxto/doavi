@@ -33,6 +33,8 @@ music/songs.h
 *.diff
 *.uge
 *.ini
+*.exe
+*recovery.sna
 *.sav
 *.tiled-project
 *.tiled-session

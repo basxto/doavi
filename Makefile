@@ -59,16 +59,16 @@ define calc_hex
 $(shell printf '0x%X' $$(($(1))))
 endef
 
-ROM=doavi.gb
+ROM=doavi
 
 .PHONY: build
-build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM)
+build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM).gb
 
 $(DEV)/gbz80-ph/%.def: FORCE
 	$(MAKE) -C $(DEV)/gbz80-ph/ $*.def
 
-$(ROM): $(ROM).ihx
-	$(DEV)/noi2sym.sh $(ROM).noi $$(basename $(ROM) .gb).sym
+$(ROM).gb: $(ROM).ihx
+	$(DEV)/noi2sym.sh $(ROM).noi $(ROM).sym
 	$(MKROM) -yn "DESSERTONAVEGI" $^ $@
 
 $(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
@@ -76,7 +76,7 @@ $(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel undic
 
 .PHONY: run
 run: build
-	$(EMU) $(ROM)
+	$(EMU) $(ROM).gb
 
 $(DEV)/gbdk-music/%: FORCE
 	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
@@ -236,7 +236,7 @@ clean:
 	$(MAKE) -C $(DEV)/gbdk-music clean
 	$(MAKE) -C $(DEV)/png2gb clean
 
-gbonline:  $(ROM) $(DEV)/GameBoy-Online/
+gbonline:  $(ROM).gb $(DEV)/GameBoy-Online/
 	$(DEV)/patch-gbonline.sh $< $(DEV)/GameBoy-Online/
 
 $(DEV)/GameBoy-Online/index.html: gbonline
@@ -256,6 +256,6 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 
 .PHONY: spaceleft
 spaceleft: build
-	dev/romusage/bin/romusage $(ROM).noi
+	dev/romusage/bin/romusage $(ROM).noi -g
 
 FORCE:

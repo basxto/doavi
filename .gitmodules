@@ -14,3 +14,6 @@
 	path = dev/lzcomp
 	url = https://github.com/basxto/lzcomp
 	branch = LZ256
+[submodule "dev/romusage"]
+	path = dev/romusage
+	url = https://github.com/bbbbbr/romusage

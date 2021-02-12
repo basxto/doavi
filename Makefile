@@ -256,6 +256,6 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 
 .PHONY: spaceleft
 spaceleft: build
-	@hexdump -v -e '/1 "%02X\n"' $(ROM) | awk '/FF/ {n += 1} !/FF/ {n = 0} END {print n}'
+	dev/romusage/bin/romusage $(ROM).noi
 
 FORCE:

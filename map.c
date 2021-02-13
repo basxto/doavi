@@ -113,7 +113,7 @@ void incject_collision(UINT8 x, UINT8 y, _Bool enable) {
 }
 
 void load_map(const UINT8 background[]) {
-    unsigned char *next_map;
+    const unsigned char *next_map;
     UINT8 y;
     UINT8 x;
     UINT16 index;

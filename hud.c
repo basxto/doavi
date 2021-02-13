@@ -84,7 +84,7 @@ void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 hei
 // scroll if necessary
 // \1 is new line
 // width must be <= buffer_length
-UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, char *str){
+UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, const char *str){
     UINT8 start = 0;
     UINT8 run = 1;
     UINT8 tmp_y = y;
@@ -95,7 +95,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     // string return pointer
     char *str_ret = 0;
     // string pointer
-    char *str_ptr = str;
+    const char *str_ptr = str;
     space_area(x, y, width, height);
     undice_init(width, buffer, str);
     //undice_line();
@@ -151,7 +151,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     return 0;
 }
 
-void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
+void write_line(const UINT8 x, const  UINT8 y, const UINT8 length, const char *str) {
     if(length == 0)
         return;
     UINT8 i;
@@ -170,7 +170,7 @@ void write_line(UINT8 x, UINT8 y, UINT8 length, char *str) {
 }
 
 // maximum length is 2 since maximum UINT8 is FF
-void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
+void write_hex(const UINT8 x, const UINT8 y, UINT8 length, const UINT8 num) {
     if (length > 2) {
         length = 2;
     }
@@ -181,7 +181,7 @@ void write_hex(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
 }
 
 // maximum length is 3 since maximum UINT8 is 255
-void write_num(UINT8 x, UINT8 y, UINT8 length, UINT8 num) {
+void write_num(const UINT8 x, const UINT8 y, UINT8 length, UINT8 num) {
     if (length > 3) {
         length = 3;
     }
@@ -356,7 +356,7 @@ UINT8 dialog(const char const *str, const char const *name, const UINT8 mouth){
     //write_line(1, 0, namelength, name);
 
     move_win(7, 14 * 8);
-    ret = smart_write(1, 1, 14, 3, str);
+    ret = smart_write(1, 1, 14, 3, str); // does smart_write need to change this?
     delay(100);
     // only wait for A if this isn't a selection
     if(ret == 0){

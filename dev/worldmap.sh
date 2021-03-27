@@ -2,7 +2,7 @@
 cd "$(dirname "$(readlink -f "$0")")" || exit 1
 cd ../level || exit 1
 
-echo '#include "level.h"' > ../level.c
+echo '#include "src/level.h"' > ../level.c
 
 max_x=0
 max_y=0

@@ -12,12 +12,12 @@
 #include "logic.h"
 #include "map.h"
 
-#include "dev/gbdk-music/music.h"
-#include "dev/gbdk-music/sound.h"
+#include "../dev/gbdk-music/music.h"
+#include "../dev/gbdk-music/sound.h"
 
-#include "pix/pix.h"
+#include "../pix/pix.h"
 
-#include "strings.h"
+#include "../strings.h"
 
 #include "unpb16.h"
 #include "unlz3.h"

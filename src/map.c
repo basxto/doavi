@@ -3,11 +3,11 @@
 #include "map.h"
 #include "main.h"
 
-#include "pix/pix.h"
+#include "../pix/pix.h"
 
-#include "music/songs.h"
+#include "../music/songs.h"
 
-#include "dev/png2gb/csrc/decompress.h"
+#include "../dev/png2gb/csrc/decompress.h"
 #include "unpb16.h"
 
 #define WIN_START 0

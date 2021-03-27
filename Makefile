@@ -16,7 +16,10 @@ AS=$(LCC)
 ASFLAGS=-c
 LD=$(LCC)
 LDFLAGS=-Wm-yn"DESSERTONAVEGI" -Wm-yc -Wm-yt0x03 -Wm-ya1 -Wl-j -Wm-yS
-VPATH = src
+
+BUILDDIR=build/
+BINDIR=bin/
+VPATH=src:$(BUILDDIR)
 
 EMU?=sameboy
 pngconvert?=./dev/png2gb/png2gb.py -ci
@@ -60,50 +63,53 @@ ROM=doavi
 
 .PHONY: build run spaceleft clean gbonline
 
-build: $(ROM).gb
+build: $(BUILDDIR) $(BINDIR) $(BINDIR)$(ROM).gb
 
-$(ROM).gb: main.rel hud.rel ./dev/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
+%/:
+	mkdir -p $@
+
+$(BINDIR)$(ROM).gb: $(BUILDDIR)main.rel $(BUILDDIR)hud.rel ./dev/gbdk-music/music.rel $(BUILDDIR)map.rel $(BUILDDIR)logic.rel $(BUILDDIR)undice.rel $(BUILDDIR)unpb16.rel $(BUILDDIR)unlz3.rel $(BUILDDIR)strings.rel $(BUILDDIR)level.rel $(BUILDDIR)songs.rel $(BUILDDIR)pix.rel
 	$(LD) $(LDFLAGS) -o $@ $^
 
-%.asm: %.c
+$(BUILDDIR)%.asm: %.c
 	$(CC) $(CFLAGS) -S -o $@ $^
 
-main.asm: main.c pix/pix.h strings.h
+$(BUILDDIR)main.asm: main.c pix/pix.h strings.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-logic.asm: logic.c level.h strings.h
+$(BUILDDIR)logic.asm: logic.c level.h strings.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-hud.asm: hud.c pix/pix.h
+$(BUILDDIR)hud.asm: hud.c pix/pix.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-map.asm: map.c pix/pix.h music/songs.h
+$(BUILDDIR)map.asm: map.c pix/pix.h music/songs.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-strings.asm: strings.c
+$(BUILDDIR)strings.asm: strings.c
 	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-level.asm: level.c
+$(BUILDDIR)level.asm: level.c
 	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-music/songs.asm: music/songs.c
+$(BUILDDIR)songs.asm: music/songs.c
 	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-pix/pix.asm: pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
+$(BUILDDIR)pix.asm: pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
 	$(CC) $(CFLAGS) $(BANK) -S -o $@ $<
 
 # generated
-%.rel: %.asm
+$(BUILDDIR)%.rel: %.asm
 	$(AS) $(ASFLAGS) -o $@ $^
 
 # handwritten
-%.rel: %.s
+$(BUILDDIR)%.rel: %.s
 	$(AS) $(ASFLAGS) -o $@ $^
 
-pix/pix.h: pix/pix.c pix/pix.rel
+pix/pix.h: pix/pix.c $(BUILDDIR)pix.rel
 	$(c2h) $< > $@
 
-music/songs.h: music/songs.c music/songs.rel
+music/songs.h: music/songs.c $(BUILDDIR)songs.rel
 	grep "music.h" music/cosmicgem_voadi.c > $@
 	$(c2h) $< >> $@
 
@@ -209,7 +215,7 @@ strings.c strings.h: strings.ini stringmap.txt specialchars.txt
 %_mono.png: %_gbc.png
 	$(convert) $^ -monochrome $@
 
-gbonline:  $(ROM).gb ./dev/GameBoy-Online/
+gbonline:  $(BINDIR)$(ROM).gb ./dev/GameBoy-Online/
 	./dev/patch-gbonline.sh $< ./dev/GameBoy-Online/
 
 ./dev/GameBoy-Online/index.html: gbonline
@@ -234,7 +240,7 @@ gbonline:  $(ROM).gb ./dev/GameBoy-Online/
 	$(MAKE) DEV=../ -C ./dev/png2gb $*
 
 run: build
-	$(EMU) $(ROM).gb
+	$(EMU) $(BINDIR)$(ROM).gb
 
 clean:
 	$(RM) pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
@@ -245,6 +251,6 @@ clean:
 	$(MAKE) -C ./dev/png2gb clean
 
 spaceleft: build
-	dev/romusage/bin/romusage $(ROM).noi -g
+	dev/romusage/bin/romusage $(BINDIR)$(ROM).noi -g
 
 FORCE:

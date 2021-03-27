@@ -14,6 +14,7 @@ Some tools need python 3 and `PyPNG` installed.
 ```
 git clone --recursive https://github.com/basxto/doavi.git
 cd doavi
+make -C dev/lzcomp
 make
 
 ```

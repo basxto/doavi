@@ -1,53 +1,53 @@
-DEV?=./dev
-BIN=$(DEV)/gbdk-n/bin
+GBDKBIN=
 SDCCBIN=
-GBDKDIR=/opt/gbdk-2020/
-GBDKLIB=$(GBDKDIR)/lib/small/asxxxx/
 
 # globally installed
 # use --sdccbin= for a custom sdcc
-LCC?=lcc -Wa-l
-# 0x0143 is gameboy mode
-MKROM?=$(SDCCBIN)makebin -Z -yc
-CA=$(SDCCBIN)sdasgb -plosgff
-LD=$(SDCCBIN)sdldgb
+LCC?=$(GBDKBIN)lcc
+
+CPP=$(LCC) -Wf-E
+CPPFLAGS=
+CC=$(LCC)
+CFLAGS=-Wf--fverbose-asm
+AR=$(SDCCBIN)sdar
+ARFLAGS=
+AS=$(LCC)
+ASFLAGS=-c
+LD=$(LCC)
+LDFLAGS=-Wm-yn"DESSERTONAVEGI" -Wm-yc -Wm-yt0x03 -Wm-ya1 -Wl-j -Wm-yS
+
 EMU?=sameboy
-pngconvert?=$(DEV)/png2gb/png2gb.py -ci
-compress?=$(DEV)/png2gb/compress2bpp.py -ci
-pb16?=$(DEV)/pb16.py
-lz3?=$(DEV)/lzcomp/lzcomp
-loadgpl=$(DEV)/loadgpl/loadgpl.py
-gbc2gb?=$(DEV)/gbc2gb.py
+pngconvert?=./dev/png2gb/png2gb.py -ci
+compress?=./dev/png2gb/compress2bpp.py -ci
+pb16?=./dev/pb16.py
+lz3?=./dev/lzcomp/lzcomp
+loadgpl=./dev/loadgpl/loadgpl.py
+gbc2gb?=./dev/gbc2gb.py
 rgbgfx?=rgbgfx
 xxd?=xxd
-tmxconvert=$(DEV)/tmx2c.py
-bin2c=$(DEV)/bin2c.sh
-c2h=$(DEV)/c2h.sh
+tmxconvert=./dev/tmx2c.py
+bin2c=./dev/bin2c.sh
+c2h=./dev/c2h.sh
 convert?=convert
 
 NOPEEP?=0
 
 ifeq ($(NOPEEP),1)
-CFLAGS += --no-peep
-else
-CFLAGS += --peep-file$(abspath $(DEV))/gbz80-ph/combined-peeph.def
+CFLAGS += -Wf--no-peep
 endif
 
 COMPRESS?=1
 ROMDEBUG?=0
 
 ifeq ($(COMPRESS),1)
-CC=$(SDCCBIN)sdcc -mgbz80 --fsigned-char --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c -DCOMPRESS=1 $(CFLAGS)
-else
-CC=$(SDCCBIN)sdcc -mgbz80 --fsigned-char --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c $(CFLAGS)
+CFLAGS += -DCOMPRESS=1
 endif
 
 ifeq ($(ROMDEBUG), 0)
 BANK=
-MKROM+= -yt 0x03 -ya 1
 else
 BANK= -bo $(ROMDEBUG)
-MKROM+= -yt 0x03 -ya 1 -yo 4
+LDFLAGS+= -Wm-yo4
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
@@ -55,69 +55,58 @@ LEVEL=$(LEVELTMX:.tmx=_tmap.c)
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
 PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16 items_gbc_pb16))
 
-define calc_hex
-$(shell printf '0x%X' $$(($(1))))
-endef
-
 ROM=doavi
 
 .PHONY: build
-build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM).gb
+build: $(ROM).gb
 
-$(DEV)/gbz80-ph/%.def: FORCE
-	$(MAKE) -C $(DEV)/gbz80-ph/ $*.def
-
-$(ROM).gb: $(ROM).ihx
-	$(DEV)/noi2sym.sh $(ROM).noi $(ROM).sym
-	$(MKROM) -yn "DESSERTONAVEGI" $^ $@
-
-$(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
-	$(LD) -nmjwxi -k "$(GBDKLIB)/gbz80/" -l gbz80.lib -k "$(GBDKLIB)/gb/" -l gb.lib -g .OAM=0xC000 -g .STACK=0xE000 -g .refresh_OAM=0xFF80 -g .init=0x000 -b _DATA=0xc0a0 -b _CODE=0x0200 $@ "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" $^
+$(ROM).gb: main.rel hud.rel ./dev/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
+	$(LD) $(LDFLAGS) -o $@ $^
 
 .PHONY: run
 run: build
 	$(EMU) $(ROM).gb
 
-$(DEV)/gbdk-music/%: FORCE
-	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
+./dev/gbdk-music/%: FORCE
+	$(MAKE) -C ./dev/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
 
 main.asm: main.c pix/pix.h strings.h
-	$(CC) --fverbose-asm -S -o $@ $<
+	$(CC) $(CFLAGS) -S -o $@ $<
 
 logic.asm: logic.c level.h strings.h
-	$(CC) --fverbose-asm -S -o $@ $<
+	$(CC) $(CFLAGS) -S -o $@ $<
 
 hud.asm: hud.c pix/pix.h
-	$(CC) --fverbose-asm -S -o $@ $<
+	$(CC) $(CFLAGS) -S -o $@ $<
 
 map.asm: map.c pix/pix.h music/songs.h
-	$(CC) --fverbose-asm -S -o $@ $<
+	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(DEV)/png2gb/%: FORCE
-	$(MAKE) DEV=../ -C $(DEV)/png2gb $*
+./dev/png2gb/%: FORCE
+	$(MAKE) DEV=../ -C ./dev/png2gb $*
 
 strings.rel: strings.c
-	$(CC) $(BANK) -o $@ $^
+	$(CC) $(CFLAGS) $(BANK) -c -o $@ $^
 
 level.rel: level.c
-	$(CC) $(BANK) -o $@ $^
+	$(CC) $(CFLAGS) $(BANK) -c -o $@ $^
 
 music/songs.rel: music/songs.c
-	$(CC) $(BANK) -o $@ $^
+	$(CC) $(CFLAGS) $(BANK) -c -o $@ $^
 
 %.asm: %.c
-	$(CC) --fverbose-asm -S -o $@ $^
+	$(CC) $(CFLAGS) -S -o $@ $^
 
 # generated
 %.rel: %.asm
-	$(CA) -o $@ $^
+	$(AS) $(ASFLAGS) -o $@ $^
 
 # handwritten
 %.rel: %.s
-	$(CA) -o $@ $^
+	$(AS) $(ASFLAGS) -o $@ $^
 
 pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
-	$(CC) $(BANK) -o $@ $<
+	$(CC) $(CFLAGS) $(BANK) -c -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
 	$(c2h) $< > $@
@@ -193,10 +182,10 @@ ifeq ($(COMPRESS),1)
 else
 	$(tmxconvert) $^
 endif
-	$(DEV)/worldmap.sh
+	./dev/worldmap.sh
 
 strings.c strings.h: strings.ini stringmap.txt specialchars.txt
-	$(DEV)/ini2c.py $^ -o $@
+	./dev/ini2c.py $^ -o $@
 
 %.2bpp %.tilemap: %.png
 	$(pngconvert) -cno $< -o $@
@@ -233,14 +222,14 @@ clean:
 	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
 	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
-	$(MAKE) -C $(DEV)/gbdk-music clean
-	$(MAKE) -C $(DEV)/png2gb clean
+	$(MAKE) -C ./dev/gbdk-music clean
+	$(MAKE) -C ./dev/png2gb clean
 
-gbonline:  $(ROM).gb $(DEV)/GameBoy-Online/
-	$(DEV)/patch-gbonline.sh $< $(DEV)/GameBoy-Online/
+gbonline:  $(ROM).gb ./dev/GameBoy-Online/
+	./dev/patch-gbonline.sh $< ./dev/GameBoy-Online/
 
-$(DEV)/GameBoy-Online/index.html: gbonline
-	cp $(DEV)/GameBoy-Online/index.xhtml $@
+./dev/GameBoy-Online/index.html: gbonline
+	cp ./dev/GameBoy-Online/index.xhtml $@
 	sed '/<?xml version="1.0" encoding="UTF-8"?>/d' -i $@
 	sed 's|<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">|<html lang="en">|g' -i $@
 	sed 's/<style/<meta charset="UTF-8">&/g' -i $@
@@ -250,9 +239,9 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 
 # itch.io release
 # https://itch.io/docs/creators/html5
-%.zip: $(DEV)/GameBoy-Online/index.html
-	cd $(DEV)/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
-	mv $(DEV)/GameBoy-Online/$@ .
+%.zip: ./dev/GameBoy-Online/index.html
+	cd ./dev/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
+	mv ./dev/GameBoy-Online/$@ .
 
 .PHONY: spaceleft
 spaceleft: build

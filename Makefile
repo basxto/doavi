@@ -3,8 +3,11 @@ GBDKBIN=
 SDCCBIN=
 
 # globally installed
-# use --sdccbin= for a custom sdcc
-LCC?=$(GBDKBIN)lcc -v
+LCC=$(GBDKBIN)lcc -v
+# use --sdccbindir= for a custom sdcc
+ifneq ($(SDCCBIN),)
+LCC+= --sdccbindir=$(SDCCBIN)
+endif
 
 CPP=$(LCC) -Wf-E
 CPPFLAGS=

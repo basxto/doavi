@@ -17,7 +17,7 @@
 
 #include "../pix/pix.h"
 
-#include "../strings.h"
+#include "../build/strings.h"
 
 #include "unpb16.h"
 #include "unlz3.h"

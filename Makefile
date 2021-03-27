@@ -77,7 +77,7 @@ endif
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
-LEVEL=$(LEVELTMX:.tmx=_tmap.c)
+LEVEL=${subst level/,$(BUILDDIR),$(LEVELTMX:.tmx=_tmap.c)}
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
 PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16 items_gbc_pb16))
 
@@ -195,18 +195,17 @@ pix/hud_pal.c: pix/win_gbc.png
 %_pal.c: %.pal
 	$(bin2c) $^ $@ "png2gb.py and xxd"
 
-%_tmap.c: %.tmx
-	$(tmxconvert) $^
-
-level.c: $(LEVELTMX)
+$(BUILDDIR)%_tmap.c: level/%.tmx
 ifeq ($(COMPRESS),1)
-	$(tmxconvert) --compress 1 $^
+	$(tmxconvert) --compress 1 -o$@ $^
 else
-	$(tmxconvert) $^
+	$(tmxconvert) -o$@ $^
 endif
-	./dev/worldmap.sh
 
-strings.c strings.h: strings.ini stringmap.txt specialchars.txt
+$(BUILDDIR)level.c: $(LEVEL)
+	./dev/worldmap.sh $@ $^
+
+$(BUILDDIR)strings.c $(BUILDDIR)strings.h: strings.ini stringmap.txt specialchars.txt
 	./dev/ini2c.py $^ -o $@
 
 %.2bpp %.tilemap: %.png

@@ -1,7 +1,7 @@
 #include <string.h>
 #include "hud.h"
 #include "main.h"
-#include "../strings.h"
+#include "../build/strings.h"
 #include "../pix/pix.h"
 #include "../dev/png2gb/csrc/decompress.h"
 #include "utils.h"

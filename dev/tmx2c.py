@@ -109,6 +109,7 @@ def compress(values):
 ignore = ['sprites']
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--output", "-o", default="", metavar='map_tmap.c', help='C file representation')
 parser.add_argument('tmx', metavar='map.tmx', nargs='+',help='Tiled map file')
 parser.add_argument("--rom", "-r", default="", help="Address within the ROM (gets incremented if multiple files are given)")
 parser.add_argument("--compress", "-c", default="no", help="Compress maps")
@@ -120,13 +121,17 @@ for filename in args.tmx:
         if filename.split('.')[-1] != 'tmx':
             print("Please give a .tmx file", file=sys.stderr)
             exit(1)
+if args.output.split('.')[-1] != 'c':
+    print("Please define a .c file as output", file=sys.stderr)
+    exit(1)
 
 rom = -1
 if args.rom != "":
     rom = int(args.rom, 0)
 
 for filename in args.tmx:
-    cfilename = filename.split('.')[0] + '_tmap.c'
+    #cfilename = filename.split('.')[0] + '_tmap.c'
+    cfilename = args.output
     xmldoc = minidom.parse(filename)
     tmxmap = xmldoc.getElementsByTagName('map')[0]
 

@@ -53,11 +53,15 @@ endif
 # 2: .cdb file
 # 3: data in extra rom (not runnable)
 # 4: disable optimizations
+# 9: show complexity of compiled functions (and do 1)
 ifeq ($(ROMDEBUG), 0)
 BANK=
 else
 CFLAGS+= -Wf--fverbose-asm
 ASFLAGS+= -Wa-a
+ifeq ($(ROMDEBUG), 9)
+CFLAGS+= -Wf--cyclomatic
+else
 ifneq ($(ROMDEBUG), 1)
 CFLAGS+= -debug
 LDFLAGS+= -debug
@@ -66,6 +70,7 @@ BANK= -Wf-bo3
 LDFLAGS+= -Wm-yoA
 ifneq ($(ROMDEBUG), 3)
 CFLAGS+= -Wf--no-peep -Wf--nolospre -Wf--noloopreverse -Wf--noinduction -Wf--noinvariant
+endif
 endif
 endif
 endif
@@ -80,7 +85,7 @@ ROM=doavi
 
 ########################################################
 
-.PHONY: build run spaceleft clean gbonline
+.PHONY: build run spaceleft statistics clean gbonline
 
 build: $(BUILDDIR) $(BINDIR) $(BINDIR)$(ROM).gb
 
@@ -270,6 +275,10 @@ clean:
 	$(MAKE) -C ./dev/png2gb clean
 
 spaceleft: build
-	dev/romusage/bin/romusage $(BINDIR)$(ROM).noi -g
+	dev/romusage/bin/romusage $(BINDIR)$(ROM).noi -g -E
+
+statistics: build
+	test -e $(BINDIR)$(ROM).cdb && dev/romusage/bin/romusage $(BINDIR)$(ROM).cdb -g
+	dev/romusage/bin/romusage $(BINDIR)$(ROM).noi -G -E -sH -a
 
 FORCE:

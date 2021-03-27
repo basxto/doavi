@@ -4,12 +4,12 @@ SDCCBIN=
 
 # globally installed
 # use --sdccbin= for a custom sdcc
-LCC?=$(GBDKBIN)lcc
+LCC?=$(GBDKBIN)lcc -v
 
 CPP=$(LCC) -Wf-E
 CPPFLAGS=
 CC=$(LCC)
-CFLAGS=-Wf--fverbose-asm
+CFLAGS=-Wf--opt-code-size -Wf--max-allocs-per-node50000
 AR=$(SDCCBIN)sdar
 ARFLAGS=
 AS=$(LCC)
@@ -45,11 +45,27 @@ endif
 ifeq ($(COMPRESS),1)
 CFLAGS += -DCOMPRESS=1
 endif
+# 0: no debug
+# 1: all labels in .sym
+# 2: .cdb file
+# 3: data in extra rom (not runnable)
+# 4: disable optimizations
 ifeq ($(ROMDEBUG), 0)
 BANK=
 else
-BANK= -bo $(ROMDEBUG)
-LDFLAGS+= -Wm-yo4
+CFLAGS+= -Wf--fverbose-asm
+ASFLAGS+= -Wa-a
+ifneq ($(ROMDEBUG), 1)
+CFLAGS+= -debug
+LDFLAGS+= -debug
+ifneq ($(ROMDEBUG), 2)
+BANK= -Wf-bo3
+LDFLAGS+= -Wm-yoA
+ifneq ($(ROMDEBUG), 3)
+CFLAGS+= -Wf--no-peep -Wf--nolospre -Wf--noloopreverse -Wf--noinduction -Wf--noinvariant
+endif
+endif
+endif
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)

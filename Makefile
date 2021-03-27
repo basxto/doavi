@@ -1,3 +1,4 @@
+# for not installed gbdk and sdcc
 GBDKBIN=
 SDCCBIN=
 
@@ -31,18 +32,15 @@ c2h=./dev/c2h.sh
 convert?=convert
 
 NOPEEP?=0
+COMPRESS?=1
+ROMDEBUG?=0
 
 ifeq ($(NOPEEP),1)
 CFLAGS += -Wf--no-peep
 endif
-
-COMPRESS?=1
-ROMDEBUG?=0
-
 ifeq ($(COMPRESS),1)
 CFLAGS += -DCOMPRESS=1
 endif
-
 ifeq ($(ROMDEBUG), 0)
 BANK=
 else
@@ -57,18 +55,17 @@ PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_
 
 ROM=doavi
 
-.PHONY: build
+########################################################
+
+.PHONY: build run spaceleft clean gbonline
+
 build: $(ROM).gb
 
 $(ROM).gb: main.rel hud.rel ./dev/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
 	$(LD) $(LDFLAGS) -o $@ $^
 
-.PHONY: run
-run: build
-	$(EMU) $(ROM).gb
-
-./dev/gbdk-music/%: FORCE
-	$(MAKE) -C ./dev/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
+%.asm: %.c
+	$(CC) $(CFLAGS) -S -o $@ $^
 
 main.asm: main.c pix/pix.h strings.h
 	$(CC) $(CFLAGS) -S -o $@ $<
@@ -82,20 +79,17 @@ hud.asm: hud.c pix/pix.h
 map.asm: map.c pix/pix.h music/songs.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-./dev/png2gb/%: FORCE
-	$(MAKE) DEV=../ -C ./dev/png2gb $*
+strings.asm: strings.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-strings.rel: strings.c
-	$(CC) $(CFLAGS) $(BANK) -c -o $@ $^
+level.asm: level.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-level.rel: level.c
-	$(CC) $(CFLAGS) $(BANK) -c -o $@ $^
+music/songs.asm: music/songs.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-music/songs.rel: music/songs.c
-	$(CC) $(CFLAGS) $(BANK) -c -o $@ $^
-
-%.asm: %.c
-	$(CC) $(CFLAGS) -S -o $@ $^
+pix/pix.asm: pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $<
 
 # generated
 %.rel: %.asm
@@ -104,9 +98,6 @@ music/songs.rel: music/songs.c
 # handwritten
 %.rel: %.s
 	$(AS) $(ASFLAGS) -o $@ $^
-
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
-	$(CC) $(CFLAGS) $(BANK) -c -o $@ $<
 
 pix/pix.h: pix/pix.c pix/pix.rel
 	$(c2h) $< > $@
@@ -217,14 +208,6 @@ strings.c strings.h: strings.ini stringmap.txt specialchars.txt
 %_mono.png: %_gbc.png
 	$(convert) $^ -monochrome $@
 
-clean:
-	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
-	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
-	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
-	$(MAKE) -C ./dev/gbdk-music clean
-	$(MAKE) -C ./dev/png2gb clean
-
 gbonline:  $(ROM).gb ./dev/GameBoy-Online/
 	./dev/patch-gbonline.sh $< ./dev/GameBoy-Online/
 
@@ -243,7 +226,23 @@ gbonline:  $(ROM).gb ./dev/GameBoy-Online/
 	cd ./dev/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
 	mv ./dev/GameBoy-Online/$@ .
 
-.PHONY: spaceleft
+./dev/gbdk-music/%: FORCE
+	$(MAKE) -C ./dev/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
+
+./dev/png2gb/%: FORCE
+	$(MAKE) DEV=../ -C ./dev/png2gb $*
+
+run: build
+	$(EMU) $(ROM).gb
+
+clean:
+	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
+	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
+	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
+	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
+	$(MAKE) -C ./dev/gbdk-music clean
+	$(MAKE) -C ./dev/png2gb clean
+
 spaceleft: build
 	dev/romusage/bin/romusage $(ROM).noi -g
 

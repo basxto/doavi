@@ -101,16 +101,16 @@ $(BINDIR)$(ROM).gb: $(BUILDDIR)main.rel $(BUILDDIR)hud.rel ./dev/gbdk-music/musi
 $(BUILDDIR)%.asm: %.c
 	$(CC) $(CFLAGS) -S -o $@ $^
 
-$(BUILDDIR)main.asm: main.c $(BUILDDIR)pix.h strings.h
+$(BUILDDIR)main.asm: main.c pix.h strings.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(BUILDDIR)logic.asm: logic.c level.h strings.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(BUILDDIR)hud.asm: hud.c $(BUILDDIR)pix.h
+$(BUILDDIR)hud.asm: hud.c pix.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(BUILDDIR)map.asm: map.c $(BUILDDIR)pix.h $(BUILDDIR)songs.h
+$(BUILDDIR)map.asm: map.c pix.h songs.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(BUILDDIR)strings.asm: strings.c
@@ -170,13 +170,13 @@ $(BUILDDIR)%_anim_gbc.2bpp: pix/%_anim_gbc.png
 $(BUILDDIR)hud_pal.c: pix/win_gbc.png
 	$(pngconvert) $^ -o$@
 
-%_data.c: %.2bpp
+$(BUILDDIR)%_data.c: $(BUILDDIR)%.2bpp
 	$(bin2c) $^ $@ "png2gb.py and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_\(rle\|pb16\|pb8\|lz3\)//g'))/16))
 
-%_map.c: %.tilemap
+$(BUILDDIR)%_map.c: $(BUILDDIR)%.tilemap
 	$(bin2c) $^ $@ "png2gb.py and xxd"
 
-%_pal.c: %.pal
+$(BUILDDIR)%_pal.c: $(BUILDDIR)%.pal
 	$(bin2c) $^ $@ "png2gb.py and xxd"
 
 $(BUILDDIR)%_tmap.c: level/%.tmx
@@ -195,10 +195,10 @@ $(BUILDDIR)strings.c $(BUILDDIR)strings.h: strings.ini stringmap.txt specialchar
 $(BUILDDIR)%.2bpp $(BUILDDIR)%.pal $(BUILDDIR)%.tilemap: pix/%.png
 	$(pngconvert) -cno $< -o $@
 
-%_lz3.2bpp: %.2bpp
+$(BUILDDIR)%_lz3.2bpp: $(BUILDDIR)%.2bpp
 	$(lz3) $< $@
 
-%_pb16.2bpp: %.2bpp
+$(BUILDDIR)%_pb16.2bpp: $(BUILDDIR)%.2bpp
 	$(pb16) $^ $@
 
 $(BUILDDIR)%.pal: pix/%_gbc.png

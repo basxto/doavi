@@ -10,9 +10,9 @@
 #include "unlz3.h"
 #include "undice.h"
 
-extern UINT8 decompressed_tileset[128*16];
+extern uint8_t decompressed_tileset[128*16];
 // decompress to RAM
-UINT8 decompressed_dialog_photos[dialog_photos_data_length*16];
+uint8_t decompressed_dialog_photos[dialog_photos_data_length*16];
 
 const unsigned char *dialog_photos[] = {
     &decompressed_dialog_photos[0],
@@ -31,9 +31,9 @@ const unsigned char *dialog_photos[] = {
 
 #define buffer_length (16)
 // be cautious with this!
-UINT8 buffer[buffer_length];
+uint8_t buffer[buffer_length];
 
-void waitpad_any(UINT8 mask){
+void waitpad_any(uint8_t mask){
     while ((joypad() & mask) == 0) {
         wait_vbl_done();
     }
@@ -50,8 +50,8 @@ void preload_hud() {
 
 void init_hud() {
     unsigned char tiles[1];
-    UINT8 x;
-    UINT8 y;
+    uint8_t x;
+    uint8_t y;
     HIDE_WIN;
     VBK_REG = 1;
     tiles[0] = 7;
@@ -71,11 +71,11 @@ void init_hud() {
 }
 
 // fill area with spaces
-void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height){
+void space_area(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height){
     buffer[0] = (WIN_START - (' '/2)) + '  ';
-    for(UINT8 tmp_y = 0; tmp_y < height; ++tmp_y){
-        UINT8 tmp = y + tmp_y;
-        for(UINT8 tmp_x = 0; tmp_x < width; ++tmp_x){
+    for(uint8_t tmp_y = 0; tmp_y < height; ++tmp_y){
+        uint8_t tmp = y + tmp_y;
+        for(uint8_t tmp_x = 0; tmp_x < width; ++tmp_x){
             set_win_tiles(x + tmp_x, tmp, 1, 1, buffer);
         }
     }
@@ -85,14 +85,14 @@ void space_area(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 hei
 // scroll if necessary
 // \1 is new line
 // width must be <= buffer_length
-UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 height, const char *str){
-    UINT8 start = 0;
-    UINT8 run = 1;
-    UINT8 tmp_y = y;
-    UINT8 max = 0;
-    UINT8 choices = 0;
-    UINT8 firstchoice = y;
-    UINT8 jump_back = 0;
+uint8_t smart_write(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height, const char *str){
+    uint8_t start = 0;
+    uint8_t run = 1;
+    uint8_t tmp_y = y;
+    uint8_t max = 0;
+    uint8_t choices = 0;
+    uint8_t firstchoice = y;
+    uint8_t jump_back = 0;
     // string return pointer
     char *str_ret = 0;
     // string pointer
@@ -111,7 +111,7 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
         write_line(x, tmp_y, width, buffer);
         ++tmp_y;
         // scroll when we reach the end
-        if(tmp_y >= (UINT8)(y+height) && run){
+        if(tmp_y >= (uint8_t)(y+height) && run){
             buffer[0] = specialchar_3;
             write_line(x+width-1, tmp_y-1, 1, buffer);
             delay(100);
@@ -152,10 +152,10 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     return 0;
 }
 
-void write_line(const UINT8 x, const  UINT8 y, const UINT8 length, const char *str) {
+void write_line(const uint8_t x, const  uint8_t y, const uint8_t length, const char *str) {
     if(length == 0)
         return;
-    UINT8 i;
+    uint8_t i;
     for (i = 0; i < length; ++i) {
         // strings end with a nullbyte
         if (str[i] == '\0') {
@@ -170,8 +170,8 @@ void write_line(const UINT8 x, const  UINT8 y, const UINT8 length, const char *s
     set_win_tiles(x, y, length, 1, buffer);
 }
 
-// maximum length is 2 since maximum UINT8 is FF
-void write_hex(const UINT8 x, const UINT8 y, UINT8 length, const UINT8 num) {
+// maximum length is 2 since maximum uint8_t is FF
+void write_hex(const uint8_t x, const uint8_t y, uint8_t length, const uint8_t num) {
     if (length > 2) {
         length = 2;
     }
@@ -181,24 +181,24 @@ void write_hex(const UINT8 x, const UINT8 y, UINT8 length, const UINT8 num) {
     write_line(x, y, length, (buffer + buffer_length - 1) - length);
 }
 
-// maximum length is 3 since maximum UINT8 is 255
-void write_num(const UINT8 x, const UINT8 y, UINT8 length, UINT8 num) {
+// maximum length is 3 since maximum uint8_t is 255
+void write_num(const uint8_t x, const uint8_t y, uint8_t length, uint8_t num) {
     if (length > 3) {
         length = 3;
     }
     buffer[buffer_length-1] = '\0';
     //put three numbers into buffer (right to left)
-    for(UINT8 i = buffer_length-2; i > buffer_length-6; --i){
-        buffer[i] = specialchar_4 + (num % $(10));
-        num /= $(10);
+    for(uint8_t i = buffer_length-2; i > buffer_length-6; --i){
+        buffer[i] = specialchar_4 + (num % U8(10));
+        num /= U8(10);
     }
     write_line(x, y, length, (buffer + buffer_length - 1) - length);
 }
 
-void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
-    UINT8 i;
+void draw_hud(const uint8_t lives, const uint8_t toiletpaper) {
+    uint8_t i;
     unsigned char tiles[2];
-    UINT8 item = get_selected_item();
+    uint8_t item = get_selected_item();
     // clear it
     tiles[1] = tiles[0] = WIN_START + 6;
     for(i = 0;i < 20; ++i)
@@ -215,7 +215,7 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     tiles[1] = WIN_START + 15;
     set_win_tiles(0, 1, 2, 1, tiles);
     for (i = 0; i < 5; ++i) {
-        tiles[0] = (i >= lives ? WIN_START + $(11) : WIN_START + $(9));
+        tiles[0] = (i >= lives ? WIN_START + U8(11) : WIN_START + U8(9));
         set_win_tiles(2 + i, 0, 1, 1, tiles);
     }
     // write values
@@ -227,14 +227,14 @@ void draw_hud(const UINT8 lives, const UINT8 toiletpaper) {
     set_sprite_tile(MOUTH_SPRITE, MOUTHS_START);
 }
 
-UINT8 dialog(const char const *str, const char const *name, const UINT8 mouth){
-    UINT8 portrait = 0;
+uint8_t dialog(const char const *str, const char const *name, const uint8_t mouth){
+    uint8_t portrait = 0;
     unsigned char tiles[16];
-    UINT8 x;
-    UINT8 y;
-    UINT8 accept = 0;
-    UINT8 ret = 0;
-    UINT8 namelength = 0;
+    uint8_t x;
+    uint8_t y;
+    uint8_t accept = 0;
+    uint8_t ret = 0;
+    uint8_t namelength = 0;
 
     undice_init(buffer_length, buffer, name);
     undice_line();
@@ -301,7 +301,7 @@ UINT8 dialog(const char const *str, const char const *name, const UINT8 mouth){
     // hide item
     move_sprite(ITEM_SPRITE, 0, 0);
     // 2 or 3
-    if($(portrait & 0x3) != 0){
+    if(U8(portrait & 0x3) != 0){
         tiles[0] = portrait+1;
     }
 

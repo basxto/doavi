@@ -1,9 +1,9 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
-#include <gb/gb.h>
+#include <stdint.h>
 
-void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py);
-UINT8 move_player(const INT8 x, const INT8 y);
+void teleport_to(const int8_t lx, const int8_t ly, const int8_t px, const int8_t py);
+uint8_t move_player(const int8_t x, const int8_t y);
 void interact();
 #endif

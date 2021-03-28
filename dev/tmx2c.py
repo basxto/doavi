@@ -175,7 +175,7 @@ for filename in args.tmx:
             if l.attributes['name'].value == 'collision':
                 # compress 8 values into one int
                 # since it can only be 0 or 1
-                file.write('const UINT8 ' + name + '[] = {')
+                file.write('const uint8_t ' + name + '[] = {')
                 values = l.getElementsByTagName('data')[0].firstChild.nodeValue.replace('\n','').split(',')
                 counter = 0
                 hexnum = 0
@@ -204,7 +204,7 @@ for filename in args.tmx:
                 values = l.getElementsByTagName('data')[0].firstChild.nodeValue
                 if args.compress != "no":
                     values = compress(values.split(','))
-                file.write('const UINT8 ' + name + '[] = {' + values + '};\n')
+                file.write('const uint8_t ' + name + '[] = {' + values + '};\n')
                 file.write('//{0} bytes\n'.format(len(values.split(','))))
                 if rom != -1:
                     rom += len(values.split(','))

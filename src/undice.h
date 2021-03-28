@@ -1,8 +1,10 @@
 #ifndef UNDICE_H
 #define UNDICE_H
 
-void undice_init(UINT8 size, char *buffer, const char *str) NONBANKED;
+#include <stdint.h>
+
+void undice_init(uint8_t size, char *buffer, const char *str) NONBANKED;
 // unpacks from str to buffer and returns last read char
-UINT8 undice_line() NONBANKED;
+uint8_t undice_line() NONBANKED;
 
 #endif

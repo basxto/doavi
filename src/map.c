@@ -15,13 +15,13 @@
 const unsigned char *current_map;
 const unsigned char *loaded_map;
 // always the same size
-UINT8 decompressed_background[80];
-UINT8 decompressed_tileset[128*16];
+uint8_t decompressed_background[80];
+uint8_t decompressed_tileset[128*16];
 // draw next map to a different part of screen
-static _Bool background_shifted;
+static bool background_shifted;
 
 // from main.c
-extern UINT8 current_collision[10];
+extern uint8_t current_collision[10];
 
 #ifdef COMPRESS
 
@@ -29,18 +29,18 @@ extern UINT8 current_collision[10];
 // 10XX XXXX other tiles (long notation)
 // 11XX XXXX special tiles
 // compressed with dev/tmx2c.py --compress=1
-const unsigned char * decompress(const UINT8 *compressed_map){
-    UINT8 c = 0;
-    UINT8 bytepart = 0;
-    UINT8 byte = 0;
-    UINT8 counter = 0;
-    for(UINT8 i = 0; i < 80; ++i){
+const unsigned char * decompress(const uint8_t *compressed_map){
+    uint8_t c = 0;
+    uint8_t bytepart = 0;
+    uint8_t byte = 0;
+    uint8_t counter = 0;
+    for(uint8_t i = 0; i < 80; ++i){
         if(counter != 0){
             decompressed_background[i] = byte;
             --counter;
         }else{
-            UINT8 lo = compressed_map[c] & 0xF;
-            UINT8 hi = compressed_map[c] & 0xF;
+            uint8_t lo = compressed_map[c] & 0xF;
+            uint8_t hi = compressed_map[c] & 0xF;
             if(bytepart == 0){
                 hi = (compressed_map[c] >> 4);
             }else{
@@ -55,12 +55,12 @@ const unsigned char * decompress(const UINT8 *compressed_map){
                     decompressed_background[i++] = hi;
                     decompressed_background[i] = hi + 1;
                 }
-                bytepart = $(bytepart + 1) % $(2);
+                bytepart = U8(bytepart + 1) % U8(2);
                 if(bytepart == 0)
                     ++c;
             }else if((hi & 0x4) == 0){
                 //other tiles
-                decompressed_background[i] = $(hi & 0x3)<<4 | lo;
+                decompressed_background[i] = U8(hi & 0x3)<<4 | lo;
                 ++c;
             }else{
                 //special
@@ -77,50 +77,50 @@ const unsigned char * decompress(const UINT8 *compressed_map){
 }
 #else
 // make a copy in RAM, so it can be changed later
-const unsigned char * decompress(const UINT8 *compressed_map){
+const unsigned char * decompress(const uint8_t *compressed_map){
     memcpy(decompressed_background, compressed_map, 80);
     return decompressed_background;
 }
 #endif
 
-void incject_map_palette(const UINT8 x, const UINT8 y, const UINT8 index) {
+void incject_map_palette(const uint8_t x, const uint8_t y, const uint8_t index) {
     unsigned char tiles[4] = {index, index, index, index};
     VBK_REG = 1;
-    set_bkg_tiles(x * $(2) + 1, y * $(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
+    set_bkg_tiles(x * U8(2) + 1, y * U8(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
     VBK_REG = 0;
 }
 
-void incject_map(UINT8 x, UINT8 y, UINT16 index) {
+void incject_map(uint8_t x, uint8_t y, uint16_t index) {
     unsigned char tiles[4];
     index *= 4;
-    UINT8 j = 0;// goes 0 2 1 3
-    for(UINT8 i = 0; i < 4; ++i){
+    uint8_t j = 0;// goes 0 2 1 3
+    for(uint8_t i = 0; i < 4; ++i){
         tiles[i] = SHEET_START + current_map[index + j];
         if(j==2)
             --j;
         else
             j+=2;
     }
-    set_bkg_tiles(x * $(2) + 1, y * $(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
+    set_bkg_tiles(x * U8(2) + 1, y * U8(2) + (background_shifted ? 0 : 0x10), 2, 2, tiles);
 }
 
-void incject_collision(UINT8 x, UINT8 y, _Bool enable) {
-    UINT8 index = (y) * WIDTH + (x);
+void incject_collision(uint8_t x, uint8_t y, bool enable) {
+    uint8_t index = (y) * WIDTH + (x);
     if(enable)
-        current_collision[index / $(8)] |= (1 << (index % $(8)));
+        current_collision[index / U8(8)] |= (1 << (index % U8(8)));
     else
-        current_collision[index / $(8)] &= ~(1 << (index % $(8)));
+        current_collision[index / U8(8)] &= ~(1 << (index % U8(8)));
 }
 
-void load_map(const UINT8 background[]) {
+void load_map(const uint8_t background[]) {
     const unsigned char *next_map;
-    UINT8 y;
-    UINT8 x;
-    UINT16 index;
+    uint8_t y;
+    uint8_t x;
+    uint16_t index;
     // tmx
-    UINT16 tile;
+    uint16_t tile;
     // loaded spritesheet
-    UINT8 palette;
+    uint8_t palette;
     unsigned char tiles[4];
 
     background_shifted = !background_shifted;
@@ -135,10 +135,10 @@ void load_map(const UINT8 background[]) {
     }
 
     for (y = 0; y < HEIGHT; ++y) {
-        UINT8 tmp1 = y * WIDTH;
-        UINT8 tmp2 = y * 2 + (background_shifted ? 0 : 0x10);
+        uint8_t tmp1 = y * WIDTH;
+        uint8_t tmp2 = y * 2 + (background_shifted ? 0 : 0x10);
         for (x = 0; x < WIDTH; ++x) {
-            UINT8 tmpx = x * $(2) + $(1);
+            uint8_t tmpx = x * U8(2) + U8(1);
             // load background
             tile = background[tmp1 + x] - 2;
             if(current_chest != 0 && !(chest & current_chest) && (tile == 29 || tile == 18))
@@ -179,8 +179,8 @@ void load_map(const UINT8 background[]) {
             set_bkg_tiles(tmpx, tmp2, 2, 2, tiles);
             VBK_REG = 0;
             // set tiles
-            UINT8 j = 0;// goes 0 2 1 3
-            for(UINT8 i = 0; i < 4; ++i){
+            uint8_t j = 0;// goes 0 2 1 3
+            for(uint8_t i = 0; i < 4; ++i){
                 tiles[i] = SHEET_START + next_map[index + j];
                 if(j==2)
                     --j;
@@ -317,7 +317,7 @@ void load_map(const UINT8 background[]) {
         }
     }
 
-    if(background_shifted == 0){
+    if(!background_shifted){
         move_bkg(8, 0x10*8);
     }else{
         move_bkg(8, 0);

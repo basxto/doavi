@@ -1,10 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include <gb/gb.h>
-const unsigned char * decompress(const UINT8 *compressed_map);
-void incject_map_palette(UINT8 x, UINT8 y, UINT8 index);
-void incject_map(UINT8 x, UINT8 y, UINT16 index);
-void incject_collision(UINT8 x, UINT8 y, _Bool enable);
-void load_map(const UINT8 background[]);
+#include <stdint.h>
+#include <stdbool.h>
+
+const unsigned char * decompress(const uint8_t *compressed_map);
+void incject_map_palette(uint8_t x, uint8_t y, uint8_t index);
+void incject_map(uint8_t x, uint8_t y, uint16_t index);
+void incject_collision(uint8_t x, uint8_t y, bool enable);
+void load_map(const uint8_t background[]);
 #endif

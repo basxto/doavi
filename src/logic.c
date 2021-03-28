@@ -13,10 +13,10 @@ extern const unsigned char overworld_b_gbc_map[];
 extern const unsigned char inside_wood_house_map[];
 
 // defined in main.c
-extern UINT8 *current_background;
+extern uint8_t *current_background;
 extern const unsigned char *current_map;
 
-void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
+void teleport_to(const int8_t lx, const int8_t ly, const int8_t px, const int8_t py) {
     level_x = lx;
     level_y = ly;
     character[0].x = px;
@@ -24,8 +24,8 @@ void teleport_to(const INT8 lx, const INT8 ly, const INT8 px, const INT8 py) {
     change_level();
 }
 
-UINT8 move_player(const INT8 x, const INT8 y) {
-    UINT8 tile =
+uint8_t move_player(const int8_t x, const int8_t y) {
+    uint8_t tile =
         current_background[(character[0].y * WIDTH) + character[0].x];
 
     if (move_character(0, x, y) == 1) {
@@ -65,9 +65,9 @@ UINT8 move_player(const INT8 x, const INT8 y) {
     }
 
     //  house entrance
-    if (tile == $(46 + 10)) {
+    if (tile == U8(46 + 10)) {
         if(level_y == 1 && level_x == 1)
-            if(character[0].x > $(5))
+            if(character[0].x > U8(5))
                 teleport_to(0, 5, 5, 6);
             else
                 teleport_to(1, 5, 4, 6);
@@ -120,9 +120,9 @@ UINT8 move_player(const INT8 x, const INT8 y) {
 
 
 void interact() {
-    UINT8 x = character[0].x;
-    UINT8 y = character[0].y;
-    UINT8 tile;
+    uint8_t x = character[0].x;
+    uint8_t y = character[0].y;
+    uint8_t tile;
     switch (character[0].direction) {
     case 0:
         y++;
@@ -137,7 +137,7 @@ void interact() {
         x++;
         break;
     }
-    tile = current_background[$(y * WIDTH + x)];
+    tile = current_background[U8(y * WIDTH + x)];
     // write_num(8, 1, 3, tile);
     // sign
     if (tile == 18) {
@@ -267,7 +267,7 @@ void interact() {
         }
     }
     // we assume there can't be multiple characters at one place
-    UINT8 i;
+    uint8_t i;
     // 4 enemies
     for(i = 4; i != 0; --i){
         if(character[i].sprite != 0xFF && character[i].x == x && character[i].y == y)
@@ -276,9 +276,9 @@ void interact() {
     // if we have a match
     if(i != 0){
         // turn to main character
-        UINT8 stance = character[i].direction/4;
+        uint8_t stance = character[i].direction/4;
         // mirror direction
-        UINT8 direction = $(character[0].direction + 2)%4;
+        uint8_t direction = U8(character[0].direction + 2)%4;
         character[i].direction = stance + direction;
         render_character(i);
         // talk

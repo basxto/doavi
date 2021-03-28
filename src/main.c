@@ -30,41 +30,41 @@ extern const Level level[][7];
 //extern const unsigned char overworld_b_gbc_map[];
 
 //TODO: pretty much a hack
-extern UINT8 decompressed_tileset[128*16];
+extern uint8_t decompressed_tileset[128*16];
 
 // for scanline effects
-const UINT8 scanline_wobble[] = {4,5,6,7,7,6,5,4,4,5,6,7,7,6,5};
-const UINT8 *scanline_offsets;
-UINT8 scanline_ly_offset;
+const uint8_t scanline_wobble[] = {4,5,6,7,7,6,5,4,4,5,6,7,7,6,5};
+const uint8_t *scanline_offsets;
+uint8_t scanline_ly_offset;
 
-UINT8 counter;
-UINT8 anim_counter;
+uint8_t counter;
+uint8_t anim_counter;
 
 // since might need to decompress it
-const UINT8 *current_background;
+const uint8_t *current_background;
 // since we want to modify it
-UINT8 current_collision[10];
-UINT8 current_chest;
-UINT8 current_flame;
+uint8_t current_collision[10];
+uint8_t current_chest;
+uint8_t current_flame;
 
 extern const unsigned char *current_map;
 Saveslots *sl = (Saveslots *)0xa000;
 Savegame *sg;
 Savegame sgemu;
 
-UINT8 level_x;
-UINT8 level_y;
-UINT8 lives;
-UINT8 tpaper;
+uint8_t level_x;
+uint8_t level_y;
+uint8_t lives;
+uint8_t tpaper;
 Character character[5];
-UINT8 item[8];
-UINT8 selected_item;
-UINT8 chest;
-UINT8 flame;
-UINT8 progress[2];
-_Bool cheat;
+uint8_t item[8];
+uint8_t selected_item;
+uint8_t chest;
+uint8_t flame;
+uint8_t progress[2];
+bool cheat;
 
-void efficient_delay(UINT8 time){
+void efficient_delay(uint8_t time){
     for(; time != 0; --time)
         wait_vbl_done();
 }
@@ -72,30 +72,30 @@ void efficient_delay(UINT8 time){
 // reads values from game header
 // for easy game genie support
 void init_save() {
-    sg->level_x = 1;//(*(volatile UINT8*)0x13D)&0xF;// 1
-    sg->level_y = 4;//(*(volatile UINT8*)0x13A)&0xF;// 4
+    sg->level_x = 1;//(*(volatile uint8_t*)0x13D)&0xF;// 1
+    sg->level_y = 4;//(*(volatile uint8_t*)0x13A)&0xF;// 4
     //memcpy(sg->name, "candyhead", 10);
-    sg->x = 4;//(*(volatile UINT8*)0x13B)>>4; // 4
-    sg->y = 4;//(*(volatile UINT8*)0x13C)>>4; // 4
+    sg->x = 4;//(*(volatile uint8_t*)0x13B)>>4; // 4
+    sg->y = 4;//(*(volatile uint8_t*)0x13C)>>4; // 4
 
-    for(UINT8 i = 0; i < 8; ++i){
+    for(uint8_t i = 0; i < 8; ++i){
         sg->item[i] = 0;
     }
     sg->selected_item = 0;
 
-    sg->lives = 4;//(*(volatile UINT8*)0x135)&0xF; // 4
-    sg->tpaper = 0;//*(volatile UINT8*)0x142; // 0
+    sg->lives = 4;//(*(volatile uint8_t*)0x135)&0xF; // 4
+    sg->tpaper = 0;//*(volatile uint8_t*)0x142; // 0
 
     sg->chest = 0;
     sg->flame = 0;
-    sg->progress[0] = 0x40;//*(volatile UINT8*)0x144; // 0
-    sg->progress[1] = 0;//*(volatile UINT8*)0x145; // 0
-    sg->cheat = 0;//*(volatile UINT8*)0x146; // 0
+    sg->progress[0] = 0x40;//*(volatile uint8_t*)0x144; // 0
+    sg->progress[1] = 0;//*(volatile uint8_t*)0x145; // 0
+    sg->cheat = false;//*(volatile uint8_t*)0x146; // 0
 }
 
 void load_menu() {
     smart_write(2, 0, 16, 18, text_load_title);
-    UINT8 save = smart_write(2, 4, 5, 18, text_load_select) - 1;
+    uint8_t save = smart_write(2, 4, 5, 18, text_load_select) - 1;
     sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (save*sizeof(Savegame)));
     //delay(100);
     ENABLE_RAM_MBC1;
@@ -104,7 +104,7 @@ void load_menu() {
         sl->slots |= (0x1<<save);
     }else{ // existing one
         DISABLE_RAM_MBC1;
-        UINT8 ret = smart_write(2, 0, 16, 18, text_load_choice);
+        uint8_t ret = smart_write(2, 0, 16, 18, text_load_choice);
         ENABLE_RAM_MBC1;
         if(ret == 2){
             init_save();
@@ -122,7 +122,7 @@ void item_menu(){
         smart_write(7, 4, 16, 1, text_sword);
     if(item[1] != 0)
         smart_write(7, 5, 16, 1, text_power);
-    UINT8 item = smart_write(2, 4, 5, 18, text_load_select) - 1;
+    uint8_t item = smart_write(2, 4, 5, 18, text_load_select) - 1;
     if(item != 0)
         selected_item = item-1;
 }
@@ -131,7 +131,7 @@ void menu() {
     space_area(0, 0, 20, 18);
     move_win(7, 0);
     HIDE_SPRITES;
-    UINT8 ret = smart_write(2, 0, 16, 18, text_menu);
+    uint8_t ret = smart_write(2, 0, 16, 18, text_menu);
     // write_num(12, 1, 3, ret);
     switch (ret) {
     case 2:
@@ -159,11 +159,11 @@ void screen_wobble() {
     scanline_offsets = &scanline_wobble[0];
 
     set_interrupts(VBL_IFLAG | TIM_IFLAG | LCD_IFLAG);
-    for(UINT8 i = 40; i > 0; --i){
+    for(uint8_t i = 40; i > 0; --i){
         wait_vbl_done();
         wait_vbl_done();
         wait_vbl_done();
-        scanline_offsets = &scanline_wobble[$(++scanline_ly_offset)%8];
+        scanline_offsets = &scanline_wobble[U8(++scanline_ly_offset)%8];
     }
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
     SCX_REG = 8;
@@ -188,7 +188,7 @@ void screen_shake() {
 }
 
 void init_screen() {
-    UINT8 tiles[0] = {1};
+    uint8_t tiles[0] = {1};
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;
@@ -245,7 +245,7 @@ void change_level() {
     current_background = decompress(level[level_y][level_x].background);
     current_chest = level[level_y][level_x].chest;
     current_flame = level[level_y][level_x].flame;
-    for(UINT8 i = 1; i < 5; ++i){
+    for(uint8_t i = 1; i < 5; ++i){
         // disable characters
         character[i].sprite = 0xFF;
         character[i].offset_x = 0;
@@ -257,30 +257,30 @@ void change_level() {
     load_map(current_background);
 }
 
-UINT8 get_selected_item(){
+uint8_t get_selected_item(){
     return item[selected_item];
 }
 
 // character spritesheet must be 4 16x16 blocks wide ... always
-void render_character(const UINT8 index) {
+void render_character(const uint8_t index) {
     Character *chrctr = &character[index];
     if(chrctr->sprite == 0xFF){
         // move all four sprites outside of the view
-        for(UINT8 i = 0; i < 4; ++i)
+        for(uint8_t i = 0; i < 4; ++i)
             move_sprite(chrctr->sprite_index+i, 0, 0);
     }else{
-        UINT8 index = chrctr->sprite_index-1;
-        UINT8 x = $(8) + (chrctr->x) * $(16) + chrctr->offset_x;
+        uint8_t index = chrctr->sprite_index-1;
+        uint8_t x = U8(8) + (chrctr->x) * U8(16) + chrctr->offset_x;
         // shifted to top by 2px to look like standing on the tile
-        UINT8 y = ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y - $(2);
-        UINT8 mapping;
-        UINT8 base = (10*8) - 7 + (chrctr->sprite*19) + ((chrctr->direction&0x03)*4);
-        UINT8 palette = chrctr->palette&0x0F;
-        for(UINT8 i = 0; i < 2; ++i){
+        uint8_t y = ((chrctr->y) + U8(1)) * U8(16) + chrctr->offset_y - U8(2);
+        uint8_t mapping;
+        uint8_t base = (10*8) - 7 + (chrctr->sprite*19) + ((chrctr->direction&0x03)*4);
+        uint8_t palette = chrctr->palette&0x0F;
+        for(uint8_t i = 0; i < 2; ++i){
             mapping = modular_characters_map[base];
             set_sprite_tile(++index, CHARACTERS_START+(mapping&0x7F));
             // 0x80 marks mirrored tiles
-            set_sprite_prop(index, palette | (mapping&0x80? $(0x20) : $(0x0) ));
+            set_sprite_prop(index, palette | (mapping&0x80? U8(0x20) : U8(0x0) ));
             move_sprite(index, x, y);
             x+=8;
             base+=2;
@@ -289,25 +289,25 @@ void render_character(const UINT8 index) {
         y+=8;
         base = (8*2) + (2*chrctr->direction);
         palette = chrctr->palette>>4;
-        for(UINT8 j = 0; j < 2; ++j){
+        for(uint8_t j = 0; j < 2; ++j){
             mapping = modular_characters_map[base++];
             set_sprite_tile(++index, CHARACTERS_START+(mapping&0x7F));
-            set_sprite_prop(index, palette | (mapping&0x80? $(0x20) : $(0x0) ));
+            set_sprite_prop(index, palette | (mapping&0x80? U8(0x20) : U8(0x0) ));
             move_sprite(index, x, y);
             x+=8;
         }
     }
 }
 
-UINT8 is_free(const UINT8 x, const UINT8 y) {
+uint8_t is_free(const uint8_t x, const uint8_t y) {
     if (y >= HEIGHT || x >= WIDTH) {
         return 0;
     }
-    UINT8 index = (y) * WIDTH + (x);
+    uint8_t index = (y) * WIDTH + (x);
     //write_num(12, 1, 3, tile);
-    if ((current_collision[index / $(8)] & (1 << (index % $(8)))) == 0) {
+    if ((current_collision[index / U8(8)] & (1 << (index % U8(8)))) == 0) {
         // check entity collision
-        for(UINT8 i = 1; i < 5; ++i)
+        for(uint8_t i = 1; i < 5; ++i)
             if(character[i].sprite != 0xFF && character[i].x == x && character[i].y == y)
                 return 0;
         return 1;
@@ -315,7 +315,7 @@ UINT8 is_free(const UINT8 x, const UINT8 y) {
     return 0;
 }
 
-UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
+uint8_t move_character(const uint8_t index, const int8_t x, const int8_t y) {
     Character *chrctr = &character[index];
     if (chrctr->x == 0 && x < 0) {
         level_x--;
@@ -343,8 +343,8 @@ UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
     }
     //write_num(12, 1, 3, tile);
     if (is_free((chrctr->x + x),(chrctr->y + y)) != 0) {
-        chrctr->offset_x = x * $(-16);
-        chrctr->offset_y = y * $(-16);
+        chrctr->offset_x = x * U8(-16);
+        chrctr->offset_y = y * U8(-16);
         chrctr->x += x;
         chrctr->y += y;
         render_character(index);
@@ -360,18 +360,18 @@ UINT8 move_character(const UINT8 index, const INT8 x, const INT8 y) {
 
 // index of tile in spritesheet; index of tile in animation sheet
 // 16x16 block indices
-void replace_tile(UINT8 index, UINT8 indexa){
-    UINT8 first = SHEET_START + current_map[$(index*4)];
-    UINT8 amount = 4;
-    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[$($($(indexa*ANIM_WIDTH) + (anim_counter)) * 4)] * 16];
+void replace_tile(uint8_t index, uint8_t indexa){
+    uint8_t first = SHEET_START + current_map[U8(index*4)];
+    uint8_t amount = 4;
+    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[U8(U8(U8(indexa*ANIM_WIDTH) + (anim_counter)) * 4)] * 16];
     set_bkg_data(first, amount,data);
 }
 
 // for deduplicated tiles
-void replace_subtile(UINT8 index, UINT8 indexa, UINT8 offset){
-    UINT8 first = SHEET_START + current_map[$($(index*4) + offset)];
-    UINT8 amount = 1;
-    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[$($($(indexa*ANIM_WIDTH) + (anim_counter)) * 4 + offset)] * 16];
+void replace_subtile(uint8_t index, uint8_t indexa, uint8_t offset){
+    uint8_t first = SHEET_START + current_map[U8(U8(index*4) + offset)];
+    uint8_t amount = 1;
+    const unsigned char *data = &overworld_anim_gbc_data[overworld_anim_gbc_map[U8(U8(U8(indexa*ANIM_WIDTH) + (anim_counter)) * 4 + offset)] * 16];
     set_bkg_data(first, amount,data);
 }
 
@@ -386,8 +386,8 @@ void vblank_isr(){
             replace_tile(1, 0);
             replace_tile(SHEET_WIDTH * 3 + 7, 2);
         }else if (current_map == overworld_b_gbc_map) {
-            UINT8 indexa = 3;
-            UINT8 index = SHEET_WIDTH * 3 + 3;
+            uint8_t indexa = 3;
+            uint8_t index = SHEET_WIDTH * 3 + 3;
             replace_tile(SHEET_WIDTH * 3 + 7, indexa);
             replace_tile(index, ++indexa);
             // shore waves
@@ -401,36 +401,36 @@ void vblank_isr(){
         ++anim_counter;
         anim_counter %= ANIM_WIDTH;
     }
-    if ((counter % $(4)) == 0){
+    if ((counter % U8(4)) == 0){
 
         // move characters
-        for(UINT8 i = 0; i < 5; ++i){
-            _Bool changed = 0;
+        for(uint8_t i = 0; i < 5; ++i){
+            bool changed = false;
             Character *chrctr = &character[i];
             // move character
             if(chrctr->offset_x > 0){
                 chrctr->offset_x -= 4;
-                changed = 1;
+                changed = true;
             }
             if(chrctr->offset_x < 0){
                 chrctr->offset_x += 4;
-                changed = 1;
+                changed = true;
             }
             if(chrctr->offset_y > 0){
                 chrctr->offset_y -= 4;
-                changed = 1;
+                changed = true;
             }
             if(chrctr->offset_y < 0){
                 chrctr->offset_y += 4;
-                changed = 1;
+                changed = true;
             }
 
             // pretty much a short version of render_character
             // only render position
             if(changed && chrctr->sprite != 0xFF){
-                UINT8 index = chrctr->sprite_index-1;
-                UINT8 x = $(8) + (chrctr->x) * $(16) + chrctr->offset_x;
-                UINT8 y = ((chrctr->y) + $(1)) * $(16) + chrctr->offset_y - $(2);
+                uint8_t index = chrctr->sprite_index-1;
+                uint8_t x = U8(8) + (chrctr->x) * U8(16) + chrctr->offset_x;
+                uint8_t y = ((chrctr->y) + U8(1)) * U8(16) + chrctr->offset_y - U8(2);
                 move_sprite(++index, x, y);
                 x+=8;
                 move_sprite(++index, x, y);
@@ -442,7 +442,7 @@ void vblank_isr(){
             }
         }
     }
-    counter %= $(32);
+    counter %= U8(32);
 }
 
 void save_sg(){
@@ -495,7 +495,7 @@ void main() {
     character[0].sprite = 0;
     character[0].palette = (2<<4)|2;
     // initialize sprites for characters
-    for(UINT8 i = 0; i < 5; ++i){
+    for(uint8_t i = 0; i < 5; ++i){
         character[i].sprite_index = (i*4);
     }
     //sg = &sgemu;
@@ -533,7 +533,7 @@ void main() {
     enable_interrupts();
     // gbdk needs VBL iflag
     set_interrupts(VBL_IFLAG | TIM_IFLAG);
-    // UINT8 rom = 1;
+    // uint8_t rom = 1;
 
     move_win(7, 0);
     space_area(0, 0, 20, 18);

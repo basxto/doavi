@@ -170,7 +170,7 @@ void screen_wobble() {
 }
 
 void screen_shake() {
-    for (int i = 0; i < 8; ++i) {
+    for (uint8_t i = 8; i > 0; --i) {
         scroll_bkg(-2, 0);
         wait_vbl_done();
         wait_vbl_done();
@@ -213,15 +213,15 @@ void init_screen() {
 
     VBK_REG = 1;
     // make it all black
-    for (int x = 0; x < 0x20; ++x) {
-        for (int y = 0; y <= 0x1F; ++y) {
+    for (uint8_t x = 0; x < 0x20; ++x) {
+        for (uint8_t y = 0; y <= 0x1F; ++y) {
             set_bkg_tiles(x, y, 1, 1, tiles);
         }
     }
     VBK_REG = 0;
     tiles[0] = WIN_START + 6;
-    for (int x = 0; x < 0x20; ++x) {
-        for (int y = 0; y <= 0x1F; ++y) {
+    for (uint8_t x = 0; x < 0x20; ++x) {
+        for (uint8_t y = 0; y <= 0x1F; ++y) {
             set_bkg_tiles(x, y, 1, 1, tiles);
         }
     }
@@ -245,7 +245,7 @@ void change_level() {
     current_background = decompress(level[level_y][level_x].background);
     current_chest = level[level_y][level_x].chest;
     current_flame = level[level_y][level_x].flame;
-    for(uint8_t i = 1; i < 5; ++i){
+    for(uint8_t i = 4; i > 0; --i){
         // disable characters
         character[i].sprite = 0xFF;
         character[i].offset_x = 0;
@@ -307,7 +307,7 @@ uint8_t is_free(const uint8_t x, const uint8_t y) {
     //write_num(12, 1, 3, tile);
     if ((current_collision[index / U8(8)] & (1 << (index % U8(8)))) == 0) {
         // check entity collision
-        for(uint8_t i = 1; i < 5; ++i)
+        for(uint8_t i = 4; i > 0; --i)
             if(character[i].sprite != 0xFF && character[i].x == x && character[i].y == y)
                 return 0;
         return 1;

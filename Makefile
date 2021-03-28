@@ -1,246 +1,221 @@
-DEV?=./dev
-BIN=$(DEV)/gbdk-n/bin
+# disable builtin rules
+.SUFFIXES: 
+
+# for not installed gbdk and sdcc
+GBDKBIN=
 SDCCBIN=
-GBDKDIR=/opt/gbdk-2020/
-GBDKLIB=$(GBDKDIR)/lib/small/asxxxx/
 
 # globally installed
-# use --sdccbin= for a custom sdcc
-LCC?=lcc -Wa-l
-# 0x0143 is gameboy mode
-MKROM?=$(SDCCBIN)makebin -Z -yc
-CA=$(SDCCBIN)sdasgb -plosgff
-LD=$(SDCCBIN)sdldgb
-EMU?=sameboy
-pngconvert?=$(DEV)/png2gb/png2gb.py -ci
-compress?=$(DEV)/png2gb/compress2bpp.py -ci
-pb16?=$(DEV)/pb16.py
-lz3?=$(DEV)/lzcomp/lzcomp
-loadgpl=$(DEV)/loadgpl/loadgpl.py
-gbc2gb?=$(DEV)/gbc2gb.py
-rgbgfx?=rgbgfx
-xxd?=xxd
-tmxconvert=$(DEV)/tmx2c.py
-bin2c=$(DEV)/bin2c.sh
-c2h=$(DEV)/c2h.sh
-convert?=convert
-
-NOPEEP?=0
-
-ifeq ($(NOPEEP),1)
-CFLAGS += --no-peep
-else
-CFLAGS += --peep-file$(abspath $(DEV))/gbz80-ph/combined-peeph.def
+LCC=$(GBDKBIN)lcc -v
+# use --sdccbindir= for a custom sdcc
+ifneq ($(SDCCBIN),)
+LCC+= --sdccbindir=$(SDCCBIN)
 endif
 
+CPP=$(LCC) -Wf-E
+CPPFLAGS=
+CC=$(LCC)
+CFLAGS=-Wf--opt-code-size -Wf--max-allocs-per-node50000
+AR=$(SDCCBIN)sdar
+ARFLAGS=
+AS=$(LCC)
+ASFLAGS=-c
+LD=$(LCC)
+LDFLAGS=-Wm-yn"DESSERTONAVEGI" -Wm-yc -Wm-yt0x03 -Wm-ya1 -Wl-j -Wm-yS
+
+BUILDDIR=build/
+BINDIR=bin/
+VPATH=src:$(BUILDDIR)
+
+EMU?=sameboy
+pngconvert?=./dev/png2gb/png2gb.py -ci
+pb16?=./dev/pb16.py
+lz3?=./dev/lzcomp/lzcomp
+loadgpl=./dev/loadgpl/loadgpl.py
+gbc2gb?=./dev/gbc2gb.py
+rgbgfx?=rgbgfx
+xxd?=xxd
+tmxconvert=./dev/tmx2c.py
+bin2c=./dev/bin2c.sh
+c2h=./dev/c2h.sh
+
+NOPEEP?=0
 COMPRESS?=1
 ROMDEBUG?=0
 
-ifeq ($(COMPRESS),1)
-CC=$(SDCCBIN)sdcc -mgbz80 --fsigned-char --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c -DCOMPRESS=1 $(CFLAGS)
-else
-CC=$(SDCCBIN)sdcc -mgbz80 --fsigned-char --no-std-crt0 -I "$(GBDKDIR)/include" -I "$(GBDKDIR)/include/asm" -c $(CFLAGS)
+ifeq ($(NOPEEP),1)
+CFLAGS += -Wf--no-peep
 endif
-
+ifeq ($(COMPRESS),1)
+CFLAGS += -DCOMPRESS=1
+endif
+# 0: no debug
+# 1: all labels in .sym
+# 2: .cdb file
+# 3: data in extra rom (not runnable)
+# 4: disable optimizations
+# 9: show complexity of compiled functions (and do 1)
 ifeq ($(ROMDEBUG), 0)
 BANK=
-MKROM+= -yt 0x03 -ya 1
 else
-BANK= -bo $(ROMDEBUG)
-MKROM+= -yt 0x03 -ya 1 -yo 4
+CFLAGS+= -Wf--fverbose-asm
+ASFLAGS+= -Wa-a
+ifeq ($(ROMDEBUG), 9)
+CFLAGS+= -Wf--cyclomatic
+else
+ifneq ($(ROMDEBUG), 1)
+CFLAGS+= -debug
+LDFLAGS+= -debug
+ifneq ($(ROMDEBUG), 2)
+BANK= -Wf-bo3
+LDFLAGS+= -Wm-yoA
+ifneq ($(ROMDEBUG), 3)
+CFLAGS+= -Wf--no-peep -Wf--nolospre -Wf--noloopreverse -Wf--noinduction -Wf--noinvariant
+endif
+endif
+endif
+endif
 endif
 
 LEVELTMX=$(wildcard level/lvl_*.tmx)
-LEVEL=$(LEVELTMX:.tmx=_tmap.c)
+LEVEL=${subst level/,$(BUILDDIR),$(LEVELTMX:.tmx=_tmap.c)}
 MUSIC=dev/gbdk-music/music/the_journey_begins.c music/cosmicgem_voadi.c
-PIX=$(addprefix pix/,$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16 items_gbc_pb16))
-
-define calc_hex
-$(shell printf '0x%X' $$(($(1))))
-endef
+PIX=$(addprefix $(BUILDDIR),$(addsuffix _data.c,overworld_a_gbc overworld_b_gbc inside_wood_house overworld_anim_gbc overworld_cave characters win_gbc_pb16 modular_characters body_move_a_gbc_pb16 body_move_b_gbc_pb16 body_idle_gbc_pb16 body_stand_gbc_pb16 items_gbc_pb16))
 
 ROM=doavi
 
-.PHONY: build
-build: $(DEV)/gbz80-ph/combined-peeph.def $(ROM).gb
+########################################################
 
-$(DEV)/gbz80-ph/%.def: FORCE
-	$(MAKE) -C $(DEV)/gbz80-ph/ $*.def
+.PHONY: build run spaceleft statistics clean gbonline
 
-$(ROM).gb: $(ROM).ihx
-	$(DEV)/noi2sym.sh $(ROM).noi $(ROM).sym
-	$(MKROM) -yn "DESSERTONAVEGI" $^ $@
+build: $(BUILDDIR) $(BINDIR) $(BINDIR)$(ROM).gb
 
-$(ROM).ihx: main.rel hud.rel $(DEV)/gbdk-music/music.rel map.rel logic.rel undice.rel unpb16.rel unlz3.rel strings.rel level.rel music/songs.rel pix/pix.rel
-	$(LD) -nmjwxi -k "$(GBDKLIB)/gbz80/" -l gbz80.lib -k "$(GBDKLIB)/gb/" -l gb.lib -g .OAM=0xC000 -g .STACK=0xE000 -g .refresh_OAM=0xFF80 -g .init=0x000 -b _DATA=0xc0a0 -b _CODE=0x0200 $@ "${GBDKDIR}/lib/small/asxxxx/gb/crt0.o" $^
+%/:
+	mkdir -p $@
 
-.PHONY: run
-run: build
-	$(EMU) $(ROM).gb
+$(BINDIR)$(ROM).gb: $(BUILDDIR)main.rel $(BUILDDIR)hud.rel ./dev/gbdk-music/music.rel $(BUILDDIR)map.rel $(BUILDDIR)logic.rel $(BUILDDIR)undice.rel $(BUILDDIR)unpb16.rel $(BUILDDIR)unlz3.rel $(BUILDDIR)strings.rel $(BUILDDIR)level.rel $(BUILDDIR)songs.rel $(BUILDDIR)pix.rel
+	$(LD) $(LDFLAGS) -o $@ $^
 
-$(DEV)/gbdk-music/%: FORCE
-	$(MAKE) -C $(DEV)/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
+$(BUILDDIR)%.asm: %.c
+	$(CC) $(CFLAGS) -S -o $@ $^
 
-main.asm: main.c pix/pix.h strings.h
-	$(CC) --fverbose-asm -S -o $@ $<
+$(BUILDDIR)main.asm: main.c pix.h strings.h
+	$(CC) $(CFLAGS) -S -o $@ $<
 
-logic.asm: logic.c level.h strings.h
-	$(CC) --fverbose-asm -S -o $@ $<
+$(BUILDDIR)logic.asm: logic.c level.h strings.h
+	$(CC) $(CFLAGS) -S -o $@ $<
 
-hud.asm: hud.c pix/pix.h
-	$(CC) --fverbose-asm -S -o $@ $<
+$(BUILDDIR)hud.asm: hud.c pix.h
+	$(CC) $(CFLAGS) -S -o $@ $<
 
-map.asm: map.c pix/pix.h music/songs.h
-	$(CC) --fverbose-asm -S -o $@ $<
+$(BUILDDIR)map.asm: map.c pix.h songs.h
+	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(DEV)/png2gb/%: FORCE
-	$(MAKE) DEV=../ -C $(DEV)/png2gb $*
+$(BUILDDIR)strings.asm: strings.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-strings.rel: strings.c
-	$(CC) $(BANK) -o $@ $^
+$(BUILDDIR)level.asm: level.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-level.rel: level.c
-	$(CC) $(BANK) -o $@ $^
+$(BUILDDIR)songs.asm: music/songs.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $^
 
-music/songs.rel: music/songs.c
-	$(CC) $(BANK) -o $@ $^
-
-%.asm: %.c
-	$(CC) --fverbose-asm -S -o $@ $^
+$(BUILDDIR)pix.asm: pix/pix.c $(BUILDDIR)overworld_a_gbc_pb16_data.c $(BUILDDIR)overworld_b_gbc_pb16_data.c $(BUILDDIR)overworld_cave_pb16_data.c $(BUILDDIR)inside_wood_house_pb16_data.c $(BUILDDIR)modular_characters_pb16_data.c $(BUILDDIR)dialog_mouths_lz3_data.c $(BUILDDIR)dialog_photos_lz3_data.c $(PIX) $(BUILDDIR)inside_wood_house_map.c $(BUILDDIR)overworld_a_gbc_map.c $(BUILDDIR)overworld_b_gbc_map.c $(BUILDDIR)overworld_cave_map.c $(BUILDDIR)modular_characters_map.c $(BUILDDIR)modular_characters_map.c $(BUILDDIR)overworld_anim_gbc_map.c $(BUILDDIR)overworld_a_gbc_pal.c $(BUILDDIR)overworld_b_gbc_pal.c $(BUILDDIR)characters_pal.c $(BUILDDIR)hud_pal.c
+	$(CC) $(CFLAGS) $(BANK) -S -o $@ $<
 
 # generated
-%.rel: %.asm
-	$(CA) -o $@ $^
+$(BUILDDIR)%.rel: %.asm
+	$(AS) $(ASFLAGS) -o $@ $^
 
 # handwritten
-%.rel: %.s
-	$(CA) -o $@ $^
+$(BUILDDIR)%.rel: %.s
+	$(AS) $(ASFLAGS) -o $@ $^
 
-pix/pix.rel:pix/pix.c pix/overworld_a_gbc_pb16_data.c pix/overworld_b_gbc_pb16_data.c pix/overworld_cave_pb16_data.c pix/inside_wood_house_pb16_data.c pix/modular_characters_pb16_data.c pix/dialog_mouths_lz3_data.c pix/dialog_photos_lz3_data.c $(PIX) pix/hud_pal.c
-	$(CC) $(BANK) -o $@ $<
-
-pix/pix.h: pix/pix.c pix/pix.rel
+$(BUILDDIR)pix.h: pix/pix.c $(BUILDDIR)pix.rel
 	$(c2h) $< > $@
 
-music/songs.h: music/songs.c music/songs.rel
+$(BUILDDIR)songs.h: music/songs.c $(BUILDDIR)songs.rel
 	grep "music.h" music/cosmicgem_voadi.c > $@
 	$(c2h) $< >> $@
 
-pix/dialog_photos.2bpp: pix/dialog_photos.png
+$(BUILDDIR)dialog_photos.2bpp: pix/dialog_photos.png
 	$(pngconvert) -cno --width 4 --height 4 -u yes $^ -o $@
 
-pix/modular_characters_data.c : pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel male6 male1 male3))
-	$(pngconvert) -flip $^ -o $@
-
-pix/modular_characters.2bpp : pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel male6 male1 male3))
+$(BUILDDIR)modular_characters.2bpp $(BUILDDIR)modular_characters.pal $(BUILDDIR)modular_characters.tilemap: pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel male6 male1 male3))
 	$(pngconvert) -cno -flip $^ -o $@
 
-pix/characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
+$(BUILDDIR)characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/ghost_gbc.png
 	$(pngconvert) --width 2 --height 2 -u yes $^ -o $@
 
-pix/win_gbc.2bpp: pix/win_gbc.png pix/squont8ng_gbc.png
+$(BUILDDIR)win_gbc.2bpp $(BUILDDIR)win_gbc.pal $(BUILDDIR)win_gbc.tilemap: pix/win_gbc.png pix/squont8ng_gbc.png
 	$(pngconvert) -cno -u yes $^ -o $@
 
-# define position in rom
-# datrom and palrom have fixed max size
-pix/overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
-	$(pngconvert) --width 2 --height 2 --limit 128 $^ -bin | $(compress) - -o$@
-
-pix/overworld_a_gbc.2bpp: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
+$(BUILDDIR)overworld_a_gbc.2bpp $(BUILDDIR)overworld_a_gbc.pal $(BUILDDIR)overworld_a_gbc.tilemap: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-pix/overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
-	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
-
-pix/overworld_b_gbc.2bpp: pix/overworld_b_gbc.png pix/sand_bottle.png
+$(BUILDDIR)overworld_b_gbc.2bpp $(BUILDDIR)overworld_b_gbc.pal $(BUILDDIR)overworld_b_gbc.tilemap: pix/overworld_b_gbc.png pix/sand_bottle.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-pix/inside_wood_house_data.c: pix/inside_wood_house.png pix/carpet_gbc.png
-	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
-
-pix/inside_wood_house.2bpp: pix/inside_wood_house.png pix/carpet_gbc.png
+$(BUILDDIR)inside_wood_house.2bpp $(BUILDDIR)inside_wood_house.pal $(BUILDDIR)inside_wood_house.tilemap: pix/inside_wood_house.png pix/carpet_gbc.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-pix/overworld_cave_data.c: pix/overworld_cave.png
-	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
-
-pix/overworld_cave.2bpp: pix/overworld_cave.png
+$(BUILDDIR)overworld_cave.2bpp $(BUILDDIR)overworld_cave.pal $(BUILDDIR)overworld_cave.tilemap: pix/overworld_cave.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-%_anim_gbc_data.c: %_anim_gbc.png
-	$(pngconvert) --width 2 --height 2 -u yes $^
+$(BUILDDIR)%_anim_gbc.2bpp $(BUILDDIR)%_anim_gbc.pal $(BUILDDIR)%_anim_gbc.tilemap: pix/%_anim_gbc.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 -u yes
 
-pix/hud_pal.c: pix/win_gbc.png
+$(BUILDDIR)hud_pal.c: pix/win_gbc.png
 	$(pngconvert) $^ -o$@
 
-#$(shell printf '0x%X' $$(($(1))))
-#$((`stat --printf="%s"  pix/overworld_a.2bpp`/16))
-%_data.c: %.2bpp
+$(BUILDDIR)%_data.c: $(BUILDDIR)%.2bpp
 	$(bin2c) $^ $@ "png2gb.py and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_\(rle\|pb16\|pb8\|lz3\)//g'))/16))
 
-%_map.c: %.tilemap
+$(BUILDDIR)%_map.c: $(BUILDDIR)%.tilemap
 	$(bin2c) $^ $@ "png2gb.py and xxd"
 
-%_pal.c: %.pal
+$(BUILDDIR)%_pal.c: $(BUILDDIR)%.pal
 	$(bin2c) $^ $@ "png2gb.py and xxd"
 
-%_tmap.c: %.tmx
-	$(tmxconvert) $^
-
-level.c: $(LEVELTMX)
+$(BUILDDIR)%_tmap.c: level/%.tmx
 ifeq ($(COMPRESS),1)
-	$(tmxconvert) --compress 1 $^
+	$(tmxconvert) --compress 1 -o$@ $^
 else
-	$(tmxconvert) $^
+	$(tmxconvert) -o$@ $^
 endif
-	$(DEV)/worldmap.sh
 
-strings.c strings.h: strings.ini stringmap.txt specialchars.txt
-	$(DEV)/ini2c.py $^ -o $@
+$(BUILDDIR)level.c: $(LEVEL)
+	./dev/worldmap.sh $@ $^
 
-%.2bpp %.tilemap: %.png
+$(BUILDDIR)strings.c $(BUILDDIR)strings.h: strings.ini stringmap.txt specialchars.txt
+	./dev/ini2c.py $^ -o $@
+
+$(BUILDDIR)%.2bpp $(BUILDDIR)%.pal $(BUILDDIR)%.tilemap: pix/%.png
 	$(pngconvert) -cno $< -o $@
 
-%_lz3.2bpp: %.2bpp
+$(BUILDDIR)%_lz3.2bpp: $(BUILDDIR)%.2bpp
 	$(lz3) $< $@
 
-%_pb16.2bpp: %.2bpp
+$(BUILDDIR)%_pb16.2bpp: $(BUILDDIR)%.2bpp
 	$(pb16) $^ $@
 
-%_pb16.1bpp: %.1bpp
-	$(pb16) $^ $@
-
-%.pal: %_gbc.png
+$(BUILDDIR)%.pal: pix/%_gbc.png
 	$(gbc2gb) $^
 
-%.pal: %.png
+$(BUILDDIR)%.pal: pix/%.png
 	$(gbc2gb) $^
 
-%_gb.png: %_gbc.png
+$(BUILDDIR)%_gb.png: pix/%_gbc.png
 	$(gbc2gb) $^
 
-%_gb.png: %.png
+$(BUILDDIR)%_gb.png: pix/%.png
 	$(gbc2gb) $^
 
-%.1bpp: %_mono.png
-	$(rgbgfx) -d1 $^ -o$@
+gbonline:  $(BINDIR)$(ROM).gb ./dev/GameBoy-Online/
+	./dev/patch-gbonline.sh $< ./dev/GameBoy-Online/
 
-%_mono.png: %_gbc.png
-	$(convert) $^ -monochrome $@
-
-clean:
-	rm -f pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
-	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
-	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
-	$(MAKE) -C $(DEV)/gbdk-music clean
-	$(MAKE) -C $(DEV)/png2gb clean
-
-gbonline:  $(ROM).gb $(DEV)/GameBoy-Online/
-	$(DEV)/patch-gbonline.sh $< $(DEV)/GameBoy-Online/
-
-$(DEV)/GameBoy-Online/index.html: gbonline
-	cp $(DEV)/GameBoy-Online/index.xhtml $@
+./dev/GameBoy-Online/index.html: gbonline
+	cp ./dev/GameBoy-Online/index.xhtml $@
 	sed '/<?xml version="1.0" encoding="UTF-8"?>/d' -i $@
 	sed 's|<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">|<html lang="en">|g' -i $@
 	sed 's/<style/<meta charset="UTF-8">&/g' -i $@
@@ -250,12 +225,30 @@ $(DEV)/GameBoy-Online/index.html: gbonline
 
 # itch.io release
 # https://itch.io/docs/creators/html5
-%.zip: $(DEV)/GameBoy-Online/index.html
-	cd $(DEV)/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
-	mv $(DEV)/GameBoy-Online/$@ .
+%.zip: ./dev/GameBoy-Online/index.html
+	cd ./dev/GameBoy-Online/ && zip -r $@ ./js/ ./images/ ./css/ ./index.html
+	mv ./dev/GameBoy-Online/$@ .
 
-.PHONY: spaceleft
+./dev/gbdk-music/%: FORCE
+	$(MAKE) -C ./dev/gbdk-music $* DEV="../" EMU="$(EMU)" CFLAGS='$(CFLAGS)'
+
+./dev/png2gb/%: FORCE
+	$(MAKE) DEV=../ -C ./dev/png2gb $*
+
+run: build
+	$(EMU) $(BINDIR)$(ROM).gb
+
+clean:
+	find bin/ -type f -regex '.*.\(ihx\|map\|noi\|cdb\)' -delete
+	find $(BUILDDIR) -type f -regex '.*.\(rel\|c\|h\|asm\|2bpp\|tilemap\|pal\|adb\)' -delete
+	$(MAKE) -C ./dev/gbdk-music clean
+	$(MAKE) -C ./dev/png2gb clean
+
 spaceleft: build
-	dev/romusage/bin/romusage $(ROM).noi -g
+	dev/romusage/bin/romusage $(BINDIR)$(ROM).noi -g -E
+
+statistics: build
+	test -e $(BINDIR)$(ROM).cdb && dev/romusage/bin/romusage $(BINDIR)$(ROM).cdb -g
+	dev/romusage/bin/romusage $(BINDIR)$(ROM).noi -G -E -sH -a
 
 FORCE:

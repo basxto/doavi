@@ -12,12 +12,12 @@
 #include "logic.h"
 #include "map.h"
 
-#include "dev/gbdk-music/music.h"
-#include "dev/gbdk-music/sound.h"
+#include "../dev/gbdk-music/music.h"
+#include "../dev/gbdk-music/sound.h"
 
-#include "pix/pix.h"
+#include "../build/pix.h"
 
-#include "strings.h"
+#include "../build/strings.h"
 
 #include "unpb16.h"
 #include "unlz3.h"
@@ -26,8 +26,8 @@
 
 extern const Level level[][7];
 
-extern const unsigned char overworld_a_gbc_map[];
-extern const unsigned char overworld_b_gbc_map[];
+//extern const unsigned char overworld_a_gbc_map[];
+//extern const unsigned char overworld_b_gbc_map[];
 
 //TODO: pretty much a hack
 extern UINT8 decompressed_tileset[128*16];

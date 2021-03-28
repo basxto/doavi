@@ -9,19 +9,20 @@ Target platform is GameBoy and GameBoy Color.
 
 
 ## Build
-This needs [GNU Make](https://www.gnu.org/software/make/) and [SDCC](https://sourceforge.net/projects/sdcc/).
+This needs [GNU Make](https://www.gnu.org/software/make/), [GBDK-2020](https://github.com/Zal0/gbdk-2020) 4.0.3 and [SDCC](https://sourceforge.net/projects/sdcc/) 4.1.0.
 Some tools need python 3 and `PyPNG` installed.
 ```
 git clone --recursive https://github.com/basxto/doavi.git
 cd doavi
-make gbdk-n && make
+make -C dev/lzcomp
+make
 
 ```
 
 ## Play with
 This needs an emulator, by default it’s configured to use gambatte via retroarch
 ```
-make run EMU="vbam"
+make run
 ```
 
 ## Optional dependencies

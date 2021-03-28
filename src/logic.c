@@ -2,11 +2,11 @@
 #include "main.h"
 #include "hud.h"
 #include "level.h"
-#include "dev/gbdk-music/music.h"
-#include "dev/gbdk-music/sound.h"
+#include "../dev/gbdk-music/music.h"
+#include "../dev/gbdk-music/sound.h"
 #include "utils.h"
 
-#include "strings.h"
+#include "../build/strings.h"
 
 extern const unsigned char overworld_a_gbc_map[];
 extern const unsigned char overworld_b_gbc_map[];

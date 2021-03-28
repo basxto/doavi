@@ -164,7 +164,7 @@ $(BUILDDIR)inside_wood_house.2bpp $(BUILDDIR)inside_wood_house.pal $(BUILDDIR)in
 $(BUILDDIR)overworld_cave.2bpp $(BUILDDIR)overworld_cave.pal $(BUILDDIR)overworld_cave.tilemap: pix/overworld_cave.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-$(BUILDDIR)%_anim_gbc.2bpp: pix/%_anim_gbc.png
+$(BUILDDIR)%_anim_gbc.2bpp $(BUILDDIR)%_anim_gbc.pal $(BUILDDIR)%_anim_gbc.tilemap: pix/%_anim_gbc.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 -u yes
 
 $(BUILDDIR)hud_pal.c: pix/win_gbc.png

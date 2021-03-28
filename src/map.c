@@ -5,7 +5,7 @@
 
 #include "../build/pix.h"
 
-#include "../music/songs.h"
+#include "../build/songs.h"
 
 #include "../dev/png2gb/csrc/decompress.h"
 #include "unpb16.h"

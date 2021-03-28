@@ -110,7 +110,7 @@ $(BUILDDIR)logic.asm: logic.c level.h strings.h
 $(BUILDDIR)hud.asm: hud.c $(BUILDDIR)pix.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(BUILDDIR)map.asm: map.c $(BUILDDIR)pix.h music/songs.h
+$(BUILDDIR)map.asm: map.c $(BUILDDIR)pix.h $(BUILDDIR)songs.h
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(BUILDDIR)strings.asm: strings.c
@@ -136,15 +136,12 @@ $(BUILDDIR)%.rel: %.s
 $(BUILDDIR)pix.h: pix/pix.c $(BUILDDIR)pix.rel
 	$(c2h) $< > $@
 
-music/songs.h: music/songs.c $(BUILDDIR)songs.rel
+$(BUILDDIR)songs.h: music/songs.c $(BUILDDIR)songs.rel
 	grep "music.h" music/cosmicgem_voadi.c > $@
 	$(c2h) $< >> $@
 
 $(BUILDDIR)dialog_photos.2bpp: pix/dialog_photos.png
 	$(pngconvert) -cno --width 4 --height 4 -u yes $^ -o $@
-
-# $(BUILDDIR)modular_characters_data.c : pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel male6 male1 male3))
-# 	$(pngconvert) -flip $^ -o $@
 
 $(BUILDDIR)modular_characters.2bpp $(BUILDDIR)modular_characters.pal $(BUILDDIR)modular_characters.tilemap: pix/body_move_a_gbc.png pix/body_idle_gbc.png pix/body_stand_gbc.png pix/body_gbc.png  pix/body_ghost_gbc.png $(addprefix pix/head_,$(addsuffix _gbc.png,candy male0 ghost robot0 robot1 female0 male2 rachel male6 male1 male3))
 	$(pngconvert) -cno -flip $^ -o $@
@@ -155,40 +152,24 @@ $(BUILDDIR)characters_data.c : pix/angry_toast_gbc.png pix/muffin_gbc.png  pix/g
 $(BUILDDIR)win_gbc.2bpp $(BUILDDIR)win_gbc.pal $(BUILDDIR)win_gbc.tilemap: pix/win_gbc.png pix/squont8ng_gbc.png
 	$(pngconvert) -cno -u yes $^ -o $@
 
-# define position in rom
-# datrom and palrom have fixed max size
-# $(BUILDDIR)overworld_a_gbc_data.c: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
-# 	$(pngconvert) --width 2 --height 2 --limit 128 $^ -bin | $(compress) - -o$@
-
 $(BUILDDIR)overworld_a_gbc.2bpp $(BUILDDIR)overworld_a_gbc.pal $(BUILDDIR)overworld_a_gbc.tilemap: pix/overworld_a_gbc.png pix/overworld_path_gbc.png pix/house_wood_round.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
-
-# $(BUILDDIR)overworld_b_gbc_data.c: pix/overworld_b_gbc.png pix/sand_bottle.png
-# 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
 $(BUILDDIR)overworld_b_gbc.2bpp $(BUILDDIR)overworld_b_gbc.pal $(BUILDDIR)overworld_b_gbc.tilemap: pix/overworld_b_gbc.png pix/sand_bottle.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-# $(BUILDDIR)inside_wood_house_data.c: pix/inside_wood_house.png pix/carpet_gbc.png
-# 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
-
 $(BUILDDIR)inside_wood_house.2bpp $(BUILDDIR)inside_wood_house.pal $(BUILDDIR)inside_wood_house.tilemap: pix/inside_wood_house.png pix/carpet_gbc.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
-
-# $(BUILDDIR)overworld_cave_data.c: pix/overworld_cave.png
-# 	$(pngconvert) --width 2 --height 2 $^ -bin | $(compress) - -o$@
 
 $(BUILDDIR)overworld_cave.2bpp $(BUILDDIR)overworld_cave.pal $(BUILDDIR)overworld_cave.tilemap: pix/overworld_cave.png
 	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 --limit 128
 
-$(BUILDDIR)%_anim_gbc_data.c: pix/%_anim_gbc.png
-	$(pngconvert) -o $@ --width 2 --height 2 -u yes $^
+$(BUILDDIR)%_anim_gbc.2bpp: pix/%_anim_gbc.png
+	$(pngconvert) -cno $^ -o $@ --width 2 --height 2 -u yes
 
 $(BUILDDIR)hud_pal.c: pix/win_gbc.png
 	$(pngconvert) $^ -o$@
 
-#$(shell printf '0x%X' $$(($(1))))
-#$((`stat --printf="%s"  pix/overworld_a.2bpp`/16))
 %_data.c: %.2bpp
 	$(bin2c) $^ $@ "png2gb.py and xxd" $$(($$(stat --printf="%s" $$(echo $^ |sed 's/_\(rle\|pb16\|pb8\|lz3\)//g'))/16))
 
@@ -220,9 +201,6 @@ $(BUILDDIR)%.2bpp $(BUILDDIR)%.pal $(BUILDDIR)%.tilemap: pix/%.png
 %_pb16.2bpp: %.2bpp
 	$(pb16) $^ $@
 
-%_pb16.1bpp: %.1bpp
-	$(pb16) $^ $@
-
 $(BUILDDIR)%.pal: pix/%_gbc.png
 	$(gbc2gb) $^
 
@@ -234,12 +212,6 @@ $(BUILDDIR)%_gb.png: pix/%_gbc.png
 
 $(BUILDDIR)%_gb.png: pix/%.png
 	$(gbc2gb) $^
-
-%.1bpp: %_mono.png
-	$(rgbgfx) -d1 $^ -o$@
-
-$(BUILDDIR)%_mono.png: pix/%_gbc.png
-	$(convert) $^ -monochrome $@
 
 gbonline:  $(BINDIR)$(ROM).gb ./dev/GameBoy-Online/
 	./dev/patch-gbonline.sh $< ./dev/GameBoy-Online/
@@ -269,10 +241,8 @@ run: build
 	$(EMU) $(BINDIR)$(ROM).gb
 
 clean:
-	$(RM) pix/*_gb.png level.c strings.c strings.h pix/pix.h music/songs.h
-	find . -maxdepth 2 -type f -regex '.*.\(gb\|o\|map\|lst\|sym\|rel\|ihx\|lk\|noi\|asm\|adb\|cdb\|bi4\|pal\|2bpp\|1bpp\|xbpp\|tilemap\)' -delete
-	find . -maxdepth 2 -type f -regex '.*_\(map\|data\|pal\|tmap\)\.c' -delete
-	find . -maxdepth 2 -type f -regex '.*_\(gb\|mono\)\.png' -delete
+	find bin/ -type f -regex '.*.\(ihx\|map\|noi\|cdb\)' -delete
+	find $(BUILDDIR) -type f -regex '.*.\(rel\|c\|h\|asm\|2bpp\|tilemap\|pal\|adb\)' -delete
 	$(MAKE) -C ./dev/gbdk-music clean
 	$(MAKE) -C ./dev/png2gb clean
 

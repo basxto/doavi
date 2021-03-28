@@ -29,7 +29,6 @@ VPATH=src:$(BUILDDIR)
 
 EMU?=sameboy
 pngconvert?=./dev/png2gb/png2gb.py -ci
-compress?=./dev/png2gb/compress2bpp.py -ci
 pb16?=./dev/pb16.py
 lz3?=./dev/lzcomp/lzcomp
 loadgpl=./dev/loadgpl/loadgpl.py
@@ -39,7 +38,6 @@ xxd?=xxd
 tmxconvert=./dev/tmx2c.py
 bin2c=./dev/bin2c.sh
 c2h=./dev/c2h.sh
-convert?=convert
 
 NOPEEP?=0
 COMPRESS?=1

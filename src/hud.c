@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdbool.h>
 #include "hud.h"
 #include "main.h"
 #include "../build/strings.h"
@@ -123,11 +124,11 @@ UINT8 smart_write(const UINT8 x, const UINT8 y, const UINT8 width, const UINT8 h
     // let user select
     if(choices != 0){
         tmp_y = firstchoice;
-        run = 1;
         //write arrow
         buffer[buffer_length - 1] = specialchar_2;
         write_line(x, tmp_y, 1, buffer + (buffer_length - 1));
-        while(run){
+        // terminates with return
+        while(true){
             delay(100);
             buffer[buffer_length - 1] = specialchar_1;
             write_line(x, tmp_y, 1, buffer + (buffer_length - 1));

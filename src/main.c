@@ -15,7 +15,7 @@
 #include "../dev/gbdk-music/music.h"
 #include "../dev/gbdk-music/sound.h"
 
-#include "../pix/pix.h"
+#include "../build/pix.h"
 
 #include "../build/strings.h"
 

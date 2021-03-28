@@ -2,7 +2,7 @@
 #include "hud.h"
 #include "main.h"
 #include "../build/strings.h"
-#include "../pix/pix.h"
+#include "../build/pix.h"
 #include "../dev/png2gb/csrc/decompress.h"
 #include "utils.h"
 #include "unpb16.h"

@@ -3,7 +3,7 @@
 #include "map.h"
 #include "main.h"
 
-#include "../pix/pix.h"
+#include "../build/pix.h"
 
 #include "../music/songs.h"
 

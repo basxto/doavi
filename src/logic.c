@@ -26,7 +26,7 @@ void teleport_to(const int8_t lx, const int8_t ly, const int8_t px, const int8_t
 
 uint8_t move_player(const int8_t x, const int8_t y) {
     uint8_t tile =
-        current_background[(character[0].y * WIDTH) + character[0].x];
+        current_background[U8(U8(character[0].y * WIDTH) + character[0].x)];
 
     if (move_character(0, x, y) == 1) {
         // little cheat

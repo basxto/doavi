@@ -14,7 +14,7 @@ extern uint8_t decompressed_tileset[128*16];
 // decompress to RAM
 uint8_t decompressed_dialog_photos[dialog_photos_data_length*16];
 
-const unsigned char *dialog_photos[] = {
+unsigned char *const  dialog_photos[] = {
     &decompressed_dialog_photos[0],
     &decompressed_dialog_photos[1*16*16],
     &decompressed_dialog_photos[2*16*16],
@@ -138,7 +138,7 @@ uint8_t smart_write(const uint8_t x, const uint8_t y, const uint8_t width, const
                         --tmp_y;
                     break;
                 case J_DOWN:
-                    if(tmp_y < firstchoice + choices - 1)
+                    if(tmp_y < U8(firstchoice + choices - 1))
                         ++tmp_y;
                     break;
                 case J_A:
@@ -178,7 +178,7 @@ void write_hex(const uint8_t x, const uint8_t y, uint8_t length, const uint8_t n
     buffer[buffer_length-1] = '\0';
     buffer[buffer_length-2] = specialchar_4 + (num & 0xf);
     buffer[buffer_length-3] = specialchar_4 + (num >> 4);
-    write_line(x, y, length, (buffer + buffer_length - 1) - length);
+    write_line(x, y, length, buffer + U8(U8(buffer_length - 1) - length));
 }
 
 // maximum length is 3 since maximum uint8_t is 255
@@ -189,10 +189,10 @@ void write_num(const uint8_t x, const uint8_t y, uint8_t length, uint8_t num) {
     buffer[buffer_length-1] = '\0';
     //put three numbers into buffer (right to left)
     for(uint8_t i = buffer_length-2; i > buffer_length-6; --i){
-        buffer[i] = specialchar_4 + (num % U8(10));
+        buffer[i] = specialchar_4 + U8(num % 10);
         num /= U8(10);
     }
-    write_line(x, y, length, (buffer + buffer_length - 1) - length);
+    write_line(x, y, length, buffer + U8(U8(buffer_length - 1) - length));
 }
 
 void draw_hud(const uint8_t lives, const uint8_t toiletpaper) {
@@ -214,9 +214,9 @@ void draw_hud(const uint8_t lives, const uint8_t toiletpaper) {
     tiles[0] = WIN_START + 14;
     tiles[1] = WIN_START + 15;
     set_win_tiles(0, 1, 2, 1, tiles);
-    for (i = 0; i < 5; ++i) {
-        tiles[0] = (i >= lives ? WIN_START + U8(11) : WIN_START + U8(9));
-        set_win_tiles(2 + i, 0, 1, 1, tiles);
+    for (i = 5; i > 0; ++i) {
+        tiles[0] = (i > lives ? WIN_START + U8(11) : WIN_START + U8(9));
+        set_win_tiles(1 + i, 0, 1, 1, tiles);
     }
     // write values
     write_num(4, 1, 3, toiletpaper);
@@ -342,7 +342,7 @@ uint8_t dialog(const char const *str, const char const *name, const uint8_t mout
 
     // line left and right
     tiles[0] = WIN_START + 4;
-    for (y = 1; y < 4; ++y) {
+    for (y = 3; y > 0; --y) {
         set_win_tiles(0, y, 1, 1, tiles);
         tiles[0]++;
         set_win_tiles(20-1-4, y, 1, 1, tiles);

@@ -101,12 +101,12 @@ def main():
                 texts[key] = texts[key].replace(mup,"\\x{:02X}".format(0x80 | offset))
             offset += 1
 
-    h.write("// Generated with ini2c.py\n#ifndef {0}_h\n#define {0}_h\n#define strlen(x) (sizeof(x) - 1)\n#define specialchar_nl '\\x01'\n".format(args.output.replace('/','_')))
+    h.write("// Generated with ini2c.py\n#ifndef {0}_h\n#define {0}_h\n#define strlen(x) (sizeof(x) - 1)\n#define specialchar_nl (unsigned char)('\\x01')\n".format(args.output.replace('/','_')))
     c.write("// Generated with ini2c.py\n#define strlen(x) (sizeof(x) - 1)\nconst unsigned char text[{}] = \"{}\";\n".format(len("".join(dictionary))//4+1, "".join(dictionary)))
     with open(args.specialchars, 'r') as file:
         next_index = 1
         for char in file.read().replace('\n', ''):
-            h.write("#define specialchar_{0} '\\x{1:02X}'\n".format(next_index, stringmap[char]))
+            h.write("#define specialchar_{0} (unsigned char)('\\x{1:02X}')\n".format(next_index, stringmap[char]))
             next_index += 1
 
     h.write("extern const unsigned char text[{}];\n".format(len("".join(dictionary))//4+1))

@@ -1,0 +1,8 @@
+-include dev/clangd2sdcc.h
+-I/usr/share/gbdk-2020/include/
+-I/usr/share/gbdk-2020/include/asm/
+-nostdinc
+-Wno-pointer-sign
+-Wno-main-return-type
+-Wno-null-dereference
+-std=c11

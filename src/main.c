@@ -188,7 +188,7 @@ void screen_shake() {
 }
 
 void init_screen() {
-    uint8_t tiles[0] = {1};
+    uint8_t tiles[1] = {1};
     HIDE_BKG;
     HIDE_WIN;
     HIDE_SPRITES;

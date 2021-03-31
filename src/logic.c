@@ -240,7 +240,7 @@ void interact() {
         if (tile == 16) {
             if(get_selected_item() == ITEM_SWORD){
                 incject_map(x, y, 17-2);
-                incject_collision(x, y, FALSE);
+                incject_collision(x, y, false);
                 current_background[(y * WIDTH) + x] = current_map[17-2];
             } else
                 dialog(text_na_grass, text_narrator, 0);
@@ -253,13 +253,13 @@ void interact() {
                     incject_map_palette(x, y, 2);
                     incject_map(x, y, (current_map == overworld_a_gbc_map? 20 : 2));
 
-                    incject_collision(x, y, FALSE);
+                    incject_collision(x, y, false);
                     current_background[(y * WIDTH) + x] = 2;
                     x += (x - character[0].x);
                     y += (y - character[0].y);
                     incject_map_palette(x, y, 3);
                     incject_map(x, y, 27-2);
-                    incject_collision(x, y, TRUE);
+                    incject_collision(x, y, true);
                     current_background[(y * WIDTH) + x] = 27;
                 }
             } else

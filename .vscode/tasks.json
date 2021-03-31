@@ -6,11 +6,11 @@
         "fileLocation": ["relative", "${workspaceFolder}"],
         "pattern": [{// makebin
             "kind": "file",
-            "regexp": "^\\+ makebin .* (\\w+\\.ihx).*$",
-            "file": 1,
+            "regexp": "^(.*)makebin .* ([\\\\/\\w]+\\.ihx).*$",
+            "file": 2,
           },{// makebin
             "kind": "file",
-            "regexp": "^(error): (size of the buffer is too small\\.)$",
+            "regexp": "^(error|caution): (.*)$",
             "severity": 1,
             "message": 2
           }]
@@ -30,9 +30,39 @@
           "regexp": "^(.*):(\\d+):\\s+(warning|error) (\\d+):\\s+(.*)$",
           "file": 1,
           "line": 2,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        }
+    },{
+        "owner": "c",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {// sdcc compiler with column
+          "regexp": "^(.*):(\\d+):\\s+syntax (warning|error):\\s+(.*) ; column (\\d+)?$",
+          "file": 1,
+          "line": 2,
+          "severity": 3,
+          "message": 4,
+          "column": 5
+        }
+    },{
+        "owner": "gbz80",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {// sdasgb assembler
+          "regexp": "^(.*):(\\d+):\\s+(Error):\\s<(.)> (.*)$",
+          "file": 1,
+          "line": 2,
           "severity": 3,
           "code": 4,
           "message": 5
+        }
+    },{
+        "owner": "sdldgb",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {// sdasgb assembler
+          "regexp": "^\\?ASlink-(Warning)-(.*)$",
+          "severity": 1,
+          "message": 3
         }
     }],
     "tasks": [
@@ -40,10 +70,47 @@
             "label": "build",
             "type": "shell",
             "command": "make",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "build (force)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "-B"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "build debug",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "ROMDEBUG=2"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "build debug (force)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "ROMDEBUG=2",
+                "-B"
+            ],
+            "group": "build",
             "presentation": {
                 "reveal": "silent"
             }

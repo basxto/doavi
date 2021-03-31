@@ -115,21 +115,21 @@ extern bool cheat;
 extern uint8_t current_chest;
 extern uint8_t current_flame;
 
-void menu();
-void screen_wobble();
-void screen_shake();
-void init_screen();
-void change_level();
-uint8_t get_selected_item();
+void menu(void);
+void screen_wobble(void);
+void screen_shake(void);
+void init_screen(void);
+void change_level(void);
+uint8_t get_selected_item(void);
 // we not allow so many characters, maybe just give id?
 // character spritesheet must be 4 16x16 blocks wide ... always
 void render_character(const uint8_t index);
 uint8_t is_free( const uint8_t x, const uint8_t y);
 uint8_t move_character(const uint8_t index, const int8_t x, const int8_t y);
-void save_sg();
-void load_sg();
+void save_sg(void);
+void load_sg(void);
 
-inline void tick_animate();
-void timer_isr();
-void main();
+inline void tick_animate(void);
+void timer_isr(void);
+void main(void);
 #endif

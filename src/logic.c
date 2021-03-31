@@ -2,6 +2,7 @@
 #include "main.h"
 #include "hud.h"
 #include "level.h"
+#include "logic.h"
 #include "../dev/gbdk-music/music.h"
 #include "../dev/gbdk-music/sound.h"
 #include "utils.h"
@@ -119,7 +120,7 @@ uint8_t move_player(const int8_t x, const int8_t y) {
 }
 
 
-void interact() {
+void interact(void) {
     uint8_t x = character[0].x;
     uint8_t y = character[0].y;
     uint8_t tile;

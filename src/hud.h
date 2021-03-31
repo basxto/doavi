@@ -13,9 +13,9 @@
 #define MOUTHS_START U8(0x70)
 
 // preloads all compressed images
-void preload_hud();
+void preload_hud(void);
 // inits the window
-void init_hud();
+void init_hud(void);
 // fill area with spaces
 void space_area(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height);
 // write text into an area
@@ -28,7 +28,7 @@ void write_hex(const uint8_t x, const uint8_t y, uint8_t length, const uint8_t n
 void write_num(const uint8_t x, const uint8_t y, uint8_t length, uint8_t num);
 void draw_hud(const uint8_t lives, const uint8_t toiletpaper);
 
-uint8_t dialog(const char const *str, const char const *name, const uint8_t mouth);
+uint8_t dialog(const char *const str, const char *const name, const uint8_t mouth);
 
 // like waitpad but looks for any of the given keys
 // does not keep cpu busy

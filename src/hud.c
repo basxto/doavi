@@ -1,3 +1,4 @@
+#include <gb/gb.h>
 #include <string.h>
 #include <stdbool.h>
 #include "hud.h"
@@ -39,7 +40,7 @@ void waitpad_any(uint8_t mask){
     }
 }
 
-void preload_hud() {
+void preload_hud(void) {
     lz3_unpack_block(decompressed_dialog_photos, dialog_photos_data);
     //set_bkg_data(0, 255, &decompressed_dialog_photos[0]);
     //while(1);
@@ -48,7 +49,7 @@ void preload_hud() {
     set_sprite_tile(MOUTH_SPRITE, MOUTHS_START);
 }
 
-void init_hud() {
+void init_hud(void) {
     unsigned char tiles[1];
     uint8_t x;
     uint8_t y;
@@ -72,7 +73,7 @@ void init_hud() {
 
 // fill area with spaces
 void space_area(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height){
-    buffer[0] = (WIN_START - (' '/2)) + '  ';
+    buffer[0] = (WIN_START - (' '/2)) + ' ';
     for(uint8_t tmp_y = 0; tmp_y < height; ++tmp_y){
         uint8_t tmp = y + tmp_y;
         for(uint8_t tmp_x = 0; tmp_x < width; ++tmp_x){
@@ -227,7 +228,7 @@ void draw_hud(const uint8_t lives, const uint8_t toiletpaper) {
     set_sprite_tile(MOUTH_SPRITE, MOUTHS_START);
 }
 
-uint8_t dialog(const char const *str, const char const *name, const uint8_t mouth){
+uint8_t dialog(const char *const str, const char *const name, const uint8_t mouth){
     uint8_t portrait = 0;
     unsigned char tiles[16];
     uint8_t x;
@@ -239,21 +240,21 @@ uint8_t dialog(const char const *str, const char const *name, const uint8_t mout
     undice_init(buffer_length, buffer, name);
     undice_line();
 
-    if (name == text_sign)
+    if (name == (const char*)text_sign)
         portrait = 1;
-    if (name == text_grave)
+    if (name == (const char*)text_grave)
         portrait = 2;
-    if (name == text_flame)
+    if (name == (const char*)text_flame)
         portrait = 3;
-    if (name == text_letter)
+    if (name == (const char*)text_letter)
         portrait = 4;
-    if (name == text_ghost)
+    if (name == (const char*)text_ghost)
         portrait = 6;
-    if (name == text_t0)
+    if (name == (const char*)text_t0)
         portrait = 7;
-    if (name == text_t1)
+    if (name == (const char*)text_t1)
         portrait = 8;
-    if (name == text_rachel)
+    if (name == (const char*)text_rachel)
         portrait = 11;
 
     // generate name field data blocks

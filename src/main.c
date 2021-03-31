@@ -71,7 +71,7 @@ void efficient_delay(uint8_t time){
 
 // reads values from game header
 // for easy game genie support
-void init_save() {
+void init_save(void) {
     sg->level_x = 1;//(*(volatile uint8_t*)0x13D)&0xF;// 1
     sg->level_y = 4;//(*(volatile uint8_t*)0x13A)&0xF;// 4
     //memcpy(sg->name, "candyhead", 10);
@@ -93,7 +93,7 @@ void init_save() {
     sg->cheat = false;//*(volatile uint8_t*)0x146; // 0
 }
 
-void load_menu() {
+void load_menu(void) {
     smart_write(2, 0, 16, 18, text_load_title);
     uint8_t save = smart_write(2, 4, 5, 18, text_load_select) - 1;
     sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (save*sizeof(Savegame)));
@@ -116,7 +116,7 @@ void load_menu() {
     change_level();
 }
 
-void item_menu(){
+void item_menu(void) {
     smart_write(2, 0, 16, 18, text_item_selection);
     if(item[0] != 0)
         smart_write(7, 4, 16, 1, text_sword);
@@ -127,7 +127,7 @@ void item_menu(){
         selected_item = item-1;
 }
 
-void menu() {
+void menu(void) {
     space_area(0, 0, 20, 18);
     move_win(7, 0);
     HIDE_SPRITES;
@@ -150,11 +150,11 @@ void menu() {
     SHOW_SPRITES;
 }
 
-void scanline_isr() {
+void scanline_isr(void) {
     SCX_REG = scanline_offsets[LY_REG%8];
 }
 
-void screen_wobble() {
+void screen_wobble(void) {
     scanline_ly_offset = 0;
     scanline_offsets = &scanline_wobble[0];
 
@@ -169,7 +169,7 @@ void screen_wobble() {
     SCX_REG = 8;
 }
 
-void screen_shake() {
+void screen_shake(void) {
     for (uint8_t i = 8; i > 0; --i) {
         scroll_bkg(-2, 0);
         wait_vbl_done();
@@ -187,7 +187,7 @@ void screen_shake() {
     }
 }
 
-void init_screen() {
+void init_screen(void) {
     uint8_t tiles[1] = {1};
     HIDE_BKG;
     HIDE_WIN;
@@ -228,7 +228,7 @@ void init_screen() {
     move_bkg(8, 0);
 }
 
-void change_level() {
+void change_level(void) {
 
     // switch to different time
     if(IS_PRGRS_TIME(1)){
@@ -257,7 +257,7 @@ void change_level() {
     load_map(current_background);
 }
 
-uint8_t get_selected_item(){
+uint8_t get_selected_item(void) {
     return item[selected_item];
 }
 
@@ -375,11 +375,11 @@ void replace_subtile(uint8_t index, uint8_t indexa, uint8_t offset){
     set_bkg_data(first, amount,data);
 }
 
-void timer_isr() {
+void timer_isr(void) {
     tick_music();
 }
 
-void vblank_isr(){
+void vblank_isr(void) {
     if (counter++ == 0) {
         if (current_map == overworld_a_gbc_map) {
             replace_tile(2, 1);
@@ -445,7 +445,7 @@ void vblank_isr(){
     counter %= U8(32);
 }
 
-void save_sg(){
+void save_sg(void) {
     ENABLE_RAM_MBC1;
     sg->level_x = level_x;
     sg->level_y = level_y;
@@ -466,7 +466,7 @@ void save_sg(){
     DISABLE_RAM_MBC1;
 }
 
-void load_sg(){
+void load_sg(void) {
     ENABLE_RAM_MBC1;
     level_x = sg->level_x;
     level_y = sg->level_y;
@@ -487,7 +487,7 @@ void load_sg(){
     character[0].offset_y = 0;
 }
 
-void main() {
+void main(void) {
     sg = (Savegame *)(0xa000 + sizeof(Saveslots) + (0*sizeof(Savegame)));
 
 

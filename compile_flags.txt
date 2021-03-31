@@ -5,4 +5,3 @@
 -Wno-pointer-sign
 -Wno-main-return-type
 -Wno-null-dereference
--std=c11

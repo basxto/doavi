@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "emulicious-debugger",
+            "request": "attach",
+            "name": "Launch in Emulicious",
+            "program": "${workspaceFolder}/bin/doavi.gb",
+            "port": 58870,
+            "stopOnEntry": true
+        },
+        {
+            "type": "emulicious-debugger",
+            "request": "attach",
+            "name": "Attach to Emulicious",
+            "port": 58870
+        }
+    ]
+}
